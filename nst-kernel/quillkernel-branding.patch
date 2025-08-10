@@ -1,0 +1,116 @@
+From: Your Faithful Squire <squire@squireos.local>
+Date: Today
+Subject: [PATCH] Transform kernel into QuillKernel with medieval branding
+
+This patch adds SquireOS/QuillKernel branding to the Linux kernel,
+including custom version strings, boot messages, and a whimsical
+medieval theme throughout.
+
+"Avoid the Chinese pharmacy method!" - A wise philosopher
+
+---
+ Makefile                     |  6 +++---
+ init/version.c              |  8 ++++++++
+ kernel/printk.c             | 15 +++++++++++++++
+ arch/arm/kernel/setup.c     | 12 ++++++++++++
+ 4 files changed, 38 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 1234567..abcdef0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,8 +1,8 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 29
+-EXTRAVERSION =
+-NAME = Temporary Tasmanian Devil
++EXTRAVERSION = -quill-scribe
++NAME = Derpy Court Jester
+ 
+ # *DOCUMENTATION*
+ # To see a list of typical targets execute "make help"
+@@ -17,7 +17,7 @@ NAME = Temporary Tasmanian Devil
+ MAKEFLAGS += -rR --no-print-directory
+ 
+ # Add custom flags here to avoid conflict with updates
+-EXTRAVERSION := $(EXTRAVERSION)-omap1
++EXTRAVERSION := $(EXTRAVERSION)-001
+ 
+ # We are using a recursive build, so we need to do a little thinking
+ # to get the ordering right.
+
+diff --git a/init/version.c b/init/version.c
+index 1234567..abcdef0 100644
+--- a/init/version.c
++++ b/init/version.c
+@@ -37,6 +37,14 @@ EXPORT_SYMBOL_GPL(init_uts_ns);
+ const char linux_banner[] =
+ 	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+ 	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
++	
++const char squire_banner[] = 
++	"    .~\"~.~\"~.\n"
++	"   /  o   o  \\    QuillKernel awakening...\n"
++	"  |  >  ◡  <  |   Your faithful squire prepares\n"
++	"   \\  ___  /      the digital scriptorium!\n"
++	"    |~|♦|~|       \"By quill and candlelight\"\n"
++	"   d|     |b      \n";
+ 
+ const char linux_proc_banner[] =
+ 	"%s version %s"
+
+diff --git a/kernel/printk.c b/kernel/printk.c
+index 1234567..abcdef0 100644
+--- a/kernel/printk.c
++++ b/kernel/printk.c
+@@ -666,6 +666,21 @@ asmlinkage int vprintk(const char *fmt, va_list args)
+ 
+ 	printed_len = vscnprintf(printk_buf, sizeof(printk_buf), fmt, args);
+ 
++	/* Add medieval flair to certain kernel messages */
++	if (strstr(printk_buf, "USB")) {
++		if (strstr(printk_buf, "new USB device")) {
++			printed_len = snprintf(printk_buf, sizeof(printk_buf),
++				"<6>A new quill has been provided, m'lord! %s", printk_buf);
++		}
++	} else if (strstr(printk_buf, "PM: suspend")) {
++		printed_len = snprintf(printk_buf, sizeof(printk_buf),
++			"<6>Extinguishing the candles for the evening...\n");
++	} else if (strstr(printk_buf, "PM: resume")) {
++		printed_len = snprintf(printk_buf, sizeof(printk_buf),
++			"<6>Dawn breaks. Your squire prepares fresh parchment...\n");
++	}
++
++
+ 	/*
+ 	 * Copy the output into log_buf.  If the caller didn't provide
+ 	 * appropriate log level tags, we insert them here
+
+diff --git a/arch/arm/kernel/setup.c b/arch/arm/kernel/setup.c
+index 1234567..abcdef0 100644
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -783,10 +783,22 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	init_mm.end_data   = (unsigned long) _edata;
+ 	init_mm.brk	   = (unsigned long) _end;
++	
++	/* Print our custom banner */
++	printk(KERN_NOTICE "\n");
++	printk(KERN_NOTICE "    .~\"~.~\"~.\n");
++	printk(KERN_NOTICE "   /  o   o  \\    QuillKernel %s\n", UTS_RELEASE);
++	printk(KERN_NOTICE "  |  >  ◡  <  |   Optimized for the written word\n");
++	printk(KERN_NOTICE "   \\  ___  /      \n");
++	printk(KERN_NOTICE "    |~|♦|~|       \"I dropped the quill!\"\n");
++	printk(KERN_NOTICE "   d|     |b      \n");
++	printk(KERN_NOTICE "\n");
+ 
+ 	/* parse_early_param needs a boot_command_line */
+ 	strlcpy(boot_command_line, from, COMMAND_LINE_SIZE);
+ 
++	printk(KERN_INFO "Parchment stores being prepared...\n");
++	
+ 	/* populate cmd_line too for later use, preserving boot_command_line */
+ 	strlcpy(cmd_line, boot_command_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = cmd_line;

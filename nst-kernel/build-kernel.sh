@@ -13,7 +13,14 @@ cd "$(dirname "$0")"
 # Configure (skip if .config exists)
 if [ ! -f .config ]; then
     echo "Configuring kernel..."
-    make nook_defconfig
+    # Check if QuillKernel config exists
+    if [ -f arch/arm/configs/quill_typewriter_defconfig ]; then
+        echo "Using QuillKernel typewriter configuration!"
+        make quill_typewriter_defconfig
+    else
+        echo "Using standard Nook configuration"
+        make omap3621_gossamer_defconfig
+    fi
 fi
 
 # Build

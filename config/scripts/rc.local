@@ -1,0 +1,14 @@
+#!/bin/bash
+# SquireOS rc.local - runs at boot on non-systemd systems
+
+# Run boot animation if on console
+if [ "$TERM" = "linux" ] && [ -z "$SSH_CONNECTION" ]; then
+    /usr/local/bin/squireos-boot.sh
+fi
+
+# Start SquireOS menu on tty1
+if [ "$(tty)" = "/dev/tty1" ]; then
+    exec /usr/local/bin/squire-menu.sh
+fi
+
+exit 0

@@ -1,0 +1,13 @@
+SquireOS 1.0.0 (Parchment)
+Built for the Barnes & Noble Nook Simple Touch
+QuillKernel 2.6.29-quill-scribe
+
+       .~"~.~"~.
+      /  o   o  \     "I promise to record
+     |  >  ◡  <  |     every word faithfully...
+      \  ___  /        probably!"
+       |~|♦|~|                    
+      d|     |b        - Your Derpy Squire
+
+Medieval Build Date: $(date +"%B %d, %Y")
+Illuminated by: $(whoami)@$(hostname)
