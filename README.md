@@ -1,195 +1,218 @@
-# Nook Writer Docker Setup
+# Nook Simple Touch Linux Typewriter
 
-A Docker-based writing environment optimized for e-readers and distraction-free writing, featuring Vim with specialized plugins and FBInk for e-ink display support.
+A complete system for transforming a Barnes & Noble Nook Simple Touch e-reader into a minimalist Linux-powered typewriter. Features a Debian-based OS, optimized Vim editor, and E-Ink display support for distraction-free writing.
 
 ## Features
 
-- **Vim Editor**: Full-featured Vim with writing-focused plugins
-- **FBInk**: E-ink display support for e-readers
-- **Writing Plugins**: Pencil, Goyo, Zettel, and Lightline
-- **Alpine Linux**: Lightweight, secure base image
-- **Hardware Access**: Direct device access for e-reader connectivity
-- **Data Persistence**: Automatic backups and data volume management
+- **Debian Linux Base**: Full compatibility with standard Linux software
+- **E-Ink Optimized**: FBInk library for proper display management  
+- **Vim Editor**: Configured with writing-focused plugins (Pencil, Goyo, Zettel)
+- **USB Keyboard Support**: Requires custom kernel with USB host mode
+- **Cloud Sync**: Built-in rclone for Dropbox/Google Drive sync
+- **Non-Destructive**: Boots from SD card, preserving original Nook OS
+- **Resource Efficient**: ~95MB RAM usage, leaving 160MB for writing
 
 ## Prerequisites
 
+### Hardware
+- Barnes & Noble Nook Simple Touch (Model BNRV300)
+- MicroSD card (8-32GB recommended)
+- USB OTG cable + USB keyboard
+- SD card reader
+
+### Software
 - Docker Engine 20.10+
 - Docker Compose 2.0+
-- At least 1GB available RAM
-- 2GB available disk space
+- Git
+- 2GB available disk space for building
 
 ## Quick Start
 
-1. **Clone and navigate to the project:**
+1. **Build the system:**
    ```bash
-   cd nook
+   git clone https://github.com/yourusername/nook-writing-system
+   cd nook-writing-system
+   docker build -t nook-system -f nookwriter.dockerfile .
    ```
 
-2. **Create required directories:**
+2. **Create deployment image:**
    ```bash
-   mkdir -p config data backups
+   docker create --name nook-export nook-system
+   docker export nook-export | gzip > nook-debian.tar.gz
+   docker rm nook-export
    ```
 
-3. **Build and start the services:**
+3. **Prepare your Nook:**
+   - Root with [NookManager](https://github.com/doozan/NookManager/releases)
+   - Install USB host kernel (see Kernel Resources below)
+
+4. **Deploy to SD card and boot:**
+   - See [Quick Start Guide](docs/nook-quick-start.md) for detailed steps
+
+## Kernel Resources
+
+The Nook Simple Touch requires a custom kernel with USB host support. Without this, USB keyboards won't work.
+
+### Pre-Built Kernels
+
+Search XDA Forums for "Nook Simple Touch USB host kernel". Recommended versions:
+- **mali100's kernel** - Well-tested, includes FastMode E-Ink support
+- **latuk's kernel** - Version 174+ with USB OTG
+- **Guevor's kernel** - Stable with power optimizations
+
+### Building Your Own Kernel
+
+We provide complete kernel building infrastructure:
+
+1. **Automated Setup Script:**
    ```bash
-   docker-compose up -d --build
+   ./scripts/setup-kernel-build.sh
+   ```
+   Creates build environment at `~/nook-kernel-dev` with Android NDK and nst-kernel source.
+
+2. **Build Commands:**
+   ```bash
+   cd ~/nook-kernel-dev
+   ./build-kernel.sh        # Build with default config
+   ./customize-kernel.sh    # Open menuconfig for customization
    ```
 
-4. **Access the writing environment:**
-   ```bash
-   docker-compose exec nookwriter bash
-   ```
+3. **Typewriter Optimizations:**
+   See [nst-kernel/optimize-typewriter-kernel.sh](nst-kernel/optimize-typewriter-kernel.sh) for:
+   - Maximum battery life settings
+   - USB keyboard power optimization
+   - Memory-saving kernel options
+   - E-Ink specific tweaks
 
-## Usage
+### Kernel Documentation
 
-### Starting the Service
-```bash
-# Start in background
-docker-compose up -d
+- **[Complete Build Guide](docs/nook-kernel-building.md)** - Step-by-step kernel compilation
+- **[Kernel Notes](nst-kernel/KERNEL_NOTES.md)** - Technical details and configuration
+- **[XDA Forums NST Section](https://forum.xda-developers.com/c/barnes-noble-nook-touch.1129/)** - Community support
 
-# Start with logs visible
-docker-compose up
+### Installing Kernels
 
-# Rebuild and start
-docker-compose up -d --build
+1. Use ClockworkMod Recovery (bootable SD card)
+2. Flash kernel zip file
+3. Reboot and verify USB keyboard works
+
+⚠️ **Important**: Always keep a working kernel backup! Bad kernels can prevent booting.
+
+## Project Structure
+
+```
+nook-writing-system/
+├── nookwriter.dockerfile    # Debian-based system build
+├── docker-compose.yml       # Development environment
+├── scripts/
+│   ├── setup-kernel-build.sh    # Kernel build environment setup
+│   ├── nook-menu.sh            # Main UI menu
+│   └── sync-notes.sh           # Cloud sync script
+├── config/
+│   ├── vimrc                   # Vim configuration
+│   └── scripts/                # System scripts
+├── nst-kernel/                 # Kernel build scripts
+│   ├── build-kernel.sh
+│   ├── customize-kernel.sh
+│   └── optimize-typewriter-kernel.sh
+└── docs/
+    ├── nook-quick-start.md
+    ├── nook-detailed-walkthrough.md
+    └── nook-kernel-building.md
 ```
 
-### Stopping the Service
-```bash
-# Stop services
-docker-compose down
+## System Specifications
 
-# Stop and remove volumes
-docker-compose down -v
-```
+- **Base OS**: Debian 11 (Bullseye) slim
+- **Display Driver**: FBInk (compiled from source)
+- **Editor**: Vim 8.2 with writing plugins
+- **RAM Usage**: ~95MB (leaves 160MB for writing)
+- **Storage**: 797MB base image
+- **Boot Time**: ~20 seconds from SD card
 
-### Accessing the Container
-```bash
-# Interactive shell
-docker-compose exec nookwriter bash
+## Documentation
 
-# Direct Vim access
-docker-compose exec -it nookwriter vim
-
-# Check logs
-docker-compose logs nookwriter
-```
-
-### Writing Sessions
-```bash
-# Start a new writing session
-docker-compose exec -it nookwriter vim
-
-# Use Goyo for distraction-free writing
-docker-compose exec -it nookwriter vim -c "Goyo"
-```
-
-## Configuration
-
-### Volume Mounts
-- `./config` → `/root/config` (read-only configuration files)
-- `./data` → `/root/data` (writing projects and documents)
-- `/dev` → `/dev` (device access for e-readers)
-- `/sys` → `/sys` (system information)
-- `/proc` → `/proc` (process information)
-
-### Environment Variables
-- `TERM=xterm-256color`: Terminal color support
-- `EDITOR=vim`: Default editor
-- `PAGER=less`: Default pager
-
-### Resource Limits
-- **Memory**: 256MB reserved, 512MB limit
-- **CPU**: 0.5 cores reserved, 1.0 core limit
-
-## Backup Service
-
-The backup service automatically creates daily compressed backups of your writing data:
-- **Location**: `./backups/`
-- **Format**: `nookwriter-YYYYMMDD-HHMMSS.tar.gz`
-- **Frequency**: Daily at midnight
-
-## Security Considerations
-
-⚠️ **Warning**: This container runs in privileged mode with host network access for hardware compatibility. This provides maximum access but reduces security isolation.
-
-### Security Features
-- Non-root user execution where possible
-- Read-only configuration mounts
-- Resource limits to prevent abuse
-- Alpine Linux base for minimal attack surface
-
-### Recommendations
-- Run on isolated networks when possible
-- Regularly update base images
-- Monitor container logs for suspicious activity
-- Use firewall rules to restrict external access
+- **[Quick Start Guide](docs/nook-quick-start.md)** - Get running in 30 minutes
+- **[Detailed Walkthrough](docs/nook-detailed-walkthrough.md)** - Comprehensive setup and customization
+- **[Kernel Building Guide](docs/nook-kernel-building.md)** - Build your own optimized kernel
+- **[CLAUDE.md](CLAUDE.md)** - Technical reference for development
 
 ## Troubleshooting
 
 ### Common Issues
 
-**Container won't start:**
-```bash
-# Check logs
-docker-compose logs nookwriter
+**Keyboard not detected:**
+- Verify kernel has USB host support (version 174+)
+- Try powered USB hub for wireless keyboards
+- Test with different USB OTG cable
 
-# Verify Docker daemon is running
-docker info
+**Won't boot from SD card:**
+- Check SD card partitioning (FAT32 boot + F2FS root)
+- Verify uEnv.txt exists in boot partition
+- Try different SD card brand
 
-# Check available resources
-docker system df
-```
+**Display artifacts/ghosting:**
+- Normal for E-Ink displays
+- Menu performs full refresh automatically
+- Manual refresh: `fbink -c`
 
-**Permission denied errors:**
-```bash
-# Ensure proper directory permissions
-chmod 755 config data backups
-
-# Check Docker group membership
-groups $USER
-```
-
-**Vim plugins not loading:**
-```bash
-# Rebuild container
-docker-compose down
-docker-compose up -d --build
-
-# Check plugin installation
-docker-compose exec nookwriter ls -la /root/.vim/pack/plugins/start/
-```
-
-### Performance Issues
-- Monitor resource usage: `docker stats nookwriter`
-- Adjust resource limits in `docker-compose.yml`
-- Consider using SSD storage for data volumes
+**Build failures:**
+- FBInk requires compilation from source
+- Ensure Docker has internet access
+- Check available disk space
 
 ## Development
 
-### Modifying the Dockerfile
-1. Edit `nookwriter.dockerfile`
-2. Rebuild: `docker-compose up -d --build`
-3. Test changes in the container
+### Testing in Docker
 
-### Adding New Plugins
-1. Add plugin installation to Dockerfile
-2. Rebuild container
-3. Verify plugin loads correctly
+```bash
+# Build and test locally
+docker-compose up -d
+docker-compose exec nookwriter bash
 
-### Custom Configurations
-1. Place custom configs in `./config/`
-2. Mount additional volumes in `docker-compose.yml`
-3. Restart services: `docker-compose restart`
+# Test FBInk (will fail gracefully without E-Ink)
+docker-compose exec nookwriter fbink -c || echo "No E-Ink display"
+
+# Test Vim setup
+docker-compose exec nookwriter vim
+```
+
+### Adding Software
+
+Thanks to Debian base, installation is simple:
+```bash
+# In Dockerfile
+RUN apt-get update && apt-get install -y package-name
+```
+
+### Contributing
+
+1. Fork the repository
+2. Test changes in Docker first
+3. Document any new dependencies
+4. Submit pull request with clear description
+
+## Community & Support
+
+- **[XDA Forums Nook Touch](https://forum.xda-developers.com/c/barnes-noble-nook-touch.1129/)** - Active community
+- **[FBInk Repository](https://github.com/NiLuJe/FBInk)** - E-Ink display driver
+- **[NookManager](https://github.com/doozan/NookManager)** - Rooting tool
+
+## Acknowledgments
+
+This project builds on work from:
+- The XDA Developers Nook Touch community
+- NiLuJe (FBInk author)
+- doozan (NookManager)
+- felixhaedicke (nst-kernel)
+- Various kernel developers (Guevor, mali100, latuk)
 
 ## License
 
-This project is provided as-is for educational and personal use. Please ensure compliance with the licenses of included software (Vim, FBInk, Alpine Linux, etc.).
+This project is released under GPL v2. Component software retains original licenses:
+- Linux Kernel: GPL v2
+- FBInk: GPL v3
+- Vim: Vim License
+- Debian: Various open source licenses
 
-## Support
-
-For issues and questions:
-1. Check the troubleshooting section above
-2. Review Docker and Docker Compose logs
-3. Verify system requirements and permissions
-4. Check for updates to base images and dependencies
+See [LICENSE](LICENSE) for details.
