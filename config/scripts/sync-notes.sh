@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eu
 
 REMOTE="${RCLONE_REMOTE:-remote}"

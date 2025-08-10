@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -eu
 
 # Clear screen and show menu
@@ -11,12 +11,8 @@ fbink -y 8 "[S] Sync Notes" || true
 fbink -y 9 "[Q] Shutdown" || true
 fbink -y 11 "Select: " || true
 
-# Read single character
-if command -v busybox >/dev/null 2>&1; then
-  choice="$(busybox timeout 30 busybox read -n 1 choice; echo "${choice:-}")"
-else
-  read -r choice
-fi
+# Read single character with timeout
+read -r -n 1 -t 30 choice || true
 
 case "${choice:-}" in
   z|Z)
