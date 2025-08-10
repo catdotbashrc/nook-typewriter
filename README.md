@@ -132,10 +132,15 @@ nook-writing-system/
 
 ## Documentation
 
-- **[Quick Start Guide](docs/nook-quick-start.md)** - Get running in 30 minutes
-- **[Detailed Walkthrough](docs/nook-detailed-walkthrough.md)** - Comprehensive setup and customization
-- **[Kernel Building Guide](docs/nook-kernel-building.md)** - Build your own optimized kernel
-- **[CLAUDE.md](CLAUDE.md)** - Technical reference for development
+📚 **[Full Documentation Hub](docs/index.md)** - Organized by learning path
+
+### Quick Links
+
+- **[First Time Setup](docs/tutorials/01-first-nook-setup.md)** - Complete beginner's guide
+- **[Writing Basics](docs/tutorials/02-writing-your-first-note.md)** - Learn Vim for writing
+- **[Install USB Kernel](docs/how-to/install-custom-kernel.md)** - Enable keyboard support
+- **[Architecture Overview](docs/explanation/architecture-overview.md)** - How it works
+- **[Keyboard Shortcuts](docs/reference/keyboard-shortcuts.md)** - Quick reference
 
 ## Troubleshooting
 
