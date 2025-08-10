@@ -33,18 +33,18 @@ docker-compose -f docker-compose.yml -f docker-compose.hw.yml up -d
 ```bash
 # Create filesystem export for SD card
 docker create --name nook-export nook-system
-docker export nook-export | gzip > nook-alpine.tar.gz
+docker export nook-export | gzip > nook-debian.tar.gz
 docker rm nook-export
 
 # Deploy to SD card (after partitioning)
-sudo tar -xzf nook-alpine.tar.gz -C /mnt/alpine/
+sudo tar -xzf nook-debian.tar.gz -C /mnt/root/
 ```
 
 ### Testing Components
 
 ```bash
-# Test FBInk exists (will fail without E-Ink hardware)
-docker run --rm nook-system which fbink
+# Test FBInk (will fail without E-Ink hardware)
+docker run --rm nook-system fbink -c
 
 # Test Vim configuration
 docker run -it --rm nook-system vim
@@ -58,26 +58,38 @@ docker stats nook-system
 
 ## Architecture
 
-### Build Strategy
+### Technology Stack
 
-The project uses a multi-stage Docker build:
-1. **Debian Builder Stage**: Compiles FBInk and Vim from source (Alpine build issues with FBInk)
-2. **Alpine Runtime Stage**: Minimal final image with compiled binaries
+The project uses:
+- **Base OS**: Debian 11 (Bullseye) slim
+- **Display Driver**: FBInk (compiled from source)
+- **Editor**: Vim from Debian repos + writing plugins
+- **Build System**: Docker single-stage build
+
+### Why Debian?
+
+We migrated from Alpine Linux to Debian for:
+- **Compatibility**: No glibc/musl issues
+- **Package availability**: 60,000+ packages available
+- **Development speed**: Everything works out of the box
+- **Maintenance**: Standard Linux behavior
+
+The RAM cost is ~65MB (95MB vs 30MB), leaving 160MB free for writing.
 
 ### Critical Components
 
 **FBInk**: MANDATORY for E-Ink display. All UI scripts use `fbink` commands with `|| true` to handle Docker testing where E-Ink is unavailable.
 
 **Memory Management**: With 256MB total:
-- Alpine base: ~30MB
+- Debian base: ~95MB
 - Vim + plugins: ~10MB  
-- Available for writing: ~200MB
+- Available for writing: ~160MB
 
 **Power Constraints**: USB keyboard power draw is critical. Powered hub recommended for wireless keyboards.
 
 ### Key Files
 
-- `nookwriter.dockerfile`: Multi-stage build (Debian builder + Alpine runtime)
+- `nookwriter.dockerfile`: Single-stage Debian build
 - `config/scripts/nook-menu.sh`: Main UI, handles FBInk failures gracefully
 - `config/scripts/sync-notes.sh`: Cloud sync via rclone
 - `config/vimrc`: Minimal config with leader mappings
@@ -95,14 +107,14 @@ The project uses a multi-stage Docker build:
 
 ### Adding Software
 
-Consider memory impact before adding packages:
-```bash
-# Check current size
-docker images nook-system
-
-# Test memory usage in container
-docker run --rm nook-system free -h
+Simply add to Dockerfile:
+```dockerfile
+RUN apt-get update && apt-get install -y \
+    package-name \
+    another-package
 ```
+
+No compilation needed for most software!
 
 ### Script Development
 
@@ -131,7 +143,7 @@ sudo mkfs.f2fs /dev/sdX2
 
 # Extract system
 sudo mount /dev/sdX2 /mnt/root
-sudo tar -xzf nook-alpine.tar.gz -C /mnt/root/
+sudo tar -xzf nook-debian.tar.gz -C /mnt/root/
 ```
 
 ### Kernel Requirements
@@ -152,7 +164,7 @@ The Nook needs a custom kernel with USB host support:
 
 Create `/mnt/boot/uEnv.txt`:
 ```
-bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=f2fs rw rootwait mem=256M quiet
+bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=f2fs rw rootwait mem=256M
 bootcmd=mmc rescan; fatload mmc 0:1 0x80300000 uImage; bootm 0x80300000
 ```
 
@@ -172,14 +184,13 @@ bootcmd=mmc rescan; fatload mmc 0:1 0x80300000 uImage; bootm 0x80300000
 
 ## Common Issues
 
-### FBInk Build Failures
-- Must use Debian builder stage (Alpine's musl libc causes issues)
-- Current Dockerfile uses bullseye-slim for building
+### Build Problems
+- FBInk must be compiled from source in Dockerfile
+- All other software should use apt-get
 
-### Memory Constraints
-- Avoid heavy plugins (NERDTree, CoC, YCM)
-- Lightweight alternatives included: pencil, goyo, zettel, lightline
-- Monitor with `free -h` during testing
+### Script Issues
+- Menu loops if FBInk commands don't have `|| true`
+- Use bash instead of sh for better compatibility
 
 ### USB Keyboard Power
 - Wireless keyboards may not work without powered hub
@@ -191,4 +202,4 @@ bootcmd=mmc rescan; fatload mmc 0:1 0x80300000 uImage; bootm 0x80300000
 - **OOBE Skip Required**: Hold top-right + swipe on boot logo (B&N servers defunct)
 - **Non-Destructive**: Uses SD card boot, preserves original Nook OS
 - **E-Ink Refresh**: Full refresh (`fbink -c`) prevents ghosting but flashes screen
-- **No GUI**: Pure terminal environment optimized for writing
+- **Debian Advantages**: Can install any standard Linux software with apt-get

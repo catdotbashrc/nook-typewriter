@@ -1,144 +1,73 @@
 # Nook Writing System - Quick Start Guide
 
-For experienced Linux users. Estimated time: 30 minutes.
+Transform your Barnes & Noble Nook Simple Touch into a distraction-free Linux typewriter in 30 minutes.
 
 ## Prerequisites
 
-- Nook Simple Touch (BNRV300) with firmware ≤1.2.2
-- Docker installed on your development machine
-- 32GB SD card + reader
-- USB OTG cable
+- Nook Simple Touch (BNRV300) 
+- Docker installed on your computer
+- MicroSD card (8-32GB) + reader
+- USB OTG cable + keyboard
 - Git
 
-## Get Started
+## Step 1: Build the System (5 minutes)
 
 ```bash
-# Clone repository with all configurations
-git clone https://github.com/community/nook-writing-system
+# Clone and build
+git clone https://github.com/yourusername/nook-writing-system
 cd nook-writing-system
-```
 
-## Build System Image
+# Build the Docker image
+docker build -t nook-system -f nookwriter.dockerfile .
 
-Create `Dockerfile`:
-```dockerfile
-FROM alpine:3.17 AS builder
-
-# Build environment
-RUN apk add --no-cache \
-    build-base git cmake \
-    linux-headers ncurses-dev
-
-# Build FBInk
-RUN git clone --depth=1 https://github.com/NiLuJe/FBInk && \
-    cd FBInk && \
-    make MINIMAL=1 FONTS=1 && \
-    make install
-
-# Build Vim with full features
-RUN git clone --depth=1 https://github.com/vim/vim.git && \
-    cd vim && \
-    ./configure --with-features=normal \
-                --enable-multibyte \
-                --disable-gui \
-                --disable-netbeans && \
-    make && make install
-
-# Final image
-FROM alpine:3.17
-
-# Install packages
-RUN apk add --no-cache \
-    vim rsync rclone openssh-client \
-    git tmux ncurses bash curl wget \
-    e2fsprogs f2fs-tools dosfstools \
-    wireless-tools wpa_supplicant
-
-# Copy built binaries
-COPY --from=builder /usr/local/bin/fbink /usr/local/bin/
-COPY --from=builder /usr/local/bin/vim /usr/local/bin/
-
-# Add configurations
-COPY config/vimrc /root/.vimrc
-COPY config/vim/ /root/.vim/
-COPY config/scripts/ /usr/local/bin/
-COPY config/system/fstab /etc/fstab
-COPY config/system/sysctl.conf /etc/sysctl.conf
-
-# Install Vim plugins
-RUN mkdir -p /root/.vim/pack/plugins/start && \
-    cd /root/.vim/pack/plugins/start && \
-    git clone --depth=1 https://github.com/reedes/vim-pencil && \
-    git clone --depth=1 https://github.com/junegunn/goyo.vim && \
-    git clone --depth=1 https://github.com/michal-h21/vim-zettel && \
-    git clone --depth=1 https://github.com/itchyny/lightline.vim
-
-# Set permissions
-RUN chmod +x /usr/local/bin/*.sh
-
-# Configure boot
-RUN rc-update add localmount boot && \
-    rc-update del networking boot && \
-    rc-update del chronyd default
-
-WORKDIR /root
-```
-
-Build and export:
-```bash
-docker build -t nook-system .
+# Create system export
 docker create --name nook-export nook-system
-docker export nook-export | gzip > nook-alpine.tar.gz
+docker export nook-export | gzip > nook-debian.tar.gz
 docker rm nook-export
 ```
 
-## Prepare Nook
+You now have `nook-debian.tar.gz` - a complete Linux system ready for your Nook.
 
-### 1. Root Device
+## Step 2: Prepare Your Nook (10 minutes)
 
+### Root the Device
+
+1. Download [NookManager](https://github.com/doozan/NookManager/releases)
+2. Write to SD card:
+   ```bash
+   sudo dd if=NookManager.img of=/dev/sdX bs=4M status=progress
+   sync
+   ```
+3. Insert SD card into Nook and power on
+4. Follow prompts to root device
+5. Remove SD card when complete
+
+### Install USB Host Kernel
+
+**Option A: Pre-built kernel (easiest)**
 ```bash
-# Download and flash NookManager
-wget https://archive.org/download/nook-manager/NookManager.img
-sudo dd if=NookManager.img of=/dev/sdX bs=4M status=progress
-sync
+# Search XDA Forums for "Nook Simple Touch USB kernel"
+# Download any kernel version 174+ with USB host support
+# Example: mali100's kernel or latuk's kernel
 ```
 
-Boot Nook with SD card → Backup → Root → Remove card → Reboot
-
-### 2. Install USB Host Kernel
-
-Option A: Use nst-kernel (compile yourself):
+**Option B: Build nst-kernel**
 ```bash
-# Clone and build kernel
 git clone https://github.com/felixhaedicke/nst-kernel
 cd nst-kernel
-# Requires Android NDK in /opt/android-ndk
-make ARCH=arm CROSS_COMPILE=/opt/android-ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-
+# Requires Android NDK
+make ARCH=arm CROSS_COMPILE=/path/to/ndk/toolchain/bin/arm-linux-androideabi-
 # Output: arch/arm/boot/uImage
 ```
 
-Option B: Find pre-compiled kernel:
-```bash
-# Search XDA Forums for USB host kernels
-# Look for versions 174+ or any kernel mentioning "USB host"
-# Download CWM recovery
-wget https://xdaforums.com/attachments/sd_2gb_clockwork-rc2-zip.806434/
-unzip sd_2gb_clockwork-rc2-zip.806434
+Install kernel via ClockworkMod Recovery.
 
-sudo dd if=sd_2gb_clockwork-rc2.img of=/dev/sdX bs=4M
-sudo mount /dev/sdX1 /mnt
-sudo cp [your-kernel].zip /mnt/
-sudo umount /mnt
-```
+## Step 3: Deploy to SD Card (10 minutes)
 
-Boot Nook with SD card → Install zip → Reboot
-
-## Deploy Alpine System
-
-### Prepare SD Card
+### Partition the Card
 
 ```bash
-# Partition SD card
+# Create partitions (replace sdX with your device)
 sudo fdisk /dev/sdX << EOF
 o
 n
@@ -157,114 +86,98 @@ w
 EOF
 
 # Format
-sudo mkfs.vfat -F32 /dev/sdX1
-sudo mkfs.f2fs /dev/sdX2
+sudo mkfs.vfat -F32 -n BOOT /dev/sdX1
+sudo mkfs.f2fs -l NOOK /dev/sdX2
+```
 
-# Mount and extract
+### Install the System
+
+```bash
+# Mount partitions
 sudo mkdir -p /mnt/{boot,root}
 sudo mount /dev/sdX1 /mnt/boot
 sudo mount /dev/sdX2 /mnt/root
 
-# Extract Alpine
-sudo tar -xzf nook-alpine.tar.gz -C /mnt/root/
+# Extract system
+sudo tar -xzf nook-debian.tar.gz -C /mnt/root/
 
-# Boot configuration
+# Create boot config
 cat << 'EOF' | sudo tee /mnt/boot/uEnv.txt
-bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=f2fs rw rootwait mem=256M quiet
+bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=f2fs rw rootwait mem=256M
 bootcmd=mmc rescan; fatload mmc 0:1 0x80300000 uImage; bootm 0x80300000
 EOF
 
-# Copy kernel
-sudo cp /mnt/root/boot/uImage /mnt/boot/
+# Copy kernel (if you have uImage)
+# sudo cp uImage /mnt/boot/
 
 # Unmount
 sudo umount /mnt/boot /mnt/root
 ```
 
-## First Boot
+## Step 4: First Boot (5 minutes)
 
 1. Insert SD card into Nook
-2. Power on (boot takes ~20 seconds)
-3. Connect USB keyboard via OTG cable
-4. System auto-starts menu
+2. Connect USB keyboard via OTG cable
+3. Power on (takes ~20 seconds)
+4. Menu appears on E-Ink display
 
-## Configure
+## Using Your Nook Writer
 
-### Vim Modes
+### Keyboard Shortcuts
 
-- `Space + z` - Zettelkasten mode
-- `Space + d` - Draft mode  
-- `Space + w` - Save
+- **Z** - Create new timestamped note
+- **D** - Open draft mode
+- **R** - Resume last session
+- **S** - Sync notes to cloud
+- **Q** - Shutdown
+
+### Vim Commands
+
+- `Space + w` - Save file
 - `Space + q` - Quit
+- `Space + z` - New Zettelkasten note
+- `:Goyo` - Distraction-free mode
+- `:Pencil` - Better word wrapping
 
-### Cloud Sync
+### Cloud Sync Setup
 
 ```bash
-# Configure rclone (on Nook)
+# In the Nook terminal
 rclone config
 
-# Sync script (already installed)
-sync-notes  # Syncs ~/notes to cloud
+# Follow prompts for your cloud service
+# Then sync with: sync-notes
 ```
 
-### WiFi (Optional)
+## What's Included
 
-```bash
-# Enable networking
-vi /etc/network/interfaces
-# Uncomment wlan0 section, add credentials
-
-# Start WiFi
-rc-service networking start
-```
-
-## Configurations Included
-
-All configurations are in the Docker image:
-
-- `.vimrc` - Full-featured, 1000 undo levels, plugins enabled
-- `~/notes/` - Zettelkasten directory
-- `~/drafts/` - Long-form writing
-- `/usr/local/bin/nook-menu` - Startup menu
-- `/usr/local/bin/sync-notes` - Cloud sync script
-
-## Quick Customization
-
-Modify locally and rebuild:
-```bash
-# Edit config files
-vim config/vimrc
-# Rebuild
-docker build -t nook-system .
-# Re-export and deploy
-```
-
-Or SSH into running Nook:
-```bash
-# On Nook
-vi ~/.vimrc
-```
+- **Debian Linux** - Stable, compatible base
+- **Vim** - With writing-focused plugins (Pencil, Goyo, Zettel)
+- **FBInk** - E-Ink display driver
+- **Cloud Sync** - Via rclone (Dropbox, Google Drive, etc.)
+- **Optimized Scripts** - Menu system, auto-sync
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| Keyboard not detected | Use powered USB hub |
-| Screen ghosting | `fbink -s` for full refresh |
-| Won't boot | Verify kernel in /mnt/boot/ |
-| Out of memory | Restart vim (never happens with 200MB free) |
+| Issue | Solution |
+|-------|----------|
+| Keyboard not detected | Try powered USB hub |
+| Screen ghosting | Full refresh happens automatically |
+| Won't boot | Verify kernel is on SD card boot partition |
+| Menu not appearing | Check USB keyboard connection |
 
-## Repository Structure
+## Next Steps
 
-```
-config/
-├── vimrc           # Main vim config
-├── vim/
-│   ├── zettel.vim  # Note mode
-│   └── draft.vim   # Writing mode
-└── scripts/
-    ├── nook-menu.sh
-    └── sync-notes.sh
-```
+- Configure WiFi: Edit `/etc/network/interfaces`
+- Customize Vim: Edit `~/.vimrc`
+- Add spell checking: `apt-get update && apt-get install aspell`
+- Read [detailed walkthrough](nook-detailed-walkthrough.md) for advanced setup
 
-Done. Your Nook is now a Linux writing system.
+## System Specs
+
+- Base: Debian 11 (Bullseye)
+- RAM Usage: ~95MB (leaves 160MB for writing)
+- Storage: 797MB base image
+- Boot Time: ~20 seconds
+
+Done! Your Nook is now a Linux writing machine.
