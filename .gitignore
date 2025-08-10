@@ -48,3 +48,8 @@ temp/
 arch/
 uImage
 zImage
+
+# Kernel source (we'll track only our custom scripts)
+nst-kernel/src/
+nst-kernel/build/
+nst-kernel/.git/
