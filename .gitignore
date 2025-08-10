@@ -53,3 +53,4 @@ zImage
 nst-kernel/src/
 nst-kernel/build/
 nst-kernel/.git/
+nst-kernel/LICENSE
