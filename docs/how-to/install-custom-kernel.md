@@ -143,22 +143,24 @@ To survive factory resets:
 
 ## SD Card Boot Deployment
 
-If you're creating a bootable SD card system (running Linux from SD instead of internal storage), you need to deploy the kernel differently:
+For the Nook Typewriter project, you'll typically deploy QuillKernel to an SD card for non-destructive booting:
 
 ### QuillKernel on SD Card
 
-1. **Build QuillKernel**:
+1. **Build QuillKernel** (if not already built):
    ```bash
-   cd nst-kernel
-   ./squire-kernel-patch.sh
+   cd nook/nst-kernel
+   ./squire-kernel-patch.sh  # Apply medieval patches
    docker build -f Dockerfile.build -t quillkernel .
    
    # Extract kernel from container
-   docker run --rm -v $(pwd)/output:/output quillkernel
-   # Kernel will be at: output/uImage
+   docker create --name kernel-extract quillkernel
+   docker cp kernel-extract:/build/uImage ./build/
+   docker rm kernel-extract
    ```
 
 2. **Prepare SD Card** (if not already done):
+
    ```bash
    # Create 100MB FAT32 boot + F2FS root partitions
    sudo fdisk /dev/sdX  # Follow partitioning steps
@@ -167,13 +169,14 @@ If you're creating a bootable SD card system (running Linux from SD instead of i
    ```
 
 3. **Deploy Kernel to Boot Partition**:
+
    ```bash
    # Mount boot partition
    sudo mkdir -p /mnt/boot
    sudo mount /dev/sdX1 /mnt/boot
    
    # Copy QuillKernel
-   sudo cp output/uImage /mnt/boot/
+   sudo cp build/uImage /mnt/boot/
    
    # Create boot config
    cat << 'EOF' | sudo tee /mnt/boot/uEnv.txt
@@ -186,12 +189,13 @@ If you're creating a bootable SD card system (running Linux from SD instead of i
    ```
 
 4. **Deploy Root Filesystem** (if creating full system):
+
    ```bash
    # Mount root partition
    sudo mount /dev/sdX2 /mnt/root
    
    # Extract Debian system
-   sudo tar -xzf nook-debian.tar.gz -C /mnt/root/
+   sudo tar -xzf nook-writer.tar.gz -C /mnt/root/
    
    sudo umount /mnt/root
    ```

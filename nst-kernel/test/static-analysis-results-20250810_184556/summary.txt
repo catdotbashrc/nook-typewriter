@@ -1,4 +1,0 @@
-Starting analysis at Sun Aug 10 06:45:56 PM EDT 2025
-
-Sparse not available - skipping
-Smatch not available - skipping

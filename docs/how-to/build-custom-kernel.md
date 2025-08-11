@@ -1,24 +1,34 @@
 # How to Build a Custom Kernel
 
-Build your own optimized kernel for the Nook Simple Touch with exactly the features you need.
+Build QuillKernel - a medieval-themed, writer-optimized kernel for the Nook Simple Touch with whimsical features and USB keyboard support.
 
 ## Prerequisites
 
-- Linux computer (Ubuntu/Debian recommended)
+- Docker Engine 20.10+ (recommended) OR Linux build environment
 - 4GB free disk space
 - Basic command line knowledge
-- 2-3 hours for first build
+- 1-2 hours for first build
 
-## Quick Start
+## Quick Start - Docker Build (Recommended)
 
-We provide an automated setup script:
+The easiest way to build QuillKernel with medieval patches:
 
 ```bash
-cd nook-typewriter
-./scripts/setup-kernel-build.sh
+cd nook/nst-kernel
+./squire-kernel-patch.sh  # Apply medieval patches
+docker build -f Dockerfile.build -t quillkernel .
+
+# Extract the built kernel
+docker create --name kernel-extract quillkernel
+docker cp kernel-extract:/build/uImage ./build/
+docker rm kernel-extract
 ```
 
-This creates a complete build environment at `~/nook-kernel-dev/`.
+This builds a complete QuillKernel with:
+- Court jester ASCII art companion
+- Achievement system for writers
+- `/proc/squireos/` interface
+- Writing statistics tracking
 
 ## Manual Setup
 
@@ -94,20 +104,21 @@ Key options for typewriter use:
 - `CONFIG_FB_OMAP3EP=y` - E-paper driver
 - `CONFIG_FB_OMAP3EP_MANAGE_BORDER=y` - Border control
 
-### Typewriter Optimizations
+### QuillKernel Medieval Features
 
-Run our optimization script:
+The QuillKernel adds whimsical medieval theming:
 
 ```bash
-cd ~/nook-kernel-dev
-./optimize-typewriter-kernel.sh
+# Apply patches before building
+./squire-kernel-patch.sh
 ```
 
-This configures:
-- Minimal kernel size
-- Maximum battery efficiency
-- Fast boot time
-- USB keyboard priority
+This adds:
+- **Court Jester**: ASCII art companion during boot
+- **Achievement System**: Track writing milestones
+- **Writing Stats**: `/proc/squireos/typewriter/stats`
+- **Medieval Messages**: "By quill and candlelight..."
+- **Wisdom Quotes**: Inspirational writing quotes
 
 ## Building
 
@@ -170,13 +181,14 @@ ui_print "Done!"
 
 ## Testing Your Kernel
 
-### In Emulator (Optional)
+### Docker Testing
+
+Test QuillKernel features in Docker:
 
 ```bash
-# QEMU test
-qemu-system-arm -M versatilepb \
-    -kernel arch/arm/boot/zImage \
-    -append "console=ttyAMA0"
+cd nst-kernel/test
+./verify-build-simple.sh  # Quick verification
+./test-in-docker.sh       # Comprehensive tests
 ```
 
 ### On Device
@@ -184,23 +196,32 @@ qemu-system-arm -M versatilepb \
 1. Copy uImage to SD card boot partition
 2. Boot and check `dmesg` output
 3. Verify USB keyboard works
+4. Check medieval features:
+   ```bash
+   cat /proc/squireos/jester     # See the court jester
+   cat /proc/squireos/wisdom     # Get writing wisdom
+   cat /proc/squireos/typewriter/stats  # View stats
+   ```
 
 ## Troubleshooting Builds
 
 ### Common Errors
 
-**"arm-linux-androideabi-gcc not found"**
+#### "arm-linux-androideabi-gcc not found"
+
 ```bash
 # Fix path
 export PATH=$PATH:~/android-ndk-r10e/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/
 ```
 
-**"ncurses.h not found"**
+#### "ncurses.h not found"
+
 ```bash
 sudo apt-get install libncurses5-dev
 ```
 
-**Build fails with Python errors**
+#### Build fails with Python errors
+
 ```bash
 # Use Python 2
 export PYTHON=python2
@@ -209,6 +230,7 @@ export PYTHON=python2
 ### Clean Build
 
 If build fails:
+
 ```bash
 make clean
 make mrproper
@@ -220,6 +242,7 @@ make mrproper
 ### Debug Kernel
 
 Enable debugging:
+
 ```bash
 # In menuconfig
 Kernel hacking → 
@@ -230,6 +253,7 @@ Kernel hacking →
 ### Custom Drivers
 
 Add E-Ink optimizations:
+
 1. Edit `drivers/video/omap3ep/`
 2. Adjust refresh timings
 3. Compile and test
@@ -237,6 +261,7 @@ Add E-Ink optimizations:
 ### Kernel Modules
 
 Build as modules to save space:
+
 ```bash
 # In menuconfig, press 'M' instead of '*'
 # Then build modules
@@ -246,6 +271,7 @@ make modules
 ## Next Steps
 
 After building:
+
 1. [Install your kernel](install-custom-kernel.md)
 2. [Optimize for battery life](optimize-battery.md)
 3. Share your config with community!
@@ -253,6 +279,7 @@ After building:
 ## Build Script Reference
 
 Complete build script:
+
 ```bash
 #!/bin/bash
 # Full kernel build

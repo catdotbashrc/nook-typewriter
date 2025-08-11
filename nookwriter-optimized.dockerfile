@@ -83,12 +83,24 @@ COPY config/system/issue /etc/issue
 COPY config/system/issue.net /etc/issue.net
 COPY config/system/motd /etc/motd
 
+# Install the Court Jester - Writers need their muse!
+COPY config/scripts/jester-daemon.sh /usr/local/bin/
+COPY config/scripts/jester-splash.sh /usr/local/bin/
+COPY config/scripts/jester-mischief.sh /usr/local/bin/
+COPY config/scripts/boot-jester.sh /usr/local/bin/
+COPY config/scripts/nook-menu.sh /usr/local/bin/
+
 # Create writing directories
 RUN mkdir -p /root/notes /root/drafts /root/scrolls && \
-    mkdir -p /root/.vim/backup /root/.vim/swap
+    mkdir -p /root/.vim/backup /root/.vim/swap && \
+    mkdir -p /var/lib/jester
 
 # Make scripts executable
 RUN chmod +x /usr/local/bin/*.sh 2>/dev/null || true
+
+# Initialize the jester's home
+RUN echo "By quill and candlelight!" > /var/lib/jester/motto && \
+    echo "0" > /var/lib/jester/wordcount
 
 # Set permissions
 RUN chmod 644 /etc/os-release /etc/lsb-release /etc/issue /etc/issue.net /etc/motd
@@ -137,4 +149,5 @@ EOF
 
 RUN chmod +x /usr/local/bin/startup.sh
 
-CMD ["/usr/local/bin/startup.sh"]
+# Boot with the mischievous jester splash screen!
+CMD ["/usr/local/bin/boot-jester.sh"]

@@ -41,6 +41,18 @@ temp/
 *.temp
 *.log
 
+# Test results
+**/test-results/
+**/static-analysis-results-*/
+*.test-output
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*~
+
 # SD card images
 *.iso
 *.dmg

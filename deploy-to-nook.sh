@@ -1,69 +1,157 @@
 #!/bin/bash
-# Deploy script for Nook SD card
-# Run this in WSL with your SD card mounted as D: and E: drives
+#
+# Nook Typewriter Deployment Script
+# ==================================
+# Deploy QuillOS system to SD card for Nook Simple Touch
+#
+# Usage: ./deploy-to-nook.sh [root_partition] [boot_partition] [tarball]
+#   root_partition - Path to root partition (default: /mnt/d)
+#   boot_partition - Path to boot partition (default: /mnt/e)
+#   tarball       - System tarball to deploy (default: nook-deploy.tar.gz)
+#
+# Requirements:
+#   - Running in WSL or Linux
+#   - SD card with two partitions (FAT32 boot, ext4 root)
+#   - Docker-exported system tarball
+#
+# Exit codes:
+#   0 - Success
+#   1 - User cancelled or general error
+#   2 - Missing dependencies
+#   3 - Partition access error
+#
 
-set -e
+set -euo pipefail
 
-# Colors
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
+# Script configuration
+readonly SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "════════════════════════════════════════"
-echo "    Nook Typewriter Deployment Script"
-echo "════════════════════════════════════════"
-echo ""
+# Color definitions for output formatting
+readonly COLOR_GREEN='\033[0;32m'
+readonly COLOR_YELLOW='\033[1;33m'
+readonly COLOR_RED='\033[0;31m'
+readonly COLOR_RESET='\033[0m'
 
-# Check if running in WSL
-if ! grep -qi microsoft /proc/version; then
-    echo -e "${YELLOW}Warning: Not running in WSL${NC}"
-    echo "This script is designed for WSL. Continue anyway? (y/n)"
-    read -n 1 confirm
-    [[ "$confirm" != "y" ]] && exit 1
-fi
+# Logging functions for consistent output
+log_info() {
+    echo -e "${COLOR_GREEN}[INFO]${COLOR_RESET} $*"
+}
 
-# Configuration
-ROOT_PARTITION="${1:-/mnt/d}"  # D: drive - QuillOS
-BOOT_PARTITION="${2:-/mnt/e}"  # E: drive - Kernel
-TARBALL="${3:-nook-deploy.tar.gz}"
+log_warn() {
+    echo -e "${COLOR_YELLOW}[WARN]${COLOR_RESET} $*" >&2
+}
 
-echo "Configuration:"
-echo "  Root partition: $ROOT_PARTITION (D: QuillOS)"
-echo "  Boot partition: $BOOT_PARTITION (E: Kernel)"
-echo "  Tarball: $TARBALL"
-echo ""
+log_error() {
+    echo -e "${COLOR_RED}[ERROR]${COLOR_RESET} $*" >&2
+}
 
-# Verify tarball exists
-if [ ! -f "$TARBALL" ]; then
-    echo -e "${RED}ERROR: Tarball $TARBALL not found!${NC}"
-    echo "Run: docker export nook-export | gzip > nook-deploy.tar.gz"
-    exit 1
-fi
+log_success() {
+    echo -e "${COLOR_GREEN}✓${COLOR_RESET} $*"
+}
 
-# Check partitions are accessible
-echo "Checking partitions..."
-if [ ! -d "$ROOT_PARTITION" ]; then
-    echo -e "${RED}ERROR: Root partition not accessible at $ROOT_PARTITION${NC}"
-    echo "Make sure D: drive is accessible in WSL"
-    exit 1
-fi
+# Display script header
+show_header() {
+    echo "════════════════════════════════════════"
+    echo "    Nook Typewriter Deployment Script"
+    echo "════════════════════════════════════════"
+    echo ""
+}
 
-if [ ! -d "$BOOT_PARTITION" ]; then
-    echo -e "${RED}ERROR: Boot partition not accessible at $BOOT_PARTITION${NC}"
-    echo "Make sure E: drive is accessible in WSL"
-    exit 1
-fi
+show_header
 
-echo -e "${GREEN}✓${NC} Partitions accessible"
+# Check runtime environment
+check_environment() {
+    if ! grep -qi microsoft /proc/version 2>/dev/null; then
+        log_warn "Not running in WSL - script is optimized for WSL"
+        echo -n "Continue anyway? (y/n): "
+        read -r -n 1 confirm
+        echo
+        if [[ "${confirm,,}" != "y" ]]; then
+            log_info "Deployment cancelled by user"
+            exit 1
+        fi
+    fi
+}
 
-# Backup warning
-echo ""
-echo -e "${YELLOW}⚠ WARNING: This will DELETE everything on D: drive${NC}"
-echo "Continue? (y/n)"
-read -n 1 confirm
-echo ""
-[[ "$confirm" != "y" ]] && exit 1
+check_environment
+
+# Parse command line arguments with defaults
+readonly ROOT_PARTITION="${1:-/mnt/d}"     # Root filesystem partition (ext4)
+readonly BOOT_PARTITION="${2:-/mnt/e}"     # Boot partition (FAT32)
+readonly TARBALL="${3:-nook-deploy.tar.gz}" # System tarball to deploy
+
+# Display deployment configuration
+show_configuration() {
+    echo "Deployment Configuration:"
+    echo "  Root partition: $ROOT_PARTITION (ext4 filesystem)"
+    echo "  Boot partition: $BOOT_PARTITION (FAT32 for kernel)"
+    echo "  System tarball: $TARBALL"
+    echo ""
+}
+
+show_configuration
+
+# Verify required files exist
+verify_tarball() {
+    if [[ ! -f "$TARBALL" ]]; then
+        log_error "System tarball not found: $TARBALL"
+        echo "To create the tarball, run:"
+        echo "  docker build -t nook-system -f nookwriter-optimized.dockerfile ."
+        echo "  docker create --name nook-export nook-system"
+        echo "  docker export nook-export | gzip > nook-deploy.tar.gz"
+        echo "  docker rm nook-export"
+        exit 2
+    fi
+    log_success "System tarball found: $TARBALL"
+}
+
+verify_tarball
+
+# Verify partition accessibility
+verify_partitions() {
+    local errors=0
+    
+    log_info "Checking partition accessibility..."
+    
+    if [[ ! -d "$ROOT_PARTITION" ]]; then
+        log_error "Root partition not accessible: $ROOT_PARTITION"
+        echo "  Ensure the SD card is properly mounted in WSL"
+        echo "  Try: sudo mount /dev/sdX2 $ROOT_PARTITION"
+        ((errors++))
+    fi
+    
+    if [[ ! -d "$BOOT_PARTITION" ]]; then
+        log_error "Boot partition not accessible: $BOOT_PARTITION"
+        echo "  Ensure the SD card is properly mounted in WSL"
+        echo "  Try: sudo mount /dev/sdX1 $BOOT_PARTITION"
+        ((errors++))
+    fi
+    
+    if [[ $errors -gt 0 ]]; then
+        exit 3
+    fi
+    
+    log_success "Both partitions accessible"
+}
+
+verify_partitions
+
+# Confirm destructive operation with user
+confirm_deployment() {
+    echo ""
+    log_warn "⚠ WARNING: This will DELETE all data on $ROOT_PARTITION"
+    echo -n "Are you sure you want to continue? (y/n): "
+    read -r -n 1 confirm
+    echo ""
+    
+    if [[ "${confirm,,}" != "y" ]]; then
+        log_info "Deployment cancelled by user"
+        exit 1
+    fi
+}
+
+confirm_deployment
 
 # Clean root partition
 echo "Cleaning root partition (D: drive)..."

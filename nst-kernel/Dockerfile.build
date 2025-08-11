@@ -61,7 +61,7 @@ WORKDIR /home/builder/nst-kernel/src
 
 # Configure kernel
 RUN echo "Configuring QuillKernel..." && \
-    make quill_typewriter_defconfig
+    make nook_typewriter_defconfig
 
 # Optional: Enable additional debugging
 RUN echo "Enabling test configurations..." && \
