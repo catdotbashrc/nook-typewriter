@@ -1,5 +1,10 @@
 # Nook Simple Touch Typewriter
 
+[![Architecture](https://img.shields.io/badge/Architecture-8.5%2F10-green)](ARCHITECTURE_ANALYSIS.md)
+[![RAM Usage](https://img.shields.io/badge/RAM-2--8MB-blue)](docs/vim-optimization-results.md)
+[![Tests](https://img.shields.io/badge/Tests-Available-brightgreen)](tests/)
+[![Plugin System](https://img.shields.io/badge/Plugins-Supported-yellow)](config/plugins/)
+
 Transform a $20 Barnes & Noble Nook Simple Touch e-reader into a distraction-free digital typewriter with custom Linux kernel, optimized writing software, and whimsical medieval theming.
 
 ## Features

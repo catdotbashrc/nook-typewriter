@@ -21,11 +21,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Required for FBInk
     libfreetype6 \
     ca-certificates \
+    # Required for downloading FBInk
+    wget \
+    xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy pre-built FBInk from standard image to avoid build deps
-COPY --from=nook-system:latest /usr/local/bin/fbink /usr/local/bin/fbink
-RUN chmod +x /usr/local/bin/fbink
+# Download FBInk directly from GitHub releases (ARM version)
+# This eliminates circular dependency on nook-system:latest
+RUN wget -q -O /usr/local/bin/fbink \
+    https://github.com/NiLuJe/FBInk/releases/download/v1.25.0/fbink-v1.25.0-armv7-linux-gnueabihf.tar.xz \
+    && tar -xJf /usr/local/bin/fbink -C /usr/local/bin/ \
+    && rm /usr/local/bin/fbink \
+    && mv /usr/local/bin/FBInk-v1.25.0-armv7-linux-gnueabihf/fbink /usr/local/bin/ \
+    && rm -rf /usr/local/bin/FBInk-v1.25.0-armv7-linux-gnueabihf \
+    && chmod +x /usr/local/bin/fbink \
+    || echo "Warning: FBInk download failed, E-Ink display won't work"
 
 # === MINIMAL BUILD (No plugins, 2MB RAM) ===
 FROM base AS minimal
