@@ -54,7 +54,6 @@ temp/
 
 # Compiled kernels
 arch/
-uImage
 zImage
 
 # Kernel source (we'll track only our custom scripts)
