@@ -178,9 +178,27 @@ bootcmd=mmc rescan; fatload mmc 0:1 0x80300000 uImage; bootm 0x80300000
 
 ### 5.3 Copy Kernel
 
-If you have the kernel file:
+**For QuillKernel** (medieval-themed):
 ```bash
+# Build QuillKernel first
+cd nst-kernel
+./squire-kernel-patch.sh
+docker build -f Dockerfile.build -t quillkernel .
+docker run --rm -v $(pwd)/output:/output quillkernel
+
+# Copy to boot partition
+sudo cp output/uImage /mnt/nook-boot/
+```
+
+**For pre-built kernel**:
+```bash
+# Extract uImage from downloaded kernel zip
+unzip nook-kernel.zip
 sudo cp uImage /mnt/nook-boot/
+```
+
+```bash
+# Unmount when done
 sudo umount /mnt/nook-boot
 ```
 
