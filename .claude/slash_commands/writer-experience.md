@@ -62,14 +62,6 @@ Identify potential focus breakers:
 4. **Would a student find their notes after a week?**
 5. **Does the system encourage or discourage writing?**
 
-## Files to Review
-
-- `config/scripts/nook-menu.sh` - Menu usability
-- `config/vimrc` - Writer-friendly mappings
-- `config/scripts/sync-notes.sh` - Sync simplicity
-- Error messages in all shell scripts
-- Documentation clarity in tutorials
-
 ## Success Criteria
 
 The system succeeds if:
