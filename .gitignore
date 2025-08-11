@@ -16,11 +16,6 @@ data/
 backups/
 logs/
 
-# Build artifacts
-*.img
-*.zip
-build/
-export/
 
 # IDE
 .vscode/
@@ -66,3 +61,5 @@ zImage
 nst-kernel/src
 nst-kernel/.git/
 nst-kernel/LICENSE
+images/NookManager.img
+images/2gb_clockwork-rc2.img
