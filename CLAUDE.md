@@ -1,205 +1,258 @@
-# CLAUDE.md
+# CLAUDE.md - Nook Typewriter Project
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project Philosophy
 
-## Project Overview
+This transforms a $20 used e-reader into a $400 distraction-free writing device. Every decision prioritizes **writers over features**.
 
-This project transforms a Barnes & Noble Nook Simple Touch (NST) e-reader into a minimalist Linux-based typewriter. The device has severe hardware constraints: 800 MHz ARM CPU, 256MB RAM, and a 6-inch E-Ink display that requires special handling.
+### Our Users
+- **Digital Minimalist Writers**: Escaping notifications to focus on words
+- **Retro Computing Enthusiasts**: Appreciating the "digital scriptorium" aesthetic  
+- **Budget-Conscious Creators**: Can't afford Freewrite, have old Nooks
+- **Environmental Advocates**: Preventing e-waste through repurposing
 
-## Key Commands
+### What This IS
+✅ Pure writing environment (Vim + E-Ink)
+✅ Whimsical medieval theme (QuillKernel)
+✅ Extreme battery life (weeks not hours)
+✅ Zero distractions by design
 
-### Building and Testing
+### What This ISN'T
+❌ Development environment
+❌ Web browsing device
+❌ Email/social media machine
+❌ General purpose computer
 
-```bash
-# Build Docker image from scratch
-docker build --no-cache -t nook-system -f nookwriter.dockerfile .
+## Critical Constraints
 
-# Quick rebuild (with cache)
-docker build -t nook-system -f nookwriter.dockerfile .
+```yaml
+Hardware Limits:
+  CPU: 800 MHz ARM (slower than 2008 iPhone)
+  RAM: 256MB total (160MB for writing after OS)
+  Display: 6" E-Ink (800x600, 16 grayscale)
+  Storage: SD card based
+  Power: <100mA USB output
 
-# Run container for testing
-docker run -it --rm nook-system /bin/bash
-
-# Test with docker-compose (development mode)
-docker-compose up -d
-docker-compose exec nookwriter bash
-
-# Hardware testing (requires privileged access)
-docker-compose -f docker-compose.yml -f docker-compose.hw.yml up -d
+Design Implications:
+  - Every MB matters for writing space
+  - E-Ink refresh = feature not bug (prevents addiction)
+  - Simple > Feature-rich
+  - Text-only is perfect
 ```
 
-### Creating Nook Deployment Image
+## Writer-First Development Rules
 
+### Before ANY Change, Ask:
+1. **Does this help writers write?**
+2. **What RAM does this steal from writing?**
+3. **Will this add distractions?**
+4. **Can writers understand the error messages?**
+
+### Memory Budget
+```
+Reserved for OS:     95MB (Debian base)
+Reserved for Vim:    10MB (editor + plugins)
+SACRED Writing Space: 160MB (DO NOT TOUCH)
+```
+
+### E-Ink Considerations
+- Full refresh (`fbink -c`) = intentional pause for thought
+- Ghosting = gentle reminder of previous words
+- Slow menus = mindful interaction
+- No animations = focused attention
+
+## Essential Commands
+
+### For Writers Testing Features
 ```bash
-# Create filesystem export for SD card
+# Quick test writing experience
+docker run -it --rm nook-system vim /tmp/test.txt
+
+# Check memory impact of changes
+docker stats nook-system --no-stream
+
+# Verify distraction-free (should fail)
+docker run --rm nook-system ping google.com 2>/dev/null || echo "✓ No internet distractions"
+```
+
+### Building for Writers
+```bash
+# Standard build
+docker build -t nook-system -f nookwriter.dockerfile .
+
+# Test medieval theme
+docker run --rm nook-system cat /proc/squireos/motto 2>/dev/null || echo "Not on real hardware"
+
+# Create writer's deployment
 docker create --name nook-export nook-system
 docker export nook-export | gzip > nook-debian.tar.gz
 docker rm nook-export
-
-# Deploy to SD card (after partitioning)
-sudo tar -xzf nook-debian.tar.gz -C /mnt/root/
 ```
 
-### Testing Components
-
+### QuillKernel (Medieval Magic)
 ```bash
-# Test FBInk (will fail without E-Ink hardware)
-docker run --rm nook-system fbink -c
+cd nst-kernel
+./squire-kernel-patch.sh  # Adds jester, achievements, writing stats
 
-# Test Vim configuration
-docker run -it --rm nook-system vim
+# Docker build (no toolchain needed!)
+docker build -f Dockerfile.build -t quillkernel .
 
-# Test menu system (FBInk commands will fail gracefully)
-docker run -it --rm nook-system /usr/local/bin/nook-menu.sh
-
-# Monitor resource usage
-docker stats nook-system
+# Test the medieval experience
+cd test
+./verify-build-simple.sh  # Should see jester ASCII art
 ```
 
-## Architecture
+## Testing for Writers
 
-### Technology Stack
+### What to Test
+```yaml
+Writing Flow:
+  - Can open Vim in <2 seconds?
+  - Does Ctrl+S save intuitively?
+  - Is word count visible?
+  - Do writing plugins work?
 
-The project uses:
-- **Base OS**: Debian 11 (Bullseye) slim
-- **Display Driver**: FBInk (compiled from source)
-- **Editor**: Vim from Debian repos + writing plugins
-- **Build System**: Docker single-stage build
+Distractions:
+  - No network browsing possible?
+  - No app notifications?
+  - No social media access?
+  - Focus mode (\g in Vim) works?
 
-### Why Debian?
-
-We migrated from Alpine Linux to Debian for:
-- **Compatibility**: No glibc/musl issues
-- **Package availability**: 60,000+ packages available
-- **Development speed**: Everything works out of the box
-- **Maintenance**: Standard Linux behavior
-
-The RAM cost is ~65MB (95MB vs 30MB), leaving 160MB free for writing.
-
-### Critical Components
-
-**FBInk**: MANDATORY for E-Ink display. All UI scripts use `fbink` commands with `|| true` to handle Docker testing where E-Ink is unavailable.
-
-**Memory Management**: With 256MB total:
-- Debian base: ~95MB
-- Vim + plugins: ~10MB  
-- Available for writing: ~160MB
-
-**Power Constraints**: USB keyboard power draw is critical. Powered hub recommended for wireless keyboards.
-
-### Key Files
-
-- `nookwriter.dockerfile`: Single-stage Debian build
-- `config/scripts/nook-menu.sh`: Main UI, handles FBInk failures gracefully
-- `config/scripts/sync-notes.sh`: Cloud sync via rclone
-- `config/vimrc`: Minimal config with leader mappings
-- `docker-compose.yml`: Development configuration
-- `docker-compose.hw.yml`: Hardware access overlay
-
-## Development Workflow
-
-### Making Changes
-
-1. **Modify Dockerfile or configs**
-2. **Rebuild**: `docker build -t nook-system -f nookwriter.dockerfile .`
-3. **Test in container**: `docker run -it --rm nook-system /bin/bash`
-4. **Export when ready**: Create tar.gz for SD card deployment
-
-### Adding Software
-
-Simply add to Dockerfile:
-```dockerfile
-RUN apt-get update && apt-get install -y \
-    package-name \
-    another-package
+Battery:
+  - Changes increase power draw?
+  - WiFi off by default?
+  - CPU throttled appropriately?
 ```
 
-No compilation needed for most software!
-
-### Script Development
-
-All scripts must handle missing hardware gracefully:
+### Writer-Friendly Error Messages
 ```bash
-# Good: Won't fail in Docker
-fbink -c || true
-fbink -y 3 "Hello" || true
+# BAD: Technical jargon
+"Error: fbdev ioctl FBIOGET_VSCREENINFO failed"
 
-# Bad: Will terminate script in Docker
-fbink -c
+# GOOD: Writer-friendly
+"E-Ink display not found (normal in Docker testing)"
+
+# BEST: Medieval theme
+"Alas! The digital parchment is not ready!"
 ```
 
-## Hardware Deployment
+## Common Writer Issues
 
-### SD Card Preparation
+### "My keyboard doesn't work"
+- Need USB host kernel (version 174+)
+- Wireless keyboards need powered hub
+- Best: Wired USB from ~2011 era
 
+### "Screen looks weird"
+- E-Ink ghosting is normal (not a bug)
+- Press 5 in menu for full refresh
+- It's supposed to be slow (mindfulness!)
+
+### "Can't save my work"
+- Space issue: Check with `df -h`
+- Vim command: `:w!` forces save
+- Emergency: USB mount SD card to recover
+
+### "How do I get my writing off?"
+- Option 1: rclone sync (menu option 3)
+- Option 2: Remove SD card, mount on PC
+- Option 3: Future feature - email to self
+
+## File Organization
+
+```
+Critical Paths:
+/usr/local/bin/nook-menu.sh    # Main writer interface
+/root/.vimrc                    # Writing configuration  
+/root/writing/                  # Sacred writing directory
+/proc/squireos/                 # Medieval theme interface
+
+Never Touch:
+/usr/share/doc/                # Wastes writing space
+/var/cache/                     # Precious RAM
+/usr/share/man/                 # No one reads on E-Ink
+```
+
+## Contributing Guidelines
+
+### Welcome Contributions
+✅ Reducing memory usage
+✅ Better writing tools (spell check, thesaurus)
+✅ Battery life improvements
+✅ More medieval whimsy
+✅ Writer workflow enhancements
+
+### Unwelcome Changes
+❌ Web browsers or internet features
+❌ Development tools (compilers, interpreters)
+❌ Media players or graphics
+❌ Anything using >5MB RAM
+❌ Features requiring constant refresh
+
+### Testing Checklist
+- [ ] Works in 160MB free RAM?
+- [ ] E-Ink friendly (minimal refresh)?
+- [ ] No network dependencies?
+- [ ] Writer can understand errors?
+- [ ] Medieval theme maintained?
+- [ ] Battery impact measured?
+
+## Quick Reference
+
+### Memory Monitor
 ```bash
-# Partition (FAT32 boot + F2FS root)
-sudo fdisk /dev/sdX
-# Create 100MB FAT32 (type c) + remainder F2FS
+# During development
+watch -n 5 'free -h | grep Mem'
 
-# Format
-sudo mkfs.vfat -F32 /dev/sdX1
-sudo mkfs.f2fs /dev/sdX2
-
-# Extract system
-sudo mount /dev/sdX2 /mnt/root
-sudo tar -xzf nook-debian.tar.gz -C /mnt/root/
+# Before committing
+echo "=== Memory Impact ==="
+docker stats nook-system --no-stream --format "RAM: {{.MemUsage}}"
 ```
 
-### Kernel Requirements
-
-The Nook needs a custom kernel with USB host support:
-
-**Option 1: nst-kernel** (Recommended)
-- Source: https://github.com/felixhaedicke/nst-kernel
-- Compile with Android NDK
-- Includes USB host + fast E-Ink mode
-
-**Option 2: Pre-built kernels**
-- Search XDA Forums for "Nook Simple Touch USB host kernel"
-- Version 174+ required (166 lacks USB support)
-- Install via ClockworkMod Recovery
-
-### Boot Configuration
-
-Create `/mnt/boot/uEnv.txt`:
-```
-bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=f2fs rw rootwait mem=256M
-bootcmd=mmc rescan; fatload mmc 0:1 0x80300000 uImage; bootm 0x80300000
+### Writer's Toolbox
+```vim
+" Vim commands writers need
+\g          " Goyo (focus mode)
+\p          " Pencil (better writing)
+:w          " Save
+:q          " Quit
+Ctrl+S      " Save (familiar to writers)
+Ctrl+Q      " Quit (familiar to writers)
 ```
 
-## Testing Strategy
+### Medieval Debug
+```bash
+# Check if QuillKernel is active
+cat /proc/squireos/jester || echo "No jester (not QuillKernel)"
 
-### In Docker (No Hardware)
-- Vim functionality and plugins
-- Script logic (ignoring FBInk errors)
-- Memory usage monitoring
-- Package installation
+# View writing statistics  
+cat /proc/squireos/typewriter/stats
 
-### On Device Only
-- E-Ink display rendering
-- USB keyboard detection
-- WiFi connectivity
-- Power consumption
+# Get inspiration
+cat /proc/squireos/wisdom
+```
 
-## Common Issues
+## Philosophy Reminders
 
-### Build Problems
-- FBInk must be compiled from source in Dockerfile
-- All other software should use apt-get
+> "Every feature is a potential distraction"
 
-### Script Issues
-- Menu loops if FBInk commands don't have `|| true`
-- Use bash instead of sh for better compatibility
+> "RAM saved is words written"
 
-### USB Keyboard Power
-- Wireless keyboards may not work without powered hub
-- NST provides limited USB power (<100mA)
-- Wired keyboards from ~2011 era work best
+> "E-Ink limitations are features"
 
-## Important Notes
+> "When in doubt, choose simplicity"
 
-- **OOBE Skip Required**: Hold top-right + swipe on boot logo (B&N servers defunct)
-- **Non-Destructive**: Uses SD card boot, preserves original Nook OS
-- **E-Ink Refresh**: Full refresh (`fbink -c`) prevents ghosting but flashes screen
-- **Debian Advantages**: Can install any standard Linux software with apt-get
+> "The jester reminds us: writing should be joyful"
+
+## Hardware Reality Check
+
+Remember what we're working with:
+- **CPU**: Slower than a 2008 iPhone
+- **RAM**: Less than a single Chrome tab
+- **Display**: Refreshes like paper, not pixels
+- **Purpose**: Writing, not computing
+
+Every line of code should respect these limits while serving writers who chose this device specifically for its constraints.
+
+---
+
+*"By quill and candlelight, we code for those who write"* 🕯️📜
