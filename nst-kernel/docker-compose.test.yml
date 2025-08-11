@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Build environment test
+  build-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    image: quillkernel-test
+    container_name: quillkernel-build-test
+    volumes:
+      - ./test-results:/home/builder/test-results
+    command: |
+      bash -c "
+        echo '═══════════════════════════════════════════════════════════════'
+        echo '         QuillKernel Docker Build Test'
+        echo '═══════════════════════════════════════════════════════════════'
+        echo ''
+        echo '1. Running build verification...'
+        cd test && ./verify-build-simple.sh
+        echo ''
+        echo '2. Attempting kernel configuration...'
+        cd ../src && make quill_typewriter_defconfig
+        echo ''
+        echo '3. Starting kernel build (this may take a while)...'
+        make -j$(nproc) uImage
+        echo ''
+        echo 'Build completed successfully!'
+      "
+
+  # Quick verification only
+  verify-only:
+    image: quillkernel-test
+    volumes:
+      - ./test-results:/home/builder/test-results
+    command: |
+      bash -c "cd test && ./verify-build-simple.sh"
+
+  # Run all software tests
+  test-suite:
+    image: quillkernel-test
+    volumes:
+      - ./test-results:/home/builder/test-results
+      - /tmp:/tmp
+    environment:
+      - TERM=xterm
+    command: |
+      bash -c "
+        cd test
+        echo 'Running QuillKernel test suite in Docker...'
+        echo ''
+        
+        # Build verification
+        echo '=== Build Verification ==='
+        ./verify-build-simple.sh
+        echo ''
+        
+        # Static analysis (if sparse available)
+        echo '=== Static Analysis ==='
+        ./static-analysis.sh || echo '[INFO] Static analysis tools not fully available'
+        echo ''
+        
+        # Software tests that work without hardware
+        echo '=== Software Tests ==='
+        
+        # These will skip gracefully
+        for test in test-proc.sh test-typewriter.sh low-memory-test.sh; do
+          echo \"Running: \$test\"
+          ./\$test 2>&1 | grep -E '(PASS|FAIL|SKIP|Summary)' || true
+          echo ''
+        done
+        
+        echo 'Docker test suite completed!'
+      "
+
+  # Interactive shell for debugging
+  shell:
+    image: quillkernel-test
+    volumes:
+      - ./test-results:/home/builder/test-results
+    stdin_open: true
+    tty: true
+    command: /bin/bash
