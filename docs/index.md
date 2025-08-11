@@ -10,6 +10,7 @@ Welcome to the comprehensive documentation for the Nook Simple Touch Linux Typew
 - **[Enable cloud backups](tutorials/03-syncing-to-cloud.md)** - Protect your writing
 
 ### Do Something Specific
+- **[Choose Vim configuration](how-to/choose-vim-configuration.md)** - Minimal vs Writer mode
 - **[Install a USB host kernel](how-to/install-custom-kernel.md)** - Enable keyboard support
 - **[Build my own kernel](how-to/build-custom-kernel.md)** - Custom optimization
 - **[Customize Vim for writing](how-to/customize-vim-plugins.md)** - Add/remove features
@@ -20,10 +21,11 @@ Welcome to the comprehensive documentation for the Nook Simple Touch Linux Typew
 - **[Architecture overview](explanation/architecture-overview.md)** - How it all works
 - **[Why Debian over Alpine?](explanation/why-debian-over-alpine.md)** - Design decisions
 - **[E-Ink display management](explanation/e-ink-display-management.md)** - Working with E-Paper
-- **[Memory constraints](explanation/memory-constraints.md)** - Living in 256MB
+- **[Vim optimization results](vim-optimization-results.md)** - RAM usage analysis
 - **[Power management](explanation/power-management.md)** - Battery optimization
 
 ### Look Something Up
+- **[Writing tools](reference/writing-tools.md)** - Shell scripts for text analysis
 - **[Configuration reference](reference/configuration-files.md)** - All settings explained
 - **[Keyboard shortcuts](reference/keyboard-shortcuts.md)** - Quick reference card
 - **[FBInk commands](reference/fbink-commands.md)** - Display control
@@ -40,6 +42,7 @@ Step-by-step guides for new users:
 
 ### How-To Guides (Task-Oriented)
 Specific instructions for common tasks:
+- [Choose Vim Configuration](how-to/choose-vim-configuration.md)
 - [Install Custom Kernel](how-to/install-custom-kernel.md)
 - [Build Custom Kernel](how-to/build-custom-kernel.md)
 - [Customize Vim Plugins](how-to/customize-vim-plugins.md)
@@ -51,11 +54,12 @@ Conceptual documentation and design decisions:
 - [Architecture Overview](explanation/architecture-overview.md)
 - [Why Debian Over Alpine](explanation/why-debian-over-alpine.md)
 - [E-Ink Display Management](explanation/e-ink-display-management.md)
-- [Memory Constraints](explanation/memory-constraints.md)
+- [Vim Optimization Results](vim-optimization-results.md)
 - [Power Management](explanation/power-management.md)
 
 ### Reference (Information-Oriented)
 Technical specifications and detailed references:
+- [Writing Tools](reference/writing-tools.md)
 - [Configuration Files](reference/configuration-files.md)
 - [Keyboard Shortcuts](reference/keyboard-shortcuts.md)
 - [FBInk Commands](reference/fbink-commands.md)
@@ -97,7 +101,9 @@ Technical specifications and detailed references:
 
 ## 📱 For Writers
 
+- [Choose Your Configuration](how-to/choose-vim-configuration.md) - Pick the right setup
 - [Writing Your First Note](tutorials/02-writing-your-first-note.md) - Vim basics
+- [Writing Analysis Tools](reference/writing-tools.md) - Check your prose
 - [Keyboard Shortcuts](reference/keyboard-shortcuts.md) - Quick reference
 - [Cloud Sync Setup](tutorials/03-syncing-to-cloud.md) - Backup your work
 - [Customize Vim](how-to/customize-vim-plugins.md) - Writing environment

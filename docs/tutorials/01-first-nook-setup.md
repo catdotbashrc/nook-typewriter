@@ -93,7 +93,11 @@ You need two partitions:
 1. **Boot** (FAT32, 100MB) - for kernel and boot files
 2. **Root** (F2FS, remaining space) - for Linux system
 
-#### Linux Instructions:
+#### Platform-Specific Instructions:
+
+**Windows Users**: See [Windows SD Card Setup Guide](/WINDOWS-SD-SETUP.md) for detailed WSL instructions.
+
+**Linux Users**:
 ```bash
 # WARNING: Replace sdX with your actual device!
 sudo fdisk /dev/sdX

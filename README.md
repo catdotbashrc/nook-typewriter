@@ -8,7 +8,7 @@ Transform a $20 Barnes & Noble Nook Simple Touch e-reader into a distraction-fre
 - **Debian Linux Base** (Bullseye): Full Linux environment optimized for 256MB RAM
 - **E-Ink Display Support**: FBInk driver for proper refresh and ghosting control (800x600, 16 grayscale)
 - **USB Keyboard Support**: Requires custom kernel with USB host mode (OTG cable + keyboard)
-- **Vim Editor**: Pre-configured with writing plugins (Pencil, Goyo, Zettel, Lightline)
+- **Vim Editor**: Pre-configured with writing plugins (Goyo, Pencil)
 - **Cloud Sync**: Built-in rclone for Dropbox/Google Drive synchronization
 - **SD Card Boot**: Non-destructive - preserves original Nook firmware
 
@@ -40,13 +40,20 @@ Transform a $20 Barnes & Noble Nook Simple Touch e-reader into a distraction-fre
 ```bash
 git clone https://github.com/yourusername/nook
 cd nook
+
+# Choose your build:
+# Option A: Optimized Writer Mode (Recommended - 1.5MB RAM)
+docker build -t nook-writer --build-arg BUILD_MODE=writer -f nookwriter-optimized.dockerfile .
+
+# Option B: Standard Build (Legacy - 15MB RAM)
 docker build -t nook-system -f nookwriter.dockerfile .
 ```
 
 2. **Create Deployment Package**
 ```bash
-docker create --name nook-export nook-system
-docker export nook-export | gzip > nook-debian.tar.gz
+# For optimized build:
+docker create --name nook-export nook-writer
+docker export nook-export | gzip > nook-writer.tar.gz
 docker rm nook-export
 ```
 
@@ -171,9 +178,9 @@ cd nst-kernel/test
 ### Memory Budget
 ```yaml
 Reserved OS:      95MB
-Vim + Plugins:    10MB  
-Writing Space:   160MB (protected)
-Total Used:      ~95MB at idle
+Vim + Plugins:    1.5MB  (Writer mode with Goyo + Pencil)
+Writing Space:   254MB (available)
+Total Used:      ~97MB at idle
 ```
 
 ## Documentation
@@ -280,12 +287,11 @@ From `nookwriter.dockerfile`:
 - `wireless-tools` - WiFi management
 - `wpasupplicant` - WPA authentication
 
-### Vim Plugins
-From `config/vimrc`:
-- `vim-pencil` - Better prose writing
-- `goyo.vim` - Distraction-free mode
-- `vim-zettel` - Zettelkasten note-taking
-- `lightline.vim` - Minimal status line
+### Vim Plugins (Optimized)
+From `config/vimrc-writer`:
+- `goyo.vim` - Distraction-free mode (essential for E-Ink)
+- `vim-pencil` - Better prose writing (soft wrap)
+- `vim-litecorrect` - Auto-correct common typos (optional)
 
 ## Contributing
 
@@ -306,22 +312,6 @@ We welcome contributions that enhance the writing experience:
 - ❌ Development tools
 - ❌ Features using >5MB RAM
 
-## Testing
-
-### Quick Test
-```bash
-docker run -it --rm nook-system vim /tmp/test.txt
-```
-
-### Memory Test
-```bash
-docker stats nook-system --no-stream
-```
-
-### Distraction Test
-```bash
-docker run --rm nook-system ping google.com 2>/dev/null || echo "✓ No distractions"
-```
 
 ## License
 

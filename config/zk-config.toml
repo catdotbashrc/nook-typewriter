@@ -1,0 +1,106 @@
+# zk configuration for Nook Typewriter
+# Optimized for distraction-free writing on E-Ink
+
+# NOTE SETTINGS
+[note]
+
+# Use simple filenames with timestamps
+filename = "{{date now 'timestamp'}}-{{slug title}}"
+extension = "md"
+
+# Default template for new notes
+template = "default.md"
+
+# Automatically save notes
+default-title = "Untitled Note"
+
+# Note ID settings
+id-charset = "alphanum"
+id-length = 8
+id-case = "lower"
+
+# GROUPS - Different types of writing
+[group.daily]
+paths = ["daily"]
+note.filename = "{{date now '%Y-%m-%d'}}"
+note.template = "daily.md"
+
+[group.ideas]
+paths = ["ideas"]
+note.template = "idea.md"
+
+[group.drafts]
+paths = ["drafts"]
+note.template = "draft.md"
+
+[group.scrolls]
+paths = ["scrolls"]
+note.template = "scroll.md"
+
+# MARKDOWN SETTINGS
+[format.markdown]
+# Enable wiki-links for easy note connections
+link-format = "wiki"
+link-drop-extension = true
+
+# Hashtags for organization
+hashtags = true
+colon-tags = true
+multiword-tags = false
+
+# TOOL SETTINGS
+[tool]
+
+# Editor - use vim
+editor = "vim"
+
+# Pager for viewing (less is more E-Ink friendly)
+pager = "less -R"
+
+# FZF for interactive selection (if available)
+fzf-preview = "cat {1}"
+
+# ALIASES - Quick commands
+[alias]
+
+# Quick note creation
+n = 'zk new --title "$*"'
+d = 'zk new --group daily'
+i = 'zk new --group ideas --title "$*"'
+
+# Search and list
+s = 'zk list --interactive'
+f = 'zk list --match "$*"'
+t = 'zk tag list'
+
+# Today's notes
+today = 'zk list --created today'
+yesterday = 'zk list --created yesterday'
+week = 'zk list --created "last week"'
+
+# Word count statistics
+wc = 'zk list --format "{{word-count}} words: {{title}}" | sort -rn'
+total = 'zk list --format "{{word-count}}" | awk "{sum+=\$1} END {print sum \" total words\"}"'
+
+# Graph visualization (text-based for E-Ink)
+graph = 'zk graph --format text'
+
+# LSP SETTINGS (for vim integration)
+[lsp]
+
+[lsp.diagnostics]
+# Minimal diagnostics for distraction-free writing
+wiki-title = "hint"
+dead-link = "warning"
+
+[lsp.completion]
+# Enable completion for note titles and tags
+note-label = "{{title}}"
+note-detail = "{{date created}}"
+note-filter-text = "{{title}} {{tags}}"
+
+# FILTER SETTINGS
+[filter]
+recents = "--sort created- --limit 20"
+drafts = "--match 'draft' --sort modified-"
+orphans = "--orphan"

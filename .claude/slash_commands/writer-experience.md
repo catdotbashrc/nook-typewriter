@@ -38,6 +38,8 @@ Verify writing-focused plugins work correctly:
 - **Zettel**: Can writers manage notes effectively?
 - **Word count**: Is progress visible?
 
+Are the plugins working as expected? Do they respect resource constraints? Are there any plugins that we could use which respect our resource constraints and do not distract the user? Are we using any plugins that are resource intensive, or that distract the user with unnecessary features?
+
 ### 5. Recovery Mechanisms
 Check how writers recover from common issues:
 - Accidental exits (is work saved?)

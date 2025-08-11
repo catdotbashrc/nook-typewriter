@@ -39,6 +39,7 @@ tmp/
 temp/
 *.tmp
 *.temp
+*.log
 
 # SD card images
 *.iso
