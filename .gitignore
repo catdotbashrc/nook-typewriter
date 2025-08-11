@@ -63,7 +63,6 @@ uImage
 zImage
 
 # Kernel source (we'll track only our custom scripts)
-nst-kernel/src/
-nst-kernel/build/
+nst-kernel/src
 nst-kernel/.git/
 nst-kernel/LICENSE
