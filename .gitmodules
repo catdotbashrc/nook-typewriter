@@ -1,3 +1,3 @@
 [submodule "nst-kernel-base"]
 	path = nst-kernel-base
-	url = https://github.com/felixhaedicke/nst-kernel.git
+	url = https://github.com/catdotbashrc/nst-kernel.git
