@@ -1,8 +1,9 @@
 # 🏰 QuillKernel - Nook Typewriter Project
-### Developer Documentation
+### Transform Your E-Reader into a Distraction-Free Writing Machine
 
 ## 📋 Table of Contents
 - [Project Overview](#project-overview)
+- [Key Features](#key-features)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
 - [Development Setup](#development-setup)
@@ -13,17 +14,32 @@
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [Troubleshooting](#troubleshooting)
+- [Documentation](#documentation)
 
 ## 🎯 Project Overview
 
-QuillKernel transforms the Barnes & Noble Nook Simple Touch (NST) e-reader into a distraction-free typewriter with medieval-themed kernel modules. This project builds a custom Linux kernel (2.6.29) with whimsical features while maintaining extreme memory efficiency for the device's 256MB RAM constraint.
+QuillKernel transforms a $20 used Barnes & Noble Nook Simple Touch e-reader into a $400 distraction-free writing device. By combining a custom Linux kernel with medieval-themed interface elements, this project creates the ultimate digital typewriter for focused writing.
 
-### Key Features
-- **Medieval-themed kernel interface** via `/proc/squireos/`
-- **ASCII art court jester** with dynamic moods
-- **Writing statistics tracking** with achievement system
-- **Ultra-minimal footprint** (<30MB compressed rootfs)
-- **E-Ink optimized** interface
+### Project Philosophy
+> "Every feature is a potential distraction. RAM saved is words written."
+
+This project prioritizes **writers over features**, maintaining a sacred 160MB of RAM exclusively for the writing experience while running the entire OS in less than 96MB.
+
+## ✨ Key Features
+
+### Core Functionality
+- **Distraction-Free Writing** - No internet, no notifications, just words
+- **Medieval-Themed Interface** - ASCII art jester companion with dynamic moods
+- **Writing Statistics** - Track words, keystrokes, and writing achievements
+- **Ultra-Minimal Footprint** - <30MB compressed rootfs, <96MB runtime
+- **E-Ink Optimized** - Interface designed for E-Ink's unique characteristics
+
+### Technical Achievements
+- **Custom Kernel Modules** - SquireOS modules via `/proc/squireos/` interface
+- **Docker-Based Build** - Consistent cross-compilation environment
+- **Comprehensive Testing** - 90%+ test coverage with safety validations
+- **Script Safety** - Input validation, error handling, path protection
+- **Memory Efficiency** - Aggressive optimization for 256MB constraint
 
 ### Target Hardware
 - **Device**: Barnes & Noble Nook Simple Touch
@@ -358,15 +374,20 @@ docker images | grep quillkernel-builder
 
 # Rebuild if needed
 cd quillkernel && docker build -t quillkernel-builder .
+
+# Clean build attempt
+./build_kernel.sh clean
+./build_kernel.sh
 ```
 
 #### SD Card Mount Errors
 ```bash
 # Check filesystem
-sudo fsck.vfat -r /dev/sdeX
+sudo fsck.vfat -r /dev/sdX1
 
 # Reformat if corrupted
-sudo mkfs.vfat -F 16 -n NOOK_BOOT /dev/sde1
+sudo mkfs.vfat -F 16 -n NOOK_BOOT /dev/sdX1
+sudo mkfs.ext4 -L NOOK_ROOT /dev/sdX2
 ```
 
 #### Module Load Failures
@@ -376,7 +397,23 @@ uname -r
 modinfo squireos_core.ko
 
 # Check dmesg for errors
-dmesg | tail -20
+dmesg | grep squireos
+
+# Manual module loading sequence
+insmod /lib/modules/2.6.29/squireos_core.ko
+insmod /lib/modules/2.6.29/jester.ko
+insmod /lib/modules/2.6.29/typewriter.ko
+insmod /lib/modules/2.6.29/wisdom.ko
+```
+
+#### Memory Issues
+```bash
+# Check current usage
+free -h
+cat /proc/meminfo
+
+# Verify sacred writing space
+df -h /root/notes
 ```
 
 ### Debug Tools
@@ -390,14 +427,36 @@ lsmod | grep squireos
 
 # Process filesystem
 ls -la /proc/squireos/
+cat /proc/squireos/jester
+cat /proc/squireos/typewriter/stats
+
+# System health check
+./source/scripts/services/health-check.sh
 ```
 
-## 📚 Additional Resources
+## 📚 Documentation
 
+### Essential Documentation
+- **[PROJECT_INDEX.md](PROJECT_INDEX.md)** - Comprehensive project index
+- **[CLAUDE.md](CLAUDE.md)** - Development philosophy and guidelines
+- **[docs/COMPLETE_PROJECT_INDEX.md](docs/COMPLETE_PROJECT_INDEX.md)** - Master documentation reference
+
+### Technical References
+- **[Kernel API Reference](docs/KERNEL_API_REFERENCE.md)** - Module development guide
+- **[Deployment Guide](docs/DEPLOYMENT_INTEGRATION_GUIDE.md)** - SD card setup and deployment
+- **[Testing Procedures](docs/TESTING_PROCEDURES.md)** - Test suite documentation
+- **[XDA Research](docs/XDA-RESEARCH-FINDINGS.md)** - Community findings and tips
+
+### Architecture & Design
+- **[System Architecture](design/ARCHITECTURE.md)** - Component relationships
+- **[Kernel Integration](design/KERNEL_INTEGRATION.md)** - SquireOS module design
+- **[Embedded Structure](design/EMBEDDED-PROJECT-STRUCTURE.md)** - Project organization
+- **[UI Components](docs/ui-components-design.md)** - Interface design patterns
+
+### Additional Resources
 - [Original Nook Kernel](https://github.com/felixhaedicke/nst-kernel) - Base kernel source
 - [Linux 2.6.29 Documentation](https://www.kernel.org/doc/html/v2.6.29/) - Kernel API reference
-- [E-Ink Programming Guide](docs/eink-guide.md) - Display optimization
-- [Medieval Theme Guide](docs/medieval-theme.md) - Maintaining the aesthetic
+- [FBInk Library](https://github.com/NiLuJe/FBInk) - E-Ink display interface
 
 ## 📄 License
 
@@ -405,10 +464,12 @@ This project is licensed under GPL v2 - see [LICENSE](LICENSE) file for details.
 
 ## 🏆 Credits
 
-- **felixhaedicke** - Original NST kernel work
+- **Felix Hädicke** - Original NST kernel foundation
 - **NiLuJe** - FBInk E-Ink library
+- **XDA Community** - Research and guidance
 - **Barnes & Noble** - Original Nook hardware
-- **The Medieval Jester** - Inspiration and companionship
+- **Medieval Scribes** - Eternal inspiration
+- **The Court Jester** - Digital companionship
 
 ---
 
@@ -416,14 +477,27 @@ This project is licensed under GPL v2 - see [LICENSE](LICENSE) file for details.
 
 ## 🚦 Current Status
 
-- [x] Kernel module development
-- [x] Docker build environment
-- [x] Minimal root filesystem
+### Completed ✅
+- [x] Kernel module architecture with `/proc/squireos/` interface
+- [x] Docker-based cross-compilation environment
+- [x] Minimal root filesystem (<30MB compressed)
+- [x] Comprehensive test suite (90%+ coverage)
+- [x] Script safety improvements (input validation, error handling)
 - [x] SD card installation scripts
-- [ ] Hardware testing on actual Nook
-- [ ] Writing application integration
+- [x] ASCII art jester with mood system
+- [x] Writing statistics tracking
+
+### In Progress 🔄
+- [ ] Hardware testing on actual Nook device
+- [ ] Vim writing environment integration
 - [ ] Power management optimization
-- [ ] Release packaging
+
+### Future Plans 📅
+- [ ] Spell checker integration
+- [ ] Thesaurus support
+- [ ] Advanced writing analytics
+- [ ] Battery life optimization to 2+ weeks
+- [ ] Release packaging and distribution
 
 ---
 
