@@ -290,8 +290,11 @@ to attach them to the start of each source file to most effectively
 convey the exclusion of warranty; and each file should have at least
 the "copyright" line and a pointer to where the full notice is found.
 
-    Linux Kernel for the Nook Simple Touch with fixed USB host and fast display mode support
-    Copyright (C) 2013  felixhaedicke
+    QuillKernel - Nook Typewriter Project
+    Copyright (C) 2025  Justin Yeary
+    
+    Based on: Linux Kernel for the Nook Simple Touch
+    Original Copyright (C) 2013  felixhaedicke
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
