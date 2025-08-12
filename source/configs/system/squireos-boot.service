@@ -1,0 +1,19 @@
+[Unit]
+Description=SquireOS Boot Animation and Branding
+DefaultDependencies=no
+After=sysinit.target
+Before=basic.target
+ConditionPathExists=/usr/local/bin/squireos-boot.sh
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/squireos-boot.sh
+RemainAfterExit=yes
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+
+[Install]
+WantedBy=basic.target

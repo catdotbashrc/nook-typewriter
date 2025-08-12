@@ -1,350 +1,430 @@
-# Nook Simple Touch Typewriter
+# 🏰 QuillKernel - Nook Typewriter Project
+### Developer Documentation
 
-[![Architecture](https://img.shields.io/badge/Architecture-8.5%2F10-green)](ARCHITECTURE_ANALYSIS.md)
-[![RAM Usage](https://img.shields.io/badge/RAM-2--8MB-blue)](docs/vim-optimization-results.md)
-[![Tests](https://img.shields.io/badge/Tests-Available-brightgreen)](tests/)
-[![Plugin System](https://img.shields.io/badge/Plugins-Supported-yellow)](config/plugins/)
+## 📋 Table of Contents
+- [Project Overview](#project-overview)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [Development Setup](#development-setup)
+- [Build System](#build-system)
+- [Kernel Modules](#kernel-modules)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
 
-Transform a $20 Barnes & Noble Nook Simple Touch e-reader into a distraction-free digital typewriter with custom Linux kernel, optimized writing software, and whimsical medieval theming.
+## 🎯 Project Overview
 
-## Features
+QuillKernel transforms the Barnes & Noble Nook Simple Touch (NST) e-reader into a distraction-free typewriter with medieval-themed kernel modules. This project builds a custom Linux kernel (2.6.29) with whimsical features while maintaining extreme memory efficiency for the device's 256MB RAM constraint.
 
-### Core Functionality
-- **Debian Linux Base** (Bullseye): Full Linux environment optimized for 256MB RAM
-- **E-Ink Display Support**: FBInk driver for proper refresh and ghosting control (800x600, 16 grayscale)
-- **USB Keyboard Support**: Requires custom kernel with USB host mode (OTG cable + keyboard)
-- **Vim Editor**: Pre-configured with writing plugins (Goyo, Pencil)
-- **Cloud Sync**: Built-in rclone for Dropbox/Google Drive synchronization
-- **SD Card Boot**: Non-destructive - preserves original Nook firmware
+### Key Features
+- **Medieval-themed kernel interface** via `/proc/squireos/`
+- **ASCII art court jester** with dynamic moods
+- **Writing statistics tracking** with achievement system
+- **Ultra-minimal footprint** (<30MB compressed rootfs)
+- **E-Ink optimized** interface
 
-### QuillKernel - Medieval-Themed Custom Kernel
-- **Court Jester Companion**: ASCII art guide through boot and errors
-- **Achievement System**: Track writing milestones (Apprentice to Grand Chronicler)
-- **Writing Statistics**: `/proc/squireos/typewriter/stats` tracking
-- **Medieval Boot Messages**: "By quill and candlelight, we begin..."
-- **Comprehensive Testing**: 12+ test scripts with Docker support
+### Target Hardware
+- **Device**: Barnes & Noble Nook Simple Touch
+- **CPU**: TI OMAP3621 @ 800MHz (ARM Cortex-A8)
+- **RAM**: 256MB (160MB reserved for writing)
+- **Display**: 6" E-Ink (800x600, 16-level grayscale)
+- **Storage**: 2GB internal + SD card slot
 
-## Installation
+## 🏗️ Architecture
 
-### Prerequisites
-
-**Hardware:**
-- Barnes & Noble Nook Simple Touch (Model BNRV300)
-- MicroSD card (8-32GB, Class 10 recommended)
-- USB OTG cable + USB keyboard
-- SD card reader for your computer
-
-**Software:**
-- Docker Engine 20.10+
-- Git
-- 2GB disk space for building
-
-### Quick Start
-
-1. **Clone and Build System**
-```bash
-git clone https://github.com/yourusername/nook
-cd nook
-
-# Choose your build:
-# Option A: Optimized Writer Mode (Recommended - 1.5MB RAM)
-docker build -t nook-writer --build-arg BUILD_MODE=writer -f nookwriter-optimized.dockerfile .
-
-# Option B: Standard Build (Legacy - 15MB RAM)
-docker build -t nook-system -f nookwriter.dockerfile .
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     QuillKernel Stack                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  User Space                     Kernel Space                │
+│  ┌──────────┐                  ┌──────────────┐            │
+│  │   Vim    │                  │  SquireOS    │            │
+│  │ Editor   │◄────────────────►│   Modules    │            │
+│  └──────────┘                  └──────┬───────┘            │
+│       ▲                               │                     │
+│       │                               ▼                     │
+│  ┌──────────┐                  ┌──────────────┐            │
+│  │   Menu   │                  │    /proc     │            │
+│  │  System  │◄────────────────►│  Interface   │            │
+│  └──────────┘                  └──────┬───────┘            │
+│                                       │                     │
+│  Minimal Debian                       ▼                     │
+│  Rootfs (31MB)                 ┌──────────────┐            │
+│                                │ Linux Kernel │            │
+│                                │    2.6.29    │            │
+│                                └──────┬───────┘            │
+│                                       │                     │
+│                                       ▼                     │
+│                                ┌──────────────┐            │
+│                                │   Android    │            │
+│                                │  Bootloader  │            │
+│                                └──────────────┘            │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-2. **Create Deployment Package**
+### Component Layers
+
+1. **Bootloader**: Stock Android bootloader (U-Boot based)
+2. **Kernel**: Custom Linux 2.6.29 with SquireOS modules
+3. **Root Filesystem**: Minimal Debian Bullseye (31MB)
+4. **User Interface**: Vim + custom menu system
+
+## 🚀 Quick Start
+
+### Prerequisites
 ```bash
-# For optimized build:
-docker create --name nook-export nook-writer
-docker export nook-export | gzip > nook-writer.tar.gz
+# Required tools
+docker --version  # Docker 20.10+
+git --version     # Git 2.25+
+sudo access       # For SD card operations
+
+# For native builds (optional)
+arm-linux-gnueabi-gcc --version  # ARM cross-compiler
+```
+
+### Clone and Build
+```bash
+# Clone repository with submodules
+git clone --recursive https://github.com/yourusername/nook-typewriter.git
+cd nook-typewriter
+
+# Build kernel and modules
+./build_kernel.sh
+
+# Build root filesystem
+docker build -t nook-mvp-rootfs -f minimal-boot.dockerfile .
+
+# Package rootfs
+docker create --name nook-export nook-mvp-rootfs
+docker export nook-export | gzip > nook-mvp-rootfs.tar.gz
 docker rm nook-export
 ```
 
-3. **Build QuillKernel (Optional but Recommended)**
+## 🛠️ Development Setup
+
+### Docker Build Environment
+
+The project uses Docker for consistent cross-compilation:
+
+```dockerfile
+# quillkernel/Dockerfile
+FROM ubuntu:20.04
+# Installs Android NDK r10e for ARM cross-compilation
+# Sets up build environment with kernel 2.6.29 support
+```
+
+Build the Docker environment:
 ```bash
-cd nst-kernel
-./squire-kernel-patch.sh  # Apply medieval patches
-
-# Docker build (no toolchain needed!)
-docker build -f Dockerfile.build -t quillkernel .
-
-# Or traditional build
-cd src
-make ARCH=arm quill_typewriter_defconfig
-make -j$(nproc) ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- uImage
+cd quillkernel
+docker build -t quillkernel-builder .
 ```
 
-4. **Prepare Your Nook**
-- Root with [NookManager](https://github.com/doozan/NookManager/releases)
-- Install USB host kernel (see Kernel Resources below)
-- Format SD card with FAT32 boot + F2FS root partitions
+### Local Development
 
-5. **Deploy and Boot**
-- Extract `nook-debian.tar.gz` to SD card root partition
-- Copy kernel to boot partition
-- Insert SD card and power on
+For local development without Docker:
 
-## Usage
-
-### Main Menu System
-The device boots into a simple E-Ink optimized menu (`/usr/local/bin/nook-menu.sh`):
-
-- **[Z]** Zettelkasten Mode - Create timestamped notes
-- **[D]** Draft Mode - Work on continuous draft
-- **[R]** Resume Session - Continue last document
-- **[S]** Sync Notes - Upload to cloud storage
-- **[Q]** Shutdown - Power off safely
-
-### Vim Writing Commands
-```vim
-\g          " Goyo focus mode
-\p          " Pencil better writing
-:w          " Save (or Ctrl+S)
-:q          " Quit (or Ctrl+Q)
-Space+zn    " New Zettel note
-Space+dd    " Open draft
-```
-
-## Project Structure
-
-```
-nook/
-├── nookwriter.dockerfile         # Main Debian system build
-├── docker-compose.yml           # Development environment
-├── docker-compose.hw.yml        # Hardware testing setup
-├── config/
-│   ├── vimrc                   # Vim configuration
-│   ├── scripts/
-│   │   ├── nook-menu.sh        # Main UI menu
-│   │   ├── sync-notes.sh       # Cloud sync script
-│   │   ├── squire-menu.sh      # Medieval themed menu
-│   │   └── squireos-boot.sh    # Boot initialization
-│   ├── splash/                 # ASCII art and messages
-│   ├── system/                 # OS configuration files
-│   └── vim/                    # Vim plugins config
-├── nst-kernel/                  # QuillKernel source
-│   ├── squire-kernel-patch.sh  # Apply medieval patches
-│   ├── Dockerfile.build        # Kernel build environment
-│   ├── Dockerfile.test         # Testing environment
-│   ├── src/                    # Linux 2.6.29 source
-│   ├── drivers/squireos/       # Custom typewriter module
-│   └── test/                   # Comprehensive test suite
-├── docs/
-│   ├── tutorials/              # Step-by-step guides
-│   ├── how-to/                 # Specific tasks
-│   ├── explanation/            # Architecture docs
-│   └── reference/              # Quick references
-├── images/                      # Boot and recovery images
-└── scripts/                     # Build automation
-```
-
-## Testing
-
-### Docker Development
 ```bash
-# Run development environment
-docker-compose up -d
-docker-compose exec nookwriter bash
+# Install ARM toolchain
+sudo apt-get install gcc-arm-linux-gnueabi
 
-# Test Vim setup
-docker-compose exec nookwriter vim
+# Set environment variables
+export ARCH=arm
+export CROSS_COMPILE=arm-linux-gnueabi-
 
-# Test menu (will show gracefully without E-Ink)
-docker-compose exec nookwriter /usr/local/bin/nook-menu.sh
+# Build kernel
+cd nst-kernel-base/src
+make omap3621_gossamer_evt1c_defconfig
+make -j$(nproc) uImage
 ```
 
-### Kernel Testing
+## 🔨 Build System
+
+### Kernel Build Process
+
 ```bash
-cd nst-kernel/test
-./verify-build-simple.sh   # Quick verification
-./run-all-tests.sh         # Full test suite
-./low-memory-test.sh       # Memory constraint testing
-./test-typewriter.sh       # Writing module test
+# Main build script
+./build_kernel.sh
+
+# What it does:
+# 1. Configures kernel for Nook hardware
+# 2. Enables SquireOS modules
+# 3. Compiles kernel to uImage
+# 4. Builds kernel modules (.ko files)
 ```
 
-## System Requirements
+### Module Integration
 
-### Device Specifications
-- **CPU**: 800 MHz ARM Cortex-A8 (TI OMAP 3621)
-- **RAM**: 256MB total (95MB OS, 160MB writing space)
-- **Display**: 6" E-Ink Pearl (800x600, 167 DPI)
-- **Storage**: Internal 2GB + MicroSD slot
-- **Battery**: 1500mAh (weeks of writing time)
+SquireOS modules are integrated into the kernel build system:
 
-### Software Stack
-- **Base OS**: Debian 11 (Bullseye) ARM
-- **Kernel**: Linux 2.6.29 + QuillKernel patches
-- **Display**: FBInk (compiled with MINIMAL=1)
-- **Editor**: Vim 8.2 with writing plugins
-- **Shell**: Bash with custom scripts
+```makefile
+# nst-kernel-base/src/drivers/Makefile
+obj-$(CONFIG_SQUIREOS) += ../../../../quillkernel/modules/
 
-### Memory Budget
-```yaml
-Reserved OS:      95MB
-Vim + Plugins:    1.5MB  (Writer mode with Goyo + Pencil)
-Writing Space:   254MB (available)
-Total Used:      ~97MB at idle
+# nst-kernel-base/src/drivers/Kconfig
+source "drivers/Kconfig.squireos"
 ```
 
-## Documentation
+### Configuration Options
 
-Complete documentation follows the [Diataxis framework](https://diataxis.fr/):
+```kconfig
+# drivers/Kconfig.squireos
+menuconfig SQUIREOS
+    tristate "SquireOS Medieval Interface"
+    
+config SQUIREOS_JESTER
+    bool "Enable Court Jester companion"
+    
+config SQUIREOS_TYPEWRITER
+    bool "Enable typewriter statistics"
+    
+config SQUIREOS_WISDOM
+    bool "Enable writing wisdom quotes"
+```
 
-### Tutorials (Learning-Oriented)
-- [First Nook Setup](docs/tutorials/01-first-nook-setup.md) - Complete beginner guide
-- [Writing Your First Note](docs/tutorials/02-writing-your-first-note.md) - Vim basics
-- [Syncing to Cloud](docs/tutorials/03-syncing-to-cloud.md) - Setup cloud backup
+## 🎭 Kernel Modules
 
-### How-To Guides (Task-Oriented)
-- [Install Custom Kernel](docs/how-to/install-custom-kernel.md) - Enable USB keyboard
-- [Build Custom Kernel](docs/how-to/build-custom-kernel.md) - Compile from source
-- [Setup Wireless Keyboard](docs/how-to/setup-wireless-keyboard.md) - Bluetooth/RF options
-- [Customize Vim Plugins](docs/how-to/customize-vim-plugins.md) - Add writing tools
+### Module Overview
 
-### Reference (Information-Oriented)
-- [Keyboard Shortcuts](docs/reference/keyboard-shortcuts.md) - Quick command reference
-- [System Requirements](docs/reference/system-requirements.md) - Hardware/software needs
+| Module | Purpose | /proc Interface |
+|--------|---------|-----------------|
+| `squireos_core.c` | Base module, creates /proc/squireos | `/proc/squireos/motto` |
+| `jester.c` | ASCII art jester with moods | `/proc/squireos/jester` |
+| `typewriter.c` | Keystroke and word tracking | `/proc/squireos/typewriter/stats` |
+| `wisdom.c` | Rotating writing quotes | `/proc/squireos/wisdom` |
 
-### Explanation (Understanding-Oriented)
-- [Architecture Overview](docs/explanation/architecture-overview.md) - System design
-- [Why Debian Over Alpine](docs/explanation/why-debian-over-alpine.md) - OS choice rationale
-- [Roadmap](docs/explanation/roadmap.md) - Future development plans
+### Module Development
 
-## Kernel Resources
+Example module structure:
+```c
+// squireos_core.c
+#include <linux/module.h>
+#include <linux/proc_fs.h>
 
-### Pre-Built Kernels
-Search XDA Forums for "Nook Simple Touch USB host kernel":
-- **mali100's kernel** - FastMode E-Ink support
-- **latuk's kernel** - Version 174+ with USB OTG
-- **Guevor's kernel** - Power optimizations
+static struct proc_dir_entry *squireos_root;
 
-### Building QuillKernel
+static int __init squireos_init(void) {
+    squireos_root = proc_mkdir("squireos", NULL);
+    // Create proc entries
+    return 0;
+}
+
+static void __exit squireos_exit(void) {
+    remove_proc_entry("squireos", NULL);
+}
+
+module_init(squireos_init);
+module_exit(squireos_exit);
+MODULE_LICENSE("GPL");
+```
+
+### Testing Modules
+
 ```bash
-# Automated Docker build
-cd nst-kernel
-docker build -f Dockerfile.build -t quillkernel .
+# User-space testing
+./test/test_modules.sh
 
-# Extract kernel
-docker create --name kernel-export quillkernel
-docker cp kernel-export:/build/arch/arm/boot/uImage ./uImage
-docker rm kernel-export
+# Load modules on device
+insmod /lib/modules/squireos_core.ko
+insmod /lib/modules/jester.ko
+
+# Verify
+cat /proc/squireos/jester
 ```
 
-## Configuration
+## 🧪 Testing
 
-### Environment Variables
-Set in `docker-compose.yml`:
-```yaml
-TERM: xterm-256color
-EDITOR: vim
-PAGER: less
+### Test Suite
+
+```bash
+# Run all tests
+./tests/run-tests.sh
+
+# Individual test categories
+./tests/test-docker-build.sh    # Docker build verification
+./tests/test-vim-modes.sh       # Vim configuration
+./tests/test-health-check.sh    # System health
+./tests/test-plugin-system.sh   # Plugin architecture
 ```
 
-### System Configuration
-- **Network**: Disabled by default (distraction-free)
-- **USB**: Host mode required for keyboard
-- **Display**: E-Ink refresh on menu changes
-- **Power**: Auto-suspend after 30 minutes idle
+### Module Testing
 
-## Troubleshooting
+```bash
+# Test kernel modules
+./test/test_modules.sh
+
+# Check module syntax
+gcc -fsyntax-only -D__KERNEL__ -DMODULE quillkernel/modules/*.c
+```
+
+### Hardware Testing
+
+```bash
+# Verify SD card
+./scripts/verify-sd-card.sh
+
+# Mount test
+./mount_sdcard_helper.sh detect
+./mount_sdcard_helper.sh mount /dev/sdX
+```
+
+## 📦 Deployment
+
+### SD Card Preparation
+
+```bash
+# 1. Prepare SD card (WARNING: Erases SD card!)
+sudo ./prepare_sdcard.sh
+
+# 2. Mount partitions
+sudo ./mount_sde.sh
+
+# 3. Install QuillKernel
+sudo ./install_to_sdcard.sh
+
+# 4. Unmount safely
+sync
+sudo umount /mnt/nook_boot /mnt/nook_root
+```
+
+### Boot Process
+
+1. Insert SD card into Nook
+2. Hold page-turn buttons while powering on
+3. QuillKernel boots from SD card
+4. Jester appears on E-Ink display
+5. Menu system launches
+
+## 📁 Project Structure
+
+```
+nook-typewriter/
+├── quillkernel/              # QuillKernel specific code
+│   ├── modules/              # Kernel modules (C)
+│   │   ├── squireos_core.c   # Base module
+│   │   ├── jester.c          # ASCII jester
+│   │   ├── typewriter.c      # Stats tracking
+│   │   └── wisdom.c          # Quote system
+│   ├── Dockerfile            # Build environment
+│   └── build.sh              # Build script
+├── nst-kernel-base/          # Kernel source (submodule)
+│   ├── src/                  # Linux 2.6.29 source
+│   └── build/                # Build configs
+├── config/                   # Configuration files
+│   ├── scripts/              # System scripts
+│   │   ├── nook-menu.sh      # Main menu
+│   │   └── boot-jester.sh    # Boot animations
+│   └── vim/                  # Vim configuration
+├── tests/                    # Test suite
+├── scripts/                  # Build & utility scripts
+├── boot/                     # Boot configurations
+└── docs/                     # Documentation
+```
+
+## 🤝 Contributing
+
+### Development Workflow
+
+1. **Fork** the repository
+2. **Create** feature branch: `git checkout -b feature-name`
+3. **Test** your changes thoroughly
+4. **Document** any new features
+5. **Submit** pull request
+
+### Code Standards
+
+- **C Kernel Code**: Follow Linux kernel coding style
+- **Shell Scripts**: Use ShellCheck for validation
+- **Memory**: Every byte matters - optimize aggressively
+- **E-Ink**: Minimize screen refreshes
+
+### Testing Requirements
+
+- All modules must compile without warnings
+- Memory usage must stay under limits
+- E-Ink compatibility must be maintained
+- Medieval theme must be preserved 🏰
+
+## 🔧 Troubleshooting
 
 ### Common Issues
 
-**Keyboard not working:**
-- Verify USB host kernel installed
-- Check OTG cable orientation
-- Try powered hub for wireless keyboards
-
-**Screen ghosting:**
-- Normal E-Ink behavior
-- Press 5 for full refresh
-- Run `fbink -c` for manual clear
-
-**Won't boot from SD:**
-- Check partition table (MBR not GPT)
-- Verify FAT32 boot partition
-- Ensure uEnv.txt present
-
-**Build failures:**
+#### Kernel Build Fails
 ```bash
-# Clear Docker cache
-docker system prune -a
+# Check Docker image
+docker images | grep quillkernel-builder
 
-# Check disk space
-df -h
-
-# Verify internet connection
-docker run --rm alpine ping -c 1 google.com
+# Rebuild if needed
+cd quillkernel && docker build -t quillkernel-builder .
 ```
 
-## Dependencies
+#### SD Card Mount Errors
+```bash
+# Check filesystem
+sudo fsck.vfat -r /dev/sdeX
 
-### Build Dependencies
-From `nookwriter.dockerfile`:
-- `vim` - Primary editor
-- `git` - Version control
-- `tmux` - Terminal multiplexer
-- `rsync` - File synchronization
-- `rclone` - Cloud storage client
-- `fbink` - E-Ink display driver (compiled from source)
-- `wireless-tools` - WiFi management
-- `wpasupplicant` - WPA authentication
+# Reformat if corrupted
+sudo mkfs.vfat -F 16 -n NOOK_BOOT /dev/sde1
+```
 
-### Vim Plugins (Optimized)
-From `config/vimrc-writer`:
-- `goyo.vim` - Distraction-free mode (essential for E-Ink)
-- `vim-pencil` - Better prose writing (soft wrap)
-- `vim-litecorrect` - Auto-correct common typos (optional)
+#### Module Load Failures
+```bash
+# Check kernel version match
+uname -r
+modinfo squireos_core.ko
 
-## Contributing
+# Check dmesg for errors
+dmesg | tail -20
+```
 
-We welcome contributions that enhance the writing experience:
+### Debug Tools
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Test in Docker first
-4. Ensure memory budget maintained
-5. Submit PR with clear description
+```bash
+# Kernel messages
+dmesg | grep squireos
 
-### Contribution Guidelines
-- ✅ Memory optimizations
-- ✅ Writing workflow improvements  
-- ✅ Medieval theme enhancements
-- ✅ Battery life improvements
-- ❌ Web browsers or internet features
-- ❌ Development tools
-- ❌ Features using >5MB RAM
+# Module information
+lsmod | grep squireos
 
+# Process filesystem
+ls -la /proc/squireos/
+```
 
-## License
+## 📚 Additional Resources
 
-GPL v2 (kernel requirement)
+- [Original Nook Kernel](https://github.com/felixhaedicke/nst-kernel) - Base kernel source
+- [Linux 2.6.29 Documentation](https://www.kernel.org/doc/html/v2.6.29/) - Kernel API reference
+- [E-Ink Programming Guide](docs/eink-guide.md) - Display optimization
+- [Medieval Theme Guide](docs/medieval-theme.md) - Maintaining the aesthetic
 
-Component licenses:
-- Linux Kernel: GPL v2
-- FBInk: GPL v3  
-- Vim: Vim License
-- Debian: Various open source
+## 📄 License
 
-See [LICENSE](LICENSE) for details.
+This project is licensed under GPL v2 - see [LICENSE](LICENSE) file for details.
 
-## Credits
+## 🏆 Credits
 
-Built on the shoulders of giants:
-- XDA Developers Nook Touch community
-- NiLuJe (FBInk author)
-- doozan (NookManager)
-- felixhaedicke (nst-kernel base)
-- Kernel developers (Guevor, mali100, latuk)
-
-## Support
-
-- [XDA Forums Nook Touch](https://forum.xda-developers.com/c/barnes-noble-nook-touch.1129/)
-- [GitHub Issues](https://github.com/yourusername/nook/issues)
-- [FBInk Repository](https://github.com/NiLuJe/FBInk)
+- **felixhaedicke** - Original NST kernel work
+- **NiLuJe** - FBInk E-Ink library
+- **Barnes & Noble** - Original Nook hardware
+- **The Medieval Jester** - Inspiration and companionship
 
 ---
 
-*"By quill and candlelight, we code for those who write"* 🕯️📜
+*"By quill and compiler, we craft digital magic!"* 🪶✨
+
+## 🚦 Current Status
+
+- [x] Kernel module development
+- [x] Docker build environment
+- [x] Minimal root filesystem
+- [x] SD card installation scripts
+- [ ] Hardware testing on actual Nook
+- [ ] Writing application integration
+- [ ] Power management optimization
+- [ ] Release packaging
+
+---
+
+**For Writers, By Developers** | **Vim + E-Ink = ❤️** | **Medieval Computing Since 2024**

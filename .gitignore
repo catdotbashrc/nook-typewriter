@@ -1,64 +1,40 @@
-# Operating System
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*~
+# Build artifacts
+firmware/kernel/uImage
+firmware/kernel/modules/*.ko
+firmware/rootfs/usr/local/bin/*
+firmware/boot/*
+
+# Release images
+releases/*.img
+releases/*.sha256
+
+# Build temporary files
+build/tmp/
+*.o
+*.ko
+*.mod.c
+*.mod
+*.cmd
 
 # Docker
-*.tar.gz
-*.tar.xz
-nook-alpine.tar.gz
-nook-system.tar.gz
-
-# Data and Backups
-data/
-backups/
-logs/
-
+.dockerignore
 
 # IDE
 .vscode/
 .idea/
-*.iml
+*.swp
+*.swo
 
-# Environment files with secrets
-.env
-.env.local
+# OS
+.DS_Store
+Thumbs.db
 
-# Zone Identifier files (Windows)
-*:Zone.Identifier
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
+# Logs
 *.log
-
-# Test results
-**/test-results/
-**/static-analysis-results-*/
-*.test-output
 
 # Backup files
 *.bak
-*.backup
-*.old
-*.orig
 *~
 
-# SD card images
-*.iso
-*.dmg
-
-# Compiled kernels
-arch/
-zImage
-
-# Kernel source (we'll track only our custom scripts)
-nst-kernel/src
-nst-kernel/.git/
-nst-kernel/LICENSE
-images/NookManager.img
 images/2gb_clockwork-rc2.img
+NookManager.img
