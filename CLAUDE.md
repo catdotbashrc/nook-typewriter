@@ -36,23 +36,26 @@ SACRED Writing Space: 160MB (DO NOT TOUCH)
 
 ### Key Components
 
-**QuillKernel** (`quillkernel/modules/`)
+**QuillKernel Modules** (`source/kernel/src/drivers/`)
 - `squireos_core.c`: Creates `/proc/squireos/` filesystem
 - `jester.c`: ASCII art mood system based on system state
 - `typewriter.c`: Tracks keystrokes and writing achievements
 - `wisdom.c`: Rotating writing quotes for inspiration
+- Configuration via `Kconfig.squireos` with medieval-themed help text
 
 **Build System**
-- Two Docker environments: OS (`nookwriter-optimized.dockerfile`) and Kernel (`quillkernel/Dockerfile`)
-- Kernel uses Android NDK r10e with ARM cross-compiler
-- OS has two modes: minimal (2MB RAM) or writer (5MB RAM)
+- Main kernel build: `./build_kernel.sh` (Docker-based with `quillkernel-builder` image)
+- Minimal boot environment: `minimal-boot.dockerfile` for MVP testing (<30MB)
+- Kernel uses Android NDK r10e with ARM cross-compiler targeting Linux 2.6.29
+- Cross-compilation: `arm-linux-androideabi-` toolchain
 
 **Boot Sequence**
 1. U-Boot loads kernel from SD card
 2. Android init starts
 3. Chroot to Debian at boot completion
-4. Launch `/usr/local/bin/boot-jester.sh`
-5. Display menu via `nook-menu.sh`
+4. Launch `/usr/local/bin/boot-jester.sh` or MVP init script
+5. Load SquireOS modules (`insmod` commands in init scripts)
+6. Display jester and launch menu system
 
 ## Essential Development Commands
 
@@ -67,24 +70,25 @@ docker create --name nook-export nook-writer
 docker export nook-export | gzip > nook-writer.tar.gz
 docker rm nook-export
 
-# Build QuillKernel (from quillkernel/ directory)
-./build.sh  # One-command kernel build with Docker
+# Build QuillKernel (main build script)
+./build_kernel.sh  # One-command kernel build with Docker
 
-# Alternative: Build rootfs with script
-./scripts/build-rootfs.sh --output nook-debian.tar.gz
+# Build minimal boot environment for testing
+docker build -t nook-mvp-rootfs -f minimal-boot.dockerfile .
+docker create --name nook-export nook-mvp-rootfs
+docker export nook-export | gzip > nook-mvp-rootfs.tar.gz
+docker rm nook-export
 ```
 
 ### Testing
 
 ```bash
-# Run full test suite
-./tests/run-tests.sh
+# Run improvement validation tests
+./tests/test-improvements.sh    # Validates script improvements and safety measures
 
-# Test individual components
-./tests/test-docker-build.sh   # Container builds
-./tests/test-vim-modes.sh       # Vim configurations
-./tests/test-health-check.sh    # System health
-./tests/test-plugin-system.sh   # Plugin framework
+# Test kernel modules (user-space simulation)
+./source/kernel/test/test_modules.sh
+./source/kernel/test/simulate_module.sh
 
 # Test in Docker (won't have E-Ink)
 docker run -it --rm nook-writer vim /tmp/test.txt
@@ -97,14 +101,14 @@ docker stats nook-writer --no-stream --format "RAM: {{.MemUsage}}"
 ### Deployment
 
 ```bash
-# Deploy to SD card (requires root)
-sudo ./deploy-to-nook.sh /dev/sdX  # Replace X with your SD card
+# Install to SD card (requires root)
+sudo ./install_to_sdcard.sh
 
-# Verify SD card structure
-./scripts/verify-sd-card.sh /dev/sdX
+# Test Docker image locally (no E-Ink support)
+docker run -it --rm nook-mvp-rootfs
 
-# Troubleshoot boot issues
-./troubleshoot-sd.sh /dev/sdX
+# Check memory usage
+docker stats nook-mvp-rootfs --no-stream --format "RAM: {{.MemUsage}}"
 ```
 
 ### Kernel Development
@@ -136,9 +140,11 @@ watch -n 5 'cat /proc/squireos/typewriter/stats'
 ### Common Issues & Solutions
 
 **Kernel modules not loading:**
-- Modules go in `/lib/modules/2.6.29/` in rootfs
-- Add `insmod /lib/modules/squireos_core.ko` to boot scripts
-- Check `dmesg` for module errors
+- Modules go in `/lib/modules/2.6.29/` in rootfs  
+- Build modules with kernel: `make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- modules`
+- Load order: `squireos_core.ko` first, then `jester.ko`, `typewriter.ko`, `wisdom.ko`
+- Check `dmesg | grep squireos` for module errors
+- Verify kernel config: `CONFIG_SQUIREOS=m` in `.config`
 
 **Memory exhaustion:**
 - Run `free -h` to check usage
@@ -211,6 +217,34 @@ spin_unlock(&stats_lock);
 - Writing save: < 1 second
 - Total RAM usage: < 96MB
 
+## Critical Project Structure
+
+### Current Architecture (Post-Kernel Integration)
+```
+source/
+├── kernel/              # Linux 2.6.29 with SquireOS modules
+│   ├── src/            # Full kernel source tree
+│   └── test/           # Module testing scripts
+├── configs/            # System configurations
+│   ├── ascii/          # Jester ASCII art collections
+│   ├── system/         # Boot services and system files
+│   └── vim/            # Vim configurations for writing
+└── scripts/            # System scripts organized by function
+    ├── boot/           # Boot sequence scripts
+    ├── menu/           # Menu system implementations
+    ├── services/       # Background services
+    └── lib/            # Common library functions
+```
+
+### Script Safety Standards
+All shell scripts now implement:
+- `set -euo pipefail` for fail-fast behavior
+- Input validation functions (`validate_menu_choice`, `validate_path`)
+- Display abstraction for E-Ink compatibility
+- Standardized error handling with `error_handler`
+- Path traversal protection
+- Safe file operations with directory creation
+
 ## Contributing Guidelines
 
 ### Welcome Contributions
@@ -219,6 +253,8 @@ spin_unlock(&stats_lock);
 ✅ Battery life improvements
 ✅ More medieval whimsy
 ✅ Writer workflow enhancements
+✅ Shell script security improvements
+✅ Boot time optimizations
 
 ### Unwelcome Changes
 ❌ Web browsers or internet features
@@ -226,6 +262,28 @@ spin_unlock(&stats_lock);
 ❌ Media players or graphics
 ❌ Anything using >5MB RAM
 ❌ Features requiring constant refresh
+❌ Scripts without proper error handling
+❌ Removing safety validations
+
+## Key Implementation Details
+
+### Module Loading Sequence
+1. Kernel config enables `CONFIG_SQUIREOS=m` with sub-modules
+2. Init scripts load modules in dependency order
+3. `/proc/squireos/` interface becomes available
+4. Menu system reads from `/proc/squireos/{jester,typewriter/stats,wisdom}`
+
+### Security Model
+- All user input validated through `validate_menu_choice()` and `validate_path()`
+- File operations restricted to `/root/{notes,drafts,scrolls}/` directories
+- Path traversal attacks prevented by canonicalization checks
+- No network access or external communication
+
+### Memory Optimization Strategies
+- Docker multi-stage builds minimize final image size
+- Aggressive cleanup removes docs, locales, and static libraries
+- Busybox-static provides essential utilities in single binary
+- Module loading only when hardware supports E-Ink display
 
 ## Philosophy Reminders
 
@@ -238,6 +296,8 @@ spin_unlock(&stats_lock);
 > "When in doubt, choose simplicity"
 
 > "The jester reminds us: writing should be joyful"
+
+> "By quill and candlelight, quality prevails!"
 
 ---
 
