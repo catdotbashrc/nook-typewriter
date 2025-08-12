@@ -10,14 +10,20 @@ echo "════════════════════════�
 # Ensure we're in the right directory
 cd "$(dirname "$0")"
 
+# Check if XDA-proven Docker image exists, build if needed
+if ! docker images | grep -q "quillkernel-unified"; then
+    echo "→ Building XDA-proven Docker environment..."
+    docker build -t quillkernel-unified -f build/docker/kernel-xda-proven.dockerfile build/docker/
+fi
+
 # Build the kernel using Docker
 echo ""
-echo "→ Starting kernel build in Docker..."
+echo "→ Starting kernel build with XDA-proven toolchain..."
 docker run --rm \
-    -v "$(pwd)/nst-kernel-base:/kernel" \
-    -v "$(pwd)/quillkernel/modules:/modules" \
+    -v "$(pwd)/source/kernel:/kernel" \
+    -v "$(pwd)/source/kernel/quillkernel/modules:/modules" \
     -w /kernel/src \
-    quillkernel-builder \
+    quillkernel-unified \
     bash -c "
         echo '→ Configuring kernel for Nook...'
         make ARCH=arm omap3621_gossamer_evt1c_defconfig
@@ -49,10 +55,11 @@ docker run --rm \
 
 echo ""
 echo "→ Copying build artifacts..."
-if [ -f nst-kernel-base/src/arch/arm/boot/uImage ]; then
-    cp nst-kernel-base/src/arch/arm/boot/uImage quillkernel/
-    echo "✓ Kernel image copied to quillkernel/uImage"
-    ls -lh quillkernel/uImage
+mkdir -p firmware/boot
+if [ -f source/kernel/src/arch/arm/boot/uImage ]; then
+    cp source/kernel/src/arch/arm/boot/uImage firmware/boot/
+    echo "✓ Kernel image copied to firmware/boot/uImage"
+    ls -lh firmware/boot/uImage
 else
     echo "✗ Could not find uImage"
     exit 1

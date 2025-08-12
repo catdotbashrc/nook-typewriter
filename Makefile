@@ -6,13 +6,13 @@ IMAGE_NAME := nook-typewriter-$(VERSION).img
 KERNEL_DIR := source/kernel/nst-kernel-base
 QUILL_DIR := source/kernel/quillkernel
 
-.PHONY: all clean kernel rootfs firmware image release help
+.PHONY: all clean kernel kernel-xda kernel-compare rootfs firmware image release help
 
 help:
 	@echo "Nook Typewriter Build System"
 	@echo "============================"
 	@echo "  make firmware    - Build complete firmware"
-	@echo "  make kernel      - Build kernel with QuillKernel"
+	@echo "  make kernel      - Build unified QuillKernel (XDA-proven + SquireOS)"
 	@echo "  make rootfs      - Build root filesystem"
 	@echo "  make image       - Create SD card image"
 	@echo "  make release     - Create release package"
@@ -27,13 +27,8 @@ firmware: kernel rootfs boot
 	@ls -la firmware/rootfs/usr/local/bin/ 2>/dev/null || true
 
 kernel:
-	@echo "🔨 Building kernel with integrated QuillKernel..."
-	@if [ -f build/scripts/build-kernel.sh ]; then \
-		./build/scripts/build-kernel.sh; \
-	else \
-		echo "⚠️  Kernel build script not found"; \
-		echo "   Run: ./scripts/setup-build-env.sh"; \
-	fi
+	@echo "🔨 Building unified QuillKernel (XDA-proven + SquireOS)..."
+	@./build_kernel.sh
 
 rootfs:
 	@echo "📦 Building root filesystem..."

@@ -16,6 +16,31 @@ build/tmp/
 *.mod
 *.cmd
 
+# Kernel build artifacts (CRITICAL)
+source/kernel/src/**/*.o
+source/kernel/src/**/*.ko
+source/kernel/src/**/*.mod.c
+source/kernel/src/**/*.mod
+source/kernel/src/**/*.cmd
+source/kernel/src/**/modules.order
+source/kernel/src/**/Module.symvers
+source/kernel/src/**/.tmp_versions/
+source/kernel/src/**/built-in.o
+
+# Kernel configuration
+source/kernel/src/.config
+source/kernel/src/.config.old
+source/kernel/src/include/config/
+source/kernel/src/include/generated/
+source/kernel/src/include/linux/autoconf.h
+
+# Generated kernel tools
+source/kernel/src/scripts/basic/fixdep
+source/kernel/src/scripts/conmakehash
+source/kernel/src/scripts/kallsyms
+source/kernel/src/scripts/ihex2fw
+source/kernel/src/usr/gen_init_cpio
+
 # Docker
 .dockerignore
 
@@ -31,6 +56,16 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Test artifacts
+tests/reports/
+tests/*.log
+tests/**/*.log
+test_report_*.md
+test_log_*.txt
+.test_cache/
+coverage/
+*.coverage
 
 # Backup files
 *.bak

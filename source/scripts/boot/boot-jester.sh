@@ -25,8 +25,38 @@ init_display() {
     fi
 }
 
+# Load SquireOS kernel modules
+load_squireos_modules() {
+    echo "Loading SquireOS modules..."
+    
+    # Load modules in proper order
+    if [ -d /lib/modules/2.6.29 ]; then
+        # Core module first
+        if [ -f /lib/modules/2.6.29/squireos_core.ko ]; then
+            insmod /lib/modules/2.6.29/squireos_core.ko 2>/dev/null || true
+        fi
+        
+        # Then the feature modules
+        for module in jester typewriter wisdom; do
+            if [ -f /lib/modules/2.6.29/${module}.ko ]; then
+                insmod /lib/modules/2.6.29/${module}.ko 2>/dev/null || true
+            fi
+        done
+    fi
+    
+    # Verify modules loaded
+    if [ -d /proc/squireos ]; then
+        echo "✓ SquireOS modules loaded successfully"
+    else
+        echo "⚠ SquireOS modules may not be available"
+    fi
+}
+
 # Main boot sequence
 main() {
+    # Load kernel modules
+    load_squireos_modules
+    
     # Initialize display
     init_display
     
