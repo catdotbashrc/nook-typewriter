@@ -1,0 +1,192 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          squireos-modules
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Load SquireOS kernel modules
+# Description:       Loads the medieval-themed SquireOS kernel modules
+#                    for the Nook writing environment
+### END INIT INFO
+
+# Init script for SquireOS modules
+# Compatible with SysV init systems
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+NAME=squireos-modules
+DESC="SquireOS Medieval Kernel Modules"
+SCRIPTNAME=/etc/init.d/$NAME
+MODULE_DIR=/lib/modules/2.6.29
+PIDFILE=/var/run/squireos.pid
+LOADED_MARKER=/var/run/squireos.loaded
+
+# Load init functions if available
+[ -r /lib/lsb/init-functions ] && . /lib/lsb/init-functions
+
+# Module list in load order
+MODULES="squireos_core jester typewriter wisdom"
+
+#
+# Function to load a module
+#
+load_module() {
+    local module=$1
+    local module_file="$MODULE_DIR/${module}.ko"
+    
+    if [ -f "$module_file" ]; then
+        echo -n "  Loading $module... "
+        if insmod "$module_file" 2>/dev/null; then
+            echo "OK"
+            return 0
+        else
+            echo "FAILED"
+            return 1
+        fi
+    else
+        echo "  Module $module not found, skipping"
+        return 2
+    fi
+}
+
+#
+# Function to unload a module
+#
+unload_module() {
+    local module=$1
+    
+    if lsmod | grep -q "^$module "; then
+        echo -n "  Unloading $module... "
+        if rmmod "$module" 2>/dev/null; then
+            echo "OK"
+            return 0
+        else
+            echo "FAILED"
+            return 1
+        fi
+    else
+        echo "  Module $module not loaded"
+        return 0
+    fi
+}
+
+#
+# Start function
+#
+do_start() {
+    echo "Starting $DESC..."
+    
+    # Check if already loaded
+    if [ -f "$LOADED_MARKER" ]; then
+        echo "  SquireOS modules already loaded"
+        return 0
+    fi
+    
+    # Load each module
+    for module in $MODULES; do
+        load_module "$module"
+    done
+    
+    # Check if core module created /proc/squireos
+    if [ -d "/proc/squireos" ]; then
+        echo "  SquireOS interface ready at /proc/squireos"
+        
+        # Show jester greeting
+        if [ -f "/proc/squireos/jester" ]; then
+            echo ""
+            echo "The Court Jester awakens:"
+            cat /proc/squireos/jester
+            echo ""
+        fi
+        
+        # Mark as loaded
+        touch "$LOADED_MARKER"
+        echo "SquireOS modules started successfully"
+        return 0
+    else
+        echo "Failed to create /proc/squireos interface"
+        return 1
+    fi
+}
+
+#
+# Stop function
+#
+do_stop() {
+    echo "Stopping $DESC..."
+    
+    # Unload modules in reverse order
+    for module in wisdom typewriter jester squireos_core; do
+        unload_module "$module"
+    done
+    
+    # Remove marker
+    rm -f "$LOADED_MARKER"
+    
+    echo "SquireOS modules stopped"
+    return 0
+}
+
+#
+# Status function
+#
+do_status() {
+    echo "Checking $DESC status..."
+    
+    if [ -f "$LOADED_MARKER" ]; then
+        echo "  Status: RUNNING"
+        
+        # Check each module
+        for module in $MODULES; do
+            if lsmod | grep -q "^$module "; then
+                echo "    [OK] $module"
+            else
+                echo "    [--] $module"
+            fi
+        done
+        
+        # Check /proc interface
+        if [ -d "/proc/squireos" ]; then
+            echo "  /proc/squireos: AVAILABLE"
+            [ -f "/proc/squireos/motto" ] && echo "    - motto: OK"
+            [ -f "/proc/squireos/version" ] && echo "    - version: OK"
+            [ -f "/proc/squireos/jester" ] && echo "    - jester: OK"
+            [ -f "/proc/squireos/wisdom" ] && echo "    - wisdom: OK"
+            [ -d "/proc/squireos/typewriter" ] && echo "    - typewriter: OK"
+        else
+            echo "  /proc/squireos: NOT FOUND"
+        fi
+        
+        return 0
+    else
+        echo "  Status: STOPPED"
+        return 3
+    fi
+}
+
+#
+# Main case statement
+#
+case "$1" in
+    start)
+        do_start
+        ;;
+    stop)
+        do_stop
+        ;;
+    restart|force-reload)
+        echo "Restarting $DESC..."
+        do_stop
+        sleep 1
+        do_start
+        ;;
+    status)
+        do_status
+        ;;
+    *)
+        echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
+        exit 3
+        ;;
+esac
+
+exit 0
