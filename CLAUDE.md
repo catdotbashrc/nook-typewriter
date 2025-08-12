@@ -1,28 +1,12 @@
-# CLAUDE.md - Nook Typewriter Project
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Philosophy
 
 This transforms a $20 used e-reader into a $400 distraction-free writing device. Every decision prioritizes **writers over features**.
 
-### Our Users
-- **Digital Minimalist Writers**: Escaping notifications to focus on words
-- **Retro Computing Enthusiasts**: Appreciating the "digital scriptorium" aesthetic  
-- **Budget-Conscious Creators**: Can't afford Freewrite, have old Nooks
-- **Environmental Advocates**: Preventing e-waste through repurposing
-
-### What This IS
-✅ Pure writing environment (Vim + E-Ink)
-✅ Whimsical medieval theme (QuillKernel)
-✅ Extreme battery life (weeks not hours)
-✅ Zero distractions by design
-
-### What This ISN'T
-❌ Development environment
-❌ Web browsing device
-❌ Email/social media machine
-❌ General purpose computer
-
-## Critical Constraints
+### Critical Constraints
 
 ```yaml
 Hardware Limits:
@@ -31,12 +15,108 @@ Hardware Limits:
   Display: 6" E-Ink (800x600, 16 grayscale)
   Storage: SD card based
   Power: <100mA USB output
+```
 
-Design Implications:
-  - Every MB matters for writing space
-  - E-Ink refresh = feature not bug (prevents addiction)
-  - Simple > Feature-rich
-  - Text-only is perfect
+### Memory Budget - DO NOT VIOLATE
+```
+Reserved for OS:     95MB (Debian base)
+Reserved for Vim:    10MB (editor + plugins)
+SACRED Writing Space: 160MB (DO NOT TOUCH)
+```
+
+## High-Level Architecture
+
+### System Layers
+```
+1. Android Base (Nook firmware) → Provides hardware drivers
+2. Linux Chroot (SquireOS) → Debian in /data/debian/
+3. QuillKernel → Custom medieval-themed kernel modules
+4. Writing Environment → Vim with minimal plugins
+```
+
+### Key Components
+
+**QuillKernel** (`quillkernel/modules/`)
+- `squireos_core.c`: Creates `/proc/squireos/` filesystem
+- `jester.c`: ASCII art mood system based on system state
+- `typewriter.c`: Tracks keystrokes and writing achievements
+- `wisdom.c`: Rotating writing quotes for inspiration
+
+**Build System**
+- Two Docker environments: OS (`nookwriter-optimized.dockerfile`) and Kernel (`quillkernel/Dockerfile`)
+- Kernel uses Android NDK r10e with ARM cross-compiler
+- OS has two modes: minimal (2MB RAM) or writer (5MB RAM)
+
+**Boot Sequence**
+1. U-Boot loads kernel from SD card
+2. Android init starts
+3. Chroot to Debian at boot completion
+4. Launch `/usr/local/bin/boot-jester.sh`
+5. Display menu via `nook-menu.sh`
+
+## Essential Development Commands
+
+### Building the System
+
+```bash
+# Build optimized writing environment (recommended)
+docker build -t nook-writer --build-arg BUILD_MODE=writer -f nookwriter-optimized.dockerfile .
+
+# Export for deployment
+docker create --name nook-export nook-writer
+docker export nook-export | gzip > nook-writer.tar.gz
+docker rm nook-export
+
+# Build QuillKernel (from quillkernel/ directory)
+./build.sh  # One-command kernel build with Docker
+
+# Alternative: Build rootfs with script
+./scripts/build-rootfs.sh --output nook-debian.tar.gz
+```
+
+### Testing
+
+```bash
+# Run full test suite
+./tests/run-tests.sh
+
+# Test individual components
+./tests/test-docker-build.sh   # Container builds
+./tests/test-vim-modes.sh       # Vim configurations
+./tests/test-health-check.sh    # System health
+./tests/test-plugin-system.sh   # Plugin framework
+
+# Test in Docker (won't have E-Ink)
+docker run -it --rm nook-writer vim /tmp/test.txt
+docker run --rm nook-writer /usr/local/bin/nook-menu.sh
+
+# Check memory impact of changes
+docker stats nook-writer --no-stream --format "RAM: {{.MemUsage}}"
+```
+
+### Deployment
+
+```bash
+# Deploy to SD card (requires root)
+sudo ./deploy-to-nook.sh /dev/sdX  # Replace X with your SD card
+
+# Verify SD card structure
+./scripts/verify-sd-card.sh /dev/sdX
+
+# Troubleshoot boot issues
+./troubleshoot-sd.sh /dev/sdX
+```
+
+### Kernel Development
+
+```bash
+# Check if QuillKernel modules are loaded (on device)
+cat /proc/squireos/jester      # Should show ASCII jester
+cat /proc/squireos/typewriter/stats  # Writing statistics
+cat /proc/squireos/wisdom       # Random writing quote
+
+# Monitor writing statistics
+watch -n 5 'cat /proc/squireos/typewriter/stats'
 ```
 
 ## Writer-First Development Rules
@@ -47,83 +127,62 @@ Design Implications:
 3. **Will this add distractions?**
 4. **Can writers understand the error messages?**
 
-### Memory Budget
-```
-Reserved for OS:     95MB (Debian base)
-Reserved for Vim:    10MB (editor + plugins)
-SACRED Writing Space: 160MB (DO NOT TOUCH)
-```
-
 ### E-Ink Considerations
 - Full refresh (`fbink -c`) = intentional pause for thought
 - Ghosting = gentle reminder of previous words
 - Slow menus = mindful interaction
 - No animations = focused attention
 
-## Essential Commands
+### Common Issues & Solutions
 
-### For Writers Testing Features
+**Kernel modules not loading:**
+- Modules go in `/lib/modules/2.6.29/` in rootfs
+- Add `insmod /lib/modules/squireos_core.ko` to boot scripts
+- Check `dmesg` for module errors
+
+**Memory exhaustion:**
+- Run `free -h` to check usage
+- Remove unnecessary vim plugins
+- Use minimal build mode if needed
+- Never exceed 96MB OS usage
+
+**E-Ink display issues:**
+- FBInk must be compiled for ARM (`fbink-v1.25.0-armv7`)
+- Fallback to terminal output in Docker
+- Manual refresh: `fbink -c`
+
+## Code Quality Standards
+
+### Shell Scripts
 ```bash
-# Quick test writing experience
-docker run -it --rm nook-system vim /tmp/test.txt
+# Always use for new scripts
+set -euo pipefail
+trap 'echo "Error at line $LINENO"' ERR
 
-# Check memory impact of changes
-docker stats nook-system --no-stream
+# Quote all variables
+echo "$USER_INPUT"  # Good
+echo $USER_INPUT    # Bad - injection risk
 
-# Verify distraction-free (should fail)
-docker run --rm nook-system ping google.com 2>/dev/null || echo "✓ No internet distractions"
+# Check commands exist
+command -v fbink >/dev/null 2>&1 || echo "No E-Ink support"
 ```
 
-### Building for Writers
-```bash
-# Standard build
-docker build -t nook-system -f nookwriter.dockerfile .
+### Kernel Modules (C)
+```c
+// Always validate buffer sizes
+snprintf(buffer, sizeof(buffer), format, args);  // Good
+sprintf(buffer, format, args);  // Bad - overflow risk
 
-# Test medieval theme
-docker run --rm nook-system cat /proc/squireos/motto 2>/dev/null || echo "Not on real hardware"
+// Check for integer overflow
+if (stats.words < UINT32_MAX) stats.words++;
 
-# Create writer's deployment
-docker create --name nook-export nook-system
-docker export nook-export | gzip > nook-debian.tar.gz
-docker rm nook-export
+// Use proper locking for shared data
+spin_lock(&stats_lock);
+// ... modify stats ...
+spin_unlock(&stats_lock);
 ```
 
-### QuillKernel (Medieval Magic)
-```bash
-cd nst-kernel
-./squire-kernel-patch.sh  # Adds jester, achievements, writing stats
-
-# Docker build (no toolchain needed!)
-docker build -f Dockerfile.build -t quillkernel .
-
-# Test the medieval experience
-cd test
-./verify-build-simple.sh  # Should see jester ASCII art
-```
-
-## Testing for Writers
-
-### What to Test
-```yaml
-Writing Flow:
-  - Can open Vim in <2 seconds?
-  - Does Ctrl+S save intuitively?
-  - Is word count visible?
-  - Do writing plugins work?
-
-Distractions:
-  - No network browsing possible?
-  - No app notifications?
-  - No social media access?
-  - Focus mode (\g in Vim) works?
-
-Battery:
-  - Changes increase power draw?
-  - WiFi off by default?
-  - CPU throttled appropriately?
-```
-
-### Writer-Friendly Error Messages
+### Error Messages
 ```bash
 # BAD: Technical jargon
 "Error: fbdev ioctl FBIOGET_VSCREENINFO failed"
@@ -135,42 +194,22 @@ Battery:
 "Alas! The digital parchment is not ready!"
 ```
 
-## Common Writer Issues
+## Testing Philosophy
 
-### "My keyboard doesn't work"
-- Need USB host kernel (version 174+)
-- Wireless keyboards need powered hub
-- Best: Wired USB from ~2011 era
+### What Must Be Tested
+- Boot process to menu (< 20 seconds)
+- Vim launches with < 10MB RAM usage
+- Writing plugins work (Goyo, Pencil)
+- No network access possible
+- Jester appears at boot
+- Statistics track correctly
 
-### "Screen looks weird"
-- E-Ink ghosting is normal (not a bug)
-- Press 5 in menu for full refresh
-- It's supposed to be slow (mindfulness!)
-
-### "Can't save my work"
-- Space issue: Check with `df -h`
-- Vim command: `:w!` forces save
-- Emergency: USB mount SD card to recover
-
-### "How do I get my writing off?"
-- Option 1: rclone sync (menu option 3)
-- Option 2: Remove SD card, mount on PC
-- Option 3: Future feature - email to self
-
-## File Organization
-
-```
-Critical Paths:
-/usr/local/bin/nook-menu.sh    # Main writer interface
-/root/.vimrc                    # Writing configuration  
-/root/writing/                  # Sacred writing directory
-/proc/squireos/                 # Medieval theme interface
-
-Never Touch:
-/usr/share/doc/                # Wastes writing space
-/var/cache/                     # Precious RAM
-/usr/share/man/                 # No one reads on E-Ink
-```
+### Performance Targets
+- Boot time: < 20 seconds
+- Vim launch: < 2 seconds
+- Menu response: < 500ms
+- Writing save: < 1 second
+- Total RAM usage: < 96MB
 
 ## Contributing Guidelines
 
@@ -188,49 +227,6 @@ Never Touch:
 ❌ Anything using >5MB RAM
 ❌ Features requiring constant refresh
 
-### Testing Checklist
-- [ ] Works in 160MB free RAM?
-- [ ] E-Ink friendly (minimal refresh)?
-- [ ] No network dependencies?
-- [ ] Writer can understand errors?
-- [ ] Medieval theme maintained?
-- [ ] Battery impact measured?
-
-## Quick Reference
-
-### Memory Monitor
-```bash
-# During development
-watch -n 5 'free -h | grep Mem'
-
-# Before committing
-echo "=== Memory Impact ==="
-docker stats nook-system --no-stream --format "RAM: {{.MemUsage}}"
-```
-
-### Writer's Toolbox
-```vim
-" Vim commands writers need
-\g          " Goyo (focus mode)
-\p          " Pencil (better writing)
-:w          " Save
-:q          " Quit
-Ctrl+S      " Save (familiar to writers)
-Ctrl+Q      " Quit (familiar to writers)
-```
-
-### Medieval Debug
-```bash
-# Check if QuillKernel is active
-cat /proc/squireos/jester || echo "No jester (not QuillKernel)"
-
-# View writing statistics  
-cat /proc/squireos/typewriter/stats
-
-# Get inspiration
-cat /proc/squireos/wisdom
-```
-
 ## Philosophy Reminders
 
 > "Every feature is a potential distraction"
@@ -242,16 +238,6 @@ cat /proc/squireos/wisdom
 > "When in doubt, choose simplicity"
 
 > "The jester reminds us: writing should be joyful"
-
-## Hardware Reality Check
-
-Remember what we're working with:
-- **CPU**: Slower than a 2008 iPhone
-- **RAM**: Less than a single Chrome tab
-- **Display**: Refreshes like paper, not pixels
-- **Purpose**: Writing, not computing
-
-Every line of code should respect these limits while serving writers who chose this device specifically for its constraints.
 
 ---
 
