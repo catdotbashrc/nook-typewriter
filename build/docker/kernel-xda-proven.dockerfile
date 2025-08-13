@@ -1,4 +1,4 @@
-# QuillKernel XDA-Proven Build Environment
+# JoKernel XDA-Proven Build Environment
 # Uses toolchain proven by XDA community for Nook Simple Touch
 # Based on research from Phoenix Project and felixhaedicke/nst-kernel
 

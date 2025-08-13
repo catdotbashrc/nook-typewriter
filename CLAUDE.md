@@ -29,22 +29,22 @@ SACRED Writing Space: 160MB (DO NOT TOUCH)
 ### System Layers
 ```
 1. Android Base (Nook firmware) → Provides hardware drivers
-2. Linux Chroot (SquireOS) → Debian in /data/debian/
-3. QuillKernel → Custom medieval-themed kernel modules
+2. Linux Chroot (JokerOS) → Debian in /data/debian/
+3. JoKernel → Custom jester-themed kernel modules
 4. Writing Environment → Vim with minimal plugins
 ```
 
 ### Key Components
 
-**QuillKernel Modules** (`source/kernel/src/drivers/`)
-- `squireos_core.c`: Creates `/proc/squireos/` filesystem
+**JoKernel Modules** (`source/kernel/src/drivers/`)
+- `jokeros_core.c`: Creates `/proc/jokeros/` filesystem
 - `jester.c`: ASCII art mood system based on system state
 - `typewriter.c`: Tracks keystrokes and writing achievements
 - `wisdom.c`: Rotating writing quotes for inspiration
 - Configuration via `Kconfig.squireos` with medieval-themed help text
 
 **Build System**
-- Main kernel build: `./build_kernel.sh` (Docker-based with `quillkernel-builder` image)
+- Main kernel build: `./build_kernel.sh` (Docker-based with `jokernel-builder` image)
 - Minimal boot environment: `minimal-boot.dockerfile` for MVP testing (<30MB)
 - Kernel uses Android NDK r10e with ARM cross-compiler targeting Linux 2.6.29
 - Cross-compilation: `arm-linux-androideabi-` toolchain
@@ -54,7 +54,7 @@ SACRED Writing Space: 160MB (DO NOT TOUCH)
 2. Android init starts
 3. Chroot to Debian at boot completion
 4. Launch `/usr/local/bin/boot-jester.sh` or MVP init script
-5. Load SquireOS modules (`insmod` commands in init scripts)
+5. Load JokerOS modules (`insmod` commands in init scripts)
 6. Display jester and launch menu system
 
 ## Essential Development Commands
@@ -114,13 +114,13 @@ docker stats nook-mvp-rootfs --no-stream --format "RAM: {{.MemUsage}}"
 ### Kernel Development
 
 ```bash
-# Check if QuillKernel modules are loaded (on device)
-cat /proc/squireos/jester      # Should show ASCII jester
-cat /proc/squireos/typewriter/stats  # Writing statistics
-cat /proc/squireos/wisdom       # Random writing quote
+# Check if JoKernel modules are loaded (on device)
+cat /proc/jokeros/jester      # Should show ASCII jester
+cat /proc/jokeros/typewriter/stats  # Writing statistics
+cat /proc/jokeros/wisdom       # Random writing quote
 
 # Monitor writing statistics
-watch -n 5 'cat /proc/squireos/typewriter/stats'
+watch -n 5 'cat /proc/jokeros/typewriter/stats'
 ```
 
 ## Writer-First Development Rules
@@ -142,9 +142,9 @@ watch -n 5 'cat /proc/squireos/typewriter/stats'
 **Kernel modules not loading:**
 - Modules go in `/lib/modules/2.6.29/` in rootfs  
 - Build modules with kernel: `make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- modules`
-- Load order: `squireos_core.ko` first, then `jester.ko`, `typewriter.ko`, `wisdom.ko`
-- Check `dmesg | grep squireos` for module errors
-- Verify kernel config: `CONFIG_SQUIREOS=m` in `.config`
+- Load order: `jokeros_core.ko` first, then `jester.ko`, `typewriter.ko`, `wisdom.ko`
+- Check `dmesg | grep jokeros` for module errors
+- Verify kernel config: `CONFIG_JOKEROS=m` in `.config`
 
 **Memory exhaustion:**
 - Run `free -h` to check usage
@@ -302,3 +302,7 @@ All shell scripts now implement:
 ---
 
 *"By quill and candlelight, we code for those who write"* 🕯️📜
+
+## Activity Logging
+
+You have access to the `log_activity` tool. Use it to record your activities after every activity that is relevant for the project. This helps track development progress and understand what has been done.

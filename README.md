@@ -1,4 +1,4 @@
-# 🏰 QuillKernel - Nook Typewriter Project
+# 🎭 JoKernel - Nook Typewriter Project
 ### Transform Your E-Reader into a Distraction-Free Writing Machine
 
 ## 📋 Table of Contents
@@ -18,7 +18,7 @@
 
 ## 🎯 Project Overview
 
-QuillKernel transforms a $20 used Barnes & Noble Nook Simple Touch e-reader into a $400 distraction-free writing device. By combining a custom Linux kernel with medieval-themed interface elements, this project creates the ultimate digital typewriter for focused writing.
+JoKernel transforms a $20 used Barnes & Noble Nook Simple Touch e-reader into a $400 distraction-free writing device. By combining a custom Linux kernel with jester-themed interface elements, this project creates the ultimate digital typewriter for focused writing.
 
 ### Project Philosophy
 > "Every feature is a potential distraction. RAM saved is words written."
@@ -29,13 +29,13 @@ This project prioritizes **writers over features**, maintaining a sacred 160MB o
 
 ### Core Functionality
 - **Distraction-Free Writing** - No internet, no notifications, just words
-- **Medieval-Themed Interface** - ASCII art jester companion with dynamic moods
+- **Jester-Themed Interface** - ASCII art jester companion with dynamic moods
 - **Writing Statistics** - Track words, keystrokes, and writing achievements
 - **Ultra-Minimal Footprint** - <30MB compressed rootfs, <96MB runtime
 - **E-Ink Optimized** - Interface designed for E-Ink's unique characteristics
 
 ### Technical Achievements
-- **Custom Kernel Modules** - SquireOS modules via `/proc/squireos/` interface
+- **Custom Kernel Modules** - JokerOS modules via `/proc/jokeros/` interface
 - **Docker-Based Build** - Consistent cross-compilation environment
 - **Comprehensive Testing** - 90%+ test coverage with safety validations
 - **Script Safety** - Input validation, error handling, path protection

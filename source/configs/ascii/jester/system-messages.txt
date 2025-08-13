@@ -73,7 +73,7 @@
 ### Sync complete
 ```
    .~"~.
-  ( ^ ^ )  ✉️   The messenger returns!
+  ( ^ ^ )       The messenger returns!
   | > < |       All scrolls delivered!
    \‿‿‿/        
     |♦|
@@ -82,7 +82,7 @@
 ### No network
 ```
    .~"~.
-  ( x x )  ⚡   The bridge is out!
+  ( x x )      The bridge is out!
   | > < |       No path to the cloud realm!
    \___/        
     |♦|
