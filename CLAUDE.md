@@ -202,20 +202,42 @@ spin_unlock(&stats_lock);
 
 ## Testing Philosophy
 
-### What Must Be Tested
-- Boot process to menu (< 20 seconds)
-- Vim launches with < 10MB RAM usage
-- Writing plugins work (Goyo, Pencil)
-- No network access possible
-- Jester appears at boot
-- Statistics track correctly
+### "Test Enough to Sleep Well, Not to Pass an Audit"
 
-### Performance Targets
+This is a **hobby project for fun and learning**. Keep testing simple and practical:
+
+#### Before ANY Hardware Deployment
+1. Run `./tests/smoke-test.sh` (takes 5 minutes)
+2. Run `./tests/pre-flight.sh` (safety checklist)
+3. Test in Docker first: `./tests/docker-test.sh`
+4. Boot from SD card (keeps device safe)
+
+#### What We Test (Priority Order)
+1. **Kernel safety** (most critical - prevents bricking!)
+   - Module compilation without warnings
+   - API compatibility with Linux 2.6.29
+   - Module loading simulation
+   - No obvious memory/resource issues
+2. **Basic functionality**
+   - Builds successfully  
+   - Boots to menu (< 20 seconds)
+   - Can write and save files
+   - Stays under memory limits
+
+#### What We DON'T Test
+- 90% code coverage
+- Every edge case scenario
+- Performance microseconds
+- Enterprise compliance metrics
+
+#### Performance Targets (Realistic)
 - Boot time: < 20 seconds
-- Vim launch: < 2 seconds
+- Vim launch: < 2 seconds  
 - Menu response: < 500ms
 - Writing save: < 1 second
-- Total RAM usage: < 96MB
+- Total RAM usage: < 96MB (needs reality check!)
+
+**Remember**: Time spent over-testing = less time spent writing!
 
 ## Critical Project Structure
 

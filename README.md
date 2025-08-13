@@ -1,6 +1,9 @@
 # 🎭 JoKernel - Nook Typewriter Project
 ### Transform Your E-Reader into a Distraction-Free Writing Machine
 
+## 📚 Complete Documentation
+**[→ View Master Index](MASTER_INDEX.md)** - Comprehensive documentation hub with 40+ guides, references, and procedures
+
 ## 📋 Table of Contents
 - [Project Overview](#project-overview)
 - [Key Features](#key-features)
@@ -52,12 +55,12 @@ This project prioritizes **writers over features**, maintaining a sacred 160MB o
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     QuillKernel Stack                        │
+│                     JoKernel Stack                           │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  User Space                     Kernel Space                │
 │  ┌──────────┐                  ┌──────────────┐            │
-│  │   Vim    │                  │  SquireOS    │            │
+│  │   Vim    │                  │  JesterOS    │            │
 │  │ Editor   │◄────────────────►│   Modules    │            │
 │  └──────────┘                  └──────┬───────┘            │
 │       ▲                               │                     │
@@ -84,7 +87,7 @@ This project prioritizes **writers over features**, maintaining a sacred 160MB o
 ### Component Layers
 
 1. **Bootloader**: Stock Android bootloader (U-Boot based)
-2. **Kernel**: Custom Linux 2.6.29 with SquireOS modules
+2. **Kernel**: Custom Linux 2.6.29 with JesterOS modules
 3. **Root Filesystem**: Minimal Debian Bullseye (31MB)
 4. **User Interface**: Vim + custom menu system
 
@@ -436,27 +439,51 @@ cat /proc/squireos/typewriter/stats
 
 ## 📚 Documentation
 
-### Essential Documentation
-- **[PROJECT_INDEX.md](PROJECT_INDEX.md)** - Comprehensive project index
+### 🎯 Quick Access
+- **[MASTER_INDEX.md](MASTER_INDEX.md)** - Complete documentation hub (40+ files)
+- **[QUICK_START.md](QUICK_START.md)** - Get started in 5 minutes
+- **[PROJECT_INDEX_COMPLETE.md](PROJECT_INDEX_COMPLETE.md)** - Full project structure
 - **[CLAUDE.md](CLAUDE.md)** - Development philosophy and guidelines
-- **[docs/COMPLETE_PROJECT_INDEX.md](docs/COMPLETE_PROJECT_INDEX.md)** - Master documentation reference
 
-### Technical References
+### 📖 Core Documentation
+
+#### Kernel & Modules
+- **[Kernel Documentation](docs/kernel-reference/KERNEL_DOCUMENTATION.md)** - Complete JoKernel/JesterOS reference
 - **[Kernel API Reference](docs/KERNEL_API_REFERENCE.md)** - Module development guide
-- **[Deployment Guide](docs/DEPLOYMENT_INTEGRATION_GUIDE.md)** - SD card setup and deployment
-- **[Testing Procedures](docs/TESTING_PROCEDURES.md)** - Test suite documentation
-- **[XDA Research](docs/XDA-RESEARCH-FINDINGS.md)** - Community findings and tips
+- **[Module Quick Reference](docs/MODULE_API_QUICK_REFERENCE.md)** - API quick reference
+- **[Kernel Build Guide](docs/KERNEL_BUILD_EXPLAINED.md)** - Build process explained
 
-### Architecture & Design
-- **[System Architecture](design/ARCHITECTURE.md)** - Component relationships
-- **[Kernel Integration](design/KERNEL_INTEGRATION.md)** - SquireOS module design
-- **[Embedded Structure](design/EMBEDDED-PROJECT-STRUCTURE.md)** - Project organization
-- **[UI Components](docs/ui-components-design.md)** - Interface design patterns
+#### Build & Development
+- **[Build System Documentation](docs/BUILD_SYSTEM_DOCUMENTATION.md)** - Docker & compilation
+- **[Scripts Catalog](docs/SCRIPTS_CATALOG.md)** - All shell scripts documented
+- **[Source API Reference](docs/SOURCE_API_REFERENCE.md)** - Complete API documentation
 
-### Additional Resources
+#### Configuration & Deployment
+- **[Configuration Reference](docs/CONFIGURATION_REFERENCE.md)** - All config files
+- **[Deployment Documentation](docs/DEPLOYMENT_DOCUMENTATION.md)** - Installation methods
+- **[SD Card Deployment](docs/deployment/XDA_DEPLOYMENT_METHOD.md)** - XDA method
+
+#### Testing & Quality
+- **[Test Suite Documentation](docs/TEST_SUITE_DOCUMENTATION.md)** - Complete test coverage
+- **[Testing Procedures](docs/TESTING_PROCEDURES.md)** - Test procedures
+- **[Developer Testing Guide](docs/DEVELOPER_TESTING_GUIDE.md)** - Testing guidelines
+
+#### Design & UI
+- **[ASCII Art Advanced](docs/ASCII_ART_ADVANCED.md)** - Jester art guide
+- **[UI Components](docs/ui-components-design.md)** - Interface design
+- **[Style Guide](docs/QUILLOS_STYLE_GUIDE.md)** - Medieval theme guide
+
+### 📚 Technical References
+- **[Linux 2.6.29 Quick Reference](docs/kernel-reference/QUICK_REFERENCE_2.6.29.md)**
+- **[Proc Filesystem Guide](docs/kernel-reference/proc-filesystem-2.6.29.md)**
+- **[ARM Memory Management](docs/kernel-reference/memory-management-arm-2.6.29.md)**
+- **[Module Building Guide](docs/kernel-reference/module-building-2.6.29.md)**
+
+### 🔗 External Resources
 - [Original Nook Kernel](https://github.com/felixhaedicke/nst-kernel) - Base kernel source
 - [Linux 2.6.29 Documentation](https://www.kernel.org/doc/html/v2.6.29/) - Kernel API reference
 - [FBInk Library](https://github.com/NiLuJe/FBInk) - E-Ink display interface
+- [XDA Forum Thread](docs/XDA-RESEARCH-FINDINGS.md) - Community research
 
 ## 📄 License
 

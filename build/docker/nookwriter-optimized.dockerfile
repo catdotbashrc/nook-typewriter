@@ -41,8 +41,8 @@ RUN wget -q -O /usr/local/bin/fbink \
 FROM base AS minimal
 
 # Copy minimal config
-COPY config/vimrc-minimal /root/.vimrc
-COPY config/colors/eink.vim /root/.vim/colors/eink.vim
+COPY source/configs/vim/vimrc-minimal /root/.vimrc
+COPY source/configs/vim/eink.vim /root/.vim/colors/eink.vim
 
 # No plugins for minimal build
 RUN echo "colorscheme eink" >> /root/.vimrc
@@ -63,8 +63,8 @@ RUN mkdir -p /root/.vim/pack/plugins/start && \
     find . -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Copy writer config
-COPY config/vimrc-writer /root/.vimrc
-COPY config/colors/eink.vim /root/.vim/colors/eink.vim
+COPY source/configs/vim/vimrc-writer /root/.vimrc
+COPY source/configs/vim/eink.vim /root/.vim/colors/eink.vim
 
 RUN echo "colorscheme eink" >> /root/.vimrc
 
@@ -72,23 +72,21 @@ RUN echo "colorscheme eink" >> /root/.vimrc
 FROM ${BUILD_MODE} AS final
 
 # Copy all scripts and configs
-COPY config/scripts/ /usr/local/bin/
-COPY config/system/fstab /etc/fstab
-COPY config/system/sysctl.conf /etc/sysctl.conf
+COPY source/scripts/ /usr/local/bin/
+COPY source/configs/system/fstab /etc/fstab
+COPY source/configs/system/sysctl.conf /etc/sysctl.conf
 
 # SquireOS branding
-COPY config/system/os-release /etc/os-release
-COPY config/system/lsb-release /etc/lsb-release
-COPY config/system/issue /etc/issue
-COPY config/system/issue.net /etc/issue.net
-COPY config/system/motd /etc/motd
+COPY source/configs/system/os-release /etc/os-release
+COPY source/configs/system/lsb-release /etc/lsb-release
+COPY source/configs/system/issue /etc/issue
+COPY source/configs/system/issue.net /etc/issue.net
+COPY source/configs/system/motd /etc/motd
 
 # Install the Court Jester - Writers need their muse!
-COPY config/scripts/jester-daemon.sh /usr/local/bin/
-COPY config/scripts/jester-splash.sh /usr/local/bin/
-COPY config/scripts/jester-mischief.sh /usr/local/bin/
-COPY config/scripts/boot-jester.sh /usr/local/bin/
-COPY config/scripts/nook-menu.sh /usr/local/bin/
+COPY source/scripts/services/jester-daemon.sh /usr/local/bin/
+COPY source/scripts/menu/nook-menu.sh /usr/local/bin/
+COPY source/scripts/boot/boot-jester.sh /usr/local/bin/
 
 # Create writing directories
 RUN mkdir -p /root/notes /root/drafts /root/scrolls && \
