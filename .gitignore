@@ -1,12 +1,24 @@
-# Build artifacts
+# ==================================================================
+# Nook Typewriter Project - Git Ignore Configuration
+# ==================================================================
+
+# ------------------------------------------------------------------
+# Build Artifacts & Generated Files
+# ------------------------------------------------------------------
+
+# Firmware build outputs
 firmware/kernel/uImage
 firmware/kernel/modules/*.ko
 firmware/rootfs/usr/local/bin/*
 firmware/boot/*
+firmware/**/*.img
+firmware/**/*.tar.gz
 
 # Release images
 releases/*.img
 releases/*.sha256
+releases/*.tar.gz
+releases/*.zip
 
 # Build temporary files
 build/tmp/
@@ -15,62 +27,312 @@ build/tmp/
 *.mod.c
 *.mod
 *.cmd
+*.a
+*.so
+*.elf
 
-# Kernel build artifacts (CRITICAL)
+# ------------------------------------------------------------------
+# Kernel Build Artifacts (CRITICAL - DO NOT COMMIT)
+# ------------------------------------------------------------------
+
+# Object files and modules
 source/kernel/src/**/*.o
 source/kernel/src/**/*.ko
 source/kernel/src/**/*.mod.c
 source/kernel/src/**/*.mod
 source/kernel/src/**/*.cmd
+source/kernel/src/**/*.order
+source/kernel/src/**/*.symvers
+source/kernel/src/**/*.markers
 source/kernel/src/**/modules.order
 source/kernel/src/**/Module.symvers
 source/kernel/src/**/.tmp_versions/
 source/kernel/src/**/built-in.o
+source/kernel/src/**/*.ko.cmd
+source/kernel/src/**/.*.ko.cmd
+source/kernel/src/**/.*.o.cmd
 
-# Kernel configuration
+# Kernel build system files
 source/kernel/src/.config
 source/kernel/src/.config.old
+source/kernel/src/.version
+source/kernel/src/System.map
+source/kernel/src/Module.markers
+source/kernel/src/Module.symvers
+source/kernel/src/vmlinux
+source/kernel/src/vmlinux.o
+source/kernel/src/.tmp_*
+
+# Generated headers and configs
 source/kernel/src/include/config/
 source/kernel/src/include/generated/
 source/kernel/src/include/linux/autoconf.h
+source/kernel/src/include/linux/version.h
+source/kernel/src/include/linux/utsrelease.h
+source/kernel/src/include/asm
+source/kernel/src/include/asm-arm/mach-types.h
+
+# Architecture specific
+source/kernel/src/arch/arm/boot/Image
+source/kernel/src/arch/arm/boot/zImage
+source/kernel/src/arch/arm/boot/uImage
+source/kernel/src/arch/arm/boot/compressed/piggy.gz
+source/kernel/src/arch/arm/boot/compressed/piggy.o
+source/kernel/src/arch/arm/boot/compressed/vmlinux
 
 # Generated kernel tools
 source/kernel/src/scripts/basic/fixdep
+source/kernel/src/scripts/basic/docproc
+source/kernel/src/scripts/basic/hash
 source/kernel/src/scripts/conmakehash
 source/kernel/src/scripts/kallsyms
 source/kernel/src/scripts/ihex2fw
+source/kernel/src/scripts/kconfig/conf
+source/kernel/src/scripts/kconfig/mconf
+source/kernel/src/scripts/mod/modpost
+source/kernel/src/scripts/mod/mk_elfconfig
+source/kernel/src/scripts/mod/elfconfig.h
 source/kernel/src/usr/gen_init_cpio
 
-# Docker
-.dockerignore
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+# ------------------------------------------------------------------
+# Testing & Profiling
+# ------------------------------------------------------------------
 
 # Test artifacts
 tests/reports/
 tests/*.log
 tests/**/*.log
+tests/memory-profiles/
 test_report_*.md
 test_log_*.txt
 .test_cache/
+
+# Coverage reports
 coverage/
 *.coverage
+*.gcov
+*.gcda
+*.gcno
+
+# Performance profiling
+*.perf
+*.prof
+perf.data
+perf.data.old
+
+# ------------------------------------------------------------------
+# Development Tools & IDEs
+# ------------------------------------------------------------------
+
+# VS Code / Cursor
+.vscode/
+.cursor/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+.*.swp
+.*.swo
+
+# Emacs
+\#*\#
+.\#*
+
+# Tags
+tags
+TAGS
+.tags
+.tags1
+gtags.files
+GTAGS
+GRTAGS
+GPATH
+GSYMS
+cscope.*
+
+# ------------------------------------------------------------------
+# AI Assistant Tools
+# ------------------------------------------------------------------
+
+# MCP (Model Context Protocol)
+.mcp.json
+
+# Simone activity tracking
+.simone/
+
+# Claude artifacts
+.claude/
+claude-artifacts/
+
+# ------------------------------------------------------------------
+# Documentation Generation
+# ------------------------------------------------------------------
+
+# Temporarily generated docs (if regenerating)
+docs/generated/
+docs/tmp/
+
+# Sphinx
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Doxygen
+docs/doxygen/
+docs/html/
+docs/latex/
+
+# ------------------------------------------------------------------
+# Docker
+# ------------------------------------------------------------------
+
+# Docker files (optional - uncomment if needed)
+# .dockerignore
+
+# Docker build cache
+docker-cache/
+
+# ------------------------------------------------------------------
+# Operating System Files
+# ------------------------------------------------------------------
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ------------------------------------------------------------------
+# Logs & Temporary Files
+# ------------------------------------------------------------------
+
+# Log files
+*.log
+logs/
+*.err
+*.out
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
 
 # Backup files
 *.bak
-*~
+*.backup
+*.old
+*.orig
+*.save
 
+# Patch files (unless you want to track them)
+*.patch
+*.diff
+*.rej
+
+# ------------------------------------------------------------------
+# Project Specific
+# ------------------------------------------------------------------
+
+# Old/deprecated directories
+source/kernel-old/
+source/kernel-backup/
+old/
+deprecated/
+
+# Large image files (track with Git LFS if needed)
 images/2gb_clockwork-rc2.img
 NookManager.img
-source/kernel-old/
+*.img
+!firmware/boot/uImage
+
+# Android NDK (if downloaded locally)
+android-ndk-*/
+ndk/
+
+# Toolchain downloads
+toolchain/
+cross-compiler/
+
+# SD card images
+sdcard/
+*.sdcard
+
+# Personal notes (optional)
+notes/
+personal/
+TODO.personal
+
+# ------------------------------------------------------------------
+# Python (for any helper scripts)
+# ------------------------------------------------------------------
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# ------------------------------------------------------------------
+# Exceptions - Files to TRACK
+# ------------------------------------------------------------------
+
+# Keep important config files
+!.gitignore
+!.gitattributes
+!Makefile
+!*.dockerfile
+!Dockerfile
+
+# Keep documentation
+!*.md
+!LICENSE
+!CHANGELOG
+
+# Keep source code
+!source/**/*.c
+!source/**/*.h
+!source/**/*.S
+!source/**/*.sh
+
+# Keep configs
+!source/configs/**
+!configs/**
+
+# Keep test scripts
+!tests/*.sh
+!tests/deployment-checklist.md
+
+# Keep build scripts
+!build.sh
+!build_kernel.sh
+!install_to_sdcard.sh
