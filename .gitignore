@@ -166,6 +166,9 @@ cscope.*
 # MCP (Model Context Protocol)
 .mcp.json
 
+# Simone activity tracking (local only)
+.simone/
+
 # Claude artifacts
 .claude/
 claude-artifacts/
