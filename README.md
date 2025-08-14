@@ -38,7 +38,7 @@ This project prioritizes **writers over features**, maintaining a sacred 160MB o
 - **E-Ink Optimized** - Interface designed for E-Ink's unique characteristics
 
 ### Technical Achievements
-- **Custom Kernel Modules** - JokerOS modules via `/proc/jokeros/` interface
+- **JesterOS Userspace** - Lightweight userspace services via `/var/jesteros/` interface
 - **Docker-Based Build** - Consistent cross-compilation environment
 - **Comprehensive Testing** - 90%+ test coverage with safety validations
 - **Script Safety** - Input validation, error handling, path protection
