@@ -38,13 +38,23 @@ exec > >(tee -a "$LOG_FILE")
 exec 2>&1
 
 echo "═══════════════════════════════════════════════════════════════"
-echo "           QuillKernel Comprehensive Test Suite"
-echo "           Individual Unit Test Execution"
+echo "           🏰 Nook Typewriter Test Suite 🏰"
+echo "           Comprehensive Safety Validation"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 echo "Test Started: $(date)"
 echo "Project Root: $PROJECT_ROOT"
 echo ""
+
+# Define critical tests that must pass
+declare -a CRITICAL_TESTS=(
+    "kernel-safety.sh"
+    "test-jesteros-userspace.sh"
+    "test-boot-sequence.sh"
+    "test-memory-budget.sh"
+    "pre-flight.sh"
+    "smoke-test.sh"
+)
 
 # Function to run a single test
 run_test() {
@@ -97,7 +107,39 @@ run_category() {
     done
 }
 
+# Run critical tests first
+echo "Running Critical Safety Tests"
+echo "==============================="
+echo ""
+echo -e "${RED}CRITICAL TESTS - MUST PASS FOR DEPLOYMENT${NC}"
+echo "----------------------------------------"
+
+CRITICAL_FAILED=false
+for test_name in "${CRITICAL_TESTS[@]}"; do
+    test_file="$TEST_ROOT/$test_name"
+    if [ -f "$test_file" ]; then
+        run_test "$test_file"
+        # Check if this critical test failed
+        if [ $? -ne 0 ]; then
+            CRITICAL_FAILED=true
+        fi
+    else
+        echo -e "${YELLOW}[SKIP]${NC} $test_name (not found - will be created)"
+        SKIPPED_TESTS=$((SKIPPED_TESTS + 1))
+        SKIPPED_TEST_LIST+=("$test_name")
+    fi
+done
+
+if [ "$CRITICAL_FAILED" = true ]; then
+    echo ""
+    echo -e "${RED}╔═══════════════════════════════════════╗${NC}"
+    echo -e "${RED}║   CRITICAL TESTS FAILED!              ║${NC}"
+    echo -e "${RED}║   DO NOT DEPLOY TO HARDWARE!          ║${NC}"
+    echo -e "${RED}╚═══════════════════════════════════════╝${NC}"
+fi
+
 # Run all test categories
+echo ""
 echo "Running Unit Tests by Category"
 echo "==============================="
 
@@ -190,17 +232,29 @@ if [ $FAILED_TESTS -eq 0 ]; then
     cat >> "$REPORT_FILE" << EOF
 ### 🏰 Castle Fortified!
 
-All critical tests have passed. The QuillKernel stands ready for deployment.
+All critical tests have passed. The Nook Typewriter stands ready for deployment.
 
 *"By quill and candlelight, quality prevails!"*
 
 🃏 **Jester Approval**: Granted
 EOF
+    
+    # Generate test-passed marker for gate keeper
+    echo "Generating test gate marker..."
+    cat > "$PROJECT_ROOT/.test-passed" << EOF
+# Test Suite Success Marker
+# Generated: $(date)
+# All critical tests passed
+TEST_TIMESTAMP=$(date +%s)
+PASS_COUNT=$PASSED_TESTS
+FAIL_COUNT=0
+EOF
+    echo -e "${GREEN}✅ Test gate marker created${NC}"
 else
     cat >> "$REPORT_FILE" << EOF
 ### ⚔️ Defenses Breached!
 
-Some tests have failed. The QuillKernel requires attention before deployment.
+Some tests have failed. The Nook Typewriter requires attention before deployment.
 
 *"The jester frowns upon these failures..."*
 

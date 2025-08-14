@@ -108,6 +108,8 @@ tests/memory-profiles/
 test_report_*.md
 test_log_*.txt
 .test_cache/
+.test-passed
+.test-gate.log
 
 # Coverage reports
 coverage/
