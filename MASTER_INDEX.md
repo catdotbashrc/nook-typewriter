@@ -107,7 +107,7 @@
 |-----------|----------|--------------|
 | **Kernel** | `jokernel`, `jesteros`, `linux-2.6.29`, `arm`, `omap3621` | [Kernel Docs](#kernel--modules) |
 | **Modules** | `jester`, `typewriter`, `wisdom`, `proc`, `insmod` | [Module Guide](docs/KERNEL_MODULES_GUIDE.md) |
-| **Boot** | `boot-jester`, `squireos-init`, `u-boot`, `sdcard` | [Boot Scripts](docs/SCRIPTS_CATALOG.md#boot-scripts) |
+| **Boot** | `boot-jester`, `jesteros-init`, `u-boot`, `sdcard` | [Boot Scripts](docs/SCRIPTS_CATALOG.md#boot-scripts) |
 | **Menu** | `nook-menu`, `zettelkasten`, `draft-mode`, `fbink` | [Menu System](docs/SCRIPTS_CATALOG.md#menu-system) |
 | **Build** | `docker`, `cross-compile`, `android-ndk`, `make` | [Build System](#build-system) |
 | **E-Ink** | `fbink`, `eink`, `display`, `refresh`, `grayscale` | [Display Config](docs/CONFIGURATION_REFERENCE.md) |
@@ -167,7 +167,7 @@ graph TD
 6. **Deploy**: [DEPLOYMENT_DOCUMENTATION](docs/DEPLOYMENT_DOCUMENTATION.md) → [SD Card](docs/deployment/XDA_DEPLOYMENT_METHOD.md)
 
 ### Module Relationships
-- **jokeros_core** → Required by all other modules
+- **jesteros-userspace.sh** → Main userspace service manager
 - **jester** → Displays mood based on typewriter stats
 - **typewriter** → Tracks statistics for achievements
 - **wisdom** → Provides quotes independent of others
@@ -176,7 +176,7 @@ graph TD
 - **common.sh** → Required by all scripts
 - **boot-jester.sh** → Loads modules, starts menu
 - **nook-menu.sh** → Launches vim, manages sessions
-- **jester-daemon.sh** → Reads from /proc/jokeros/
+- **jester-daemon.sh** → Reads from /var/jesteros/
 
 ---
 
@@ -220,7 +220,7 @@ sudo ./install_to_sdcard.sh /dev/sdX
 
 ### Key Paths
 ```bash
-/proc/jokeros/          # JesterOS proc interface
+/var/jesteros/          # JesterOS userspace interface
 /root/notes/            # User notes
 /root/drafts/           # Writing drafts
 /lib/modules/2.6.29/    # Kernel modules

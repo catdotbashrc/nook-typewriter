@@ -35,7 +35,7 @@ help:
 	@echo ""
 	@echo "$(BOLD)Main Targets:$(RESET)"
 	@echo "  $(GREEN)make firmware$(RESET)    - Build complete firmware (kernel + rootfs)"
-	@echo "  $(GREEN)make kernel$(RESET)      - Build JoKernel with JokerOS modules"
+	@echo "  $(GREEN)make kernel$(RESET)      - Build kernel (JesterOS now in userspace)"
 	@echo "  $(GREEN)make rootfs$(RESET)      - Build root filesystem with scripts"
 	@echo "  $(GREEN)make image$(RESET)       - Create bootable SD card image"
 	@echo "  $(GREEN)make release$(RESET)     - Create release package with checksums"
@@ -69,7 +69,7 @@ firmware: check-tools kernel rootfs boot
 
 # Kernel build with Docker validation
 kernel: check-tools
-	@echo "$(BOLD)🔨 Building JoKernel with JokerOS modules...$(RESET)"
+	@echo "$(BOLD)🔨 Building kernel (JesterOS services in userspace)...$(RESET)"
 	@if [ ! -f build_kernel.sh ]; then \
 		echo "$(RED)Error: build_kernel.sh not found$(RESET)"; \
 		exit 1; \
@@ -84,7 +84,7 @@ kernel: check-tools
 rootfs:
 	@echo "$(BOLD)📦 Building root filesystem...$(RESET)"
 	@mkdir -p $(FIRMWARE_DIR)/rootfs/usr/local/bin
-	@mkdir -p $(FIRMWARE_DIR)/rootfs/etc/squireos
+	@mkdir -p $(FIRMWARE_DIR)/rootfs/etc/jesteros
 	@# Copy scripts with validation
 	@for dir in boot menu services lib; do \
 		if [ -d $(SCRIPTS_DIR)/$$dir ]; then \
@@ -94,7 +94,7 @@ rootfs:
 	done
 	@# Copy configurations
 	@if [ -d $(CONFIGS_DIR) ]; then \
-		cp -r $(CONFIGS_DIR)/ascii $(FIRMWARE_DIR)/rootfs/etc/jokeros/ 2>/dev/null || true; \
+		cp -r $(CONFIGS_DIR)/ascii $(FIRMWARE_DIR)/rootfs/etc/jesteros/ 2>/dev/null || true; \
 		cp -r $(CONFIGS_DIR)/vim $(FIRMWARE_DIR)/rootfs/etc/vim/ 2>/dev/null || true; \
 	fi
 	@# Set permissions
