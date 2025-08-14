@@ -443,7 +443,7 @@ fi
 ### Library Dependencies
 
 - `common.sh` - Required for all scripts
-- `/proc/jokeros/` - Required for jester features
+- `/var/jesteros/` - Required for jester features
 - `/sys/class/power_supply/` - Battery monitoring
 
 ---

@@ -100,16 +100,16 @@ echo ""
 # 4. JokerOS interface test
 echo "-> JokerOS interface memory test..."
 echo ""
-echo "=== /proc/jokeros Interface ==="
-if [ -d "/proc/jokeros" ]; then
-    echo "[PASS] /proc/jokeros directory exists"
+echo "=== /var/jesteros Interface ==="
+if [ -d "/var/jesteros" ]; then
+    echo "[PASS] /var/jesteros directory exists"
     
     # Test each interface
     for interface in jester typewriter/stats wisdom; do
-        if [ -r "/proc/jokeros/$interface" ]; then
+        if [ -r "/var/jesteros/$interface" ]; then
             echo "  [PASS] $interface readable"
             # Read a small amount to test
-            head -3 "/proc/jokeros/$interface" 2>/dev/null | while read line; do
+            head -3 "/var/jesteros/$interface" 2>/dev/null | while read line; do
                 echo "    $line"
             done
         else
@@ -117,7 +117,7 @@ if [ -d "/proc/jokeros" ]; then
         fi
     done
 else
-    echo "[FAIL] /proc/jokeros not found - JokerOS modules not loaded properly"
+    echo "[FAIL] /var/jesteros not found - JesterOS userspace services not running"
 fi
 echo ""
 

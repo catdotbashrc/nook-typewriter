@@ -67,7 +67,7 @@ This script:
   - Busybox for Unix utilities
   - Init script for boot
   - Menu system for testing
-  - Support for JokerOS kernel modules
+  - Support for JesterOS userspace services
 
 ## Testing
 
@@ -118,20 +118,20 @@ The test script will:
 
 1. Kernel loads and starts `/init`
 2. Init mounts essential filesystems (/proc, /sys, /dev)
-3. Init attempts to load JokerOS kernel modules
+3. Init starts JesterOS userspace services
 4. If modules load, displays jester ASCII art
 5. Launches minimal menu system
 6. User can interact via menu or drop to shell
 
 ## Module Integration
 
-The rootfs expects JokerOS kernel modules in `/lib/modules/2.6.29/`:
-- `jokeros_core.ko` - Core module (must load first)
+The rootfs now uses JesterOS userspace services:
+- `jesteros-userspace.sh` - Main service (started at boot)
 - `jester.ko` - ASCII art jester display
 - `typewriter.ko` - Writing statistics tracker
 - `wisdom.ko` - Inspirational quotes
 
-These create entries in `/proc/jokeros/` when loaded.
+These would have created entries in `/proc/jokeros/` when loaded (now deprecated - see JesterOS userspace).
 
 ## Troubleshooting
 

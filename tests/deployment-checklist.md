@@ -42,8 +42,8 @@
 - [ ] Run hardware memory test: `./tests/hardware-memory-test.sh`
 - [ ] Check OS uses <96MB RAM (critical!)
 - [ ] Verify >160MB available for writing
-- [ ] Check `/proc/jokeros/` interface works
-- [ ] Verify jester, typewriter, wisdom modules loaded
+- [ ] Check `/var/jesteros/` interface works
+- [ ] Verify JesterOS userspace services running
 - [ ] Test vim memory usage (<10MB target)
 - [ ] Monitor top memory consumers
 
