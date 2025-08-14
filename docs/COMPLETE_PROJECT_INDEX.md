@@ -26,6 +26,8 @@ docs/
 |----------|---------|----------|
 | [CLAUDE.md](../CLAUDE.md) | Project guidance for Claude Code | AI Development Assistant |
 | [README.md](../README.md) | Project overview and quick start | All Users |
+| [BOOT_GUIDE_CONSOLIDATED.md](BOOT_GUIDE_CONSOLIDATED.md) | **Complete boot reference** | All Developers |
+| [BOOT_DOCUMENTATION_INDEX.md](BOOT_DOCUMENTATION_INDEX.md) | Boot docs navigation | All Users |
 | [NST_KERNEL_INDEX.md](NST_KERNEL_INDEX.md) | NST kernel foundation reference | Kernel Developers |
 
 ### Technical References

@@ -1,10 +1,10 @@
 # 📦 Nook Typewriter Deployment Documentation
 
-*Generated: December 13, 2024*
+*Last Updated: August 14, 2025*
 
 ## Overview
 
-The deployment package provides everything needed to install JesterOS (formerly SquireOS) on a Barnes & Noble Nook Simple Touch, transforming it into a medieval-themed digital typewriter. The package supports multiple installation methods and init systems.
+The deployment package provides everything needed to install JesterOS on a Barnes & Noble Nook Simple Touch, transforming it into a medieval-themed digital typewriter. JesterOS now runs as lightweight userspace services, making deployment simpler and safer.
 
 ---
 
@@ -15,499 +15,373 @@ deployment_package/
 ├── README.md                    # Package documentation
 ├── install.sh                   # Automated installer script
 ├── boot/
-│   └── uImage                   # JoKernel with JesterOS support
-├── lib/
-│   └── modules/
-│       └── 2.6.29/
-│           ├── jesteros_core.ko # Core module (currently squireos_core.ko)
-│           ├── jester.ko        # ASCII art companion
-│           ├── typewriter.ko    # Writing statistics
-│           ├── wisdom.ko        # Quote system
-│           └── load_modules.sh  # Module loader script
+│   └── uImage                   # Linux kernel 2.6.29
+├── usr/
+│   └── local/
+│       └── bin/
+│           ├── jesteros-userspace.sh    # Main JesterOS service
+│           ├── jesteros-tracker.sh      # Writing statistics tracker
+│           ├── jester-splash.sh         # Terminal display
+│           └── jester-splash-eink.sh    # E-Ink optimized display
 ├── etc/
-│   ├── init.d/
-│   │   └── squireos-modules    # SysV init script
-│   └── systemd/
-│       └── system/
-│           └── squireos-modules.service  # SystemD service
-└── usr/
-    └── local/
-        └── bin/
-            └── load-squireos-modules.sh  # Manual loader
+│   └── init.d/
+│       └── jesteros             # Init script for JesterOS
+└── var/
+    └── jesteros/                # JesterOS data directory
+        ├── jester               # ASCII art storage
+        ├── typewriter/
+        │   └── stats            # Writing statistics
+        └── wisdom               # Quotes database
 ```
 
 ---
 
 ## 🚀 Installation Methods
 
-### Method 1: Automated Installation
+### Method 1: Automated Installation (Recommended)
 
 **Requirements**: Root access on target device
 
 **Process**:
 ```bash
 # Extract package
-tar -xzf squireos-nook-*.tar.gz
-cd deployment_package
+tar -xzf jesteros-nook-*.tar.gz
+cd jesteros-nook-*/
 
 # Run installer
 sudo ./install.sh
+
+# Verify installation
+/etc/init.d/jesteros status
 ```
 
-**What the installer does**:
-1. Detects init system (Android/SystemD/SysV)
-2. Installs kernel to `/boot/uImage.squireos`
-3. Copies modules to `/lib/modules/2.6.29/`
-4. Installs init scripts for auto-loading
-5. Sets proper permissions
+**What it does**:
+- Copies JesterOS scripts to `/usr/local/bin/`
+- Creates `/var/jesteros/` directory structure
+- Installs init script
+- Enables auto-start at boot
 
 ### Method 2: Manual Installation
 
-**For custom setups or troubleshooting**:
-
-#### Step 1: Install Kernel
-```bash
-# Backup existing kernel
-cp /boot/uImage /boot/uImage.backup
-
-# Install new kernel
-cp boot/uImage /boot/uImage
-```
-
-#### Step 2: Install Modules
-```bash
-# Create module directory
-mkdir -p /lib/modules/2.6.29
-
-# Copy modules
-cp lib/modules/2.6.29/*.ko /lib/modules/2.6.29/
-
-# Set permissions
-chmod 644 /lib/modules/2.6.29/*.ko
-```
-
-#### Step 3: Install Scripts
-```bash
-# Copy loader scripts
-cp usr/local/bin/*.sh /usr/local/bin/
-chmod +x /usr/local/bin/*.sh
-
-# Install init script (choose one)
-# For SysV:
-cp etc/init.d/squireos-modules /etc/init.d/
-chmod +x /etc/init.d/squireos-modules
-
-# For SystemD:
-cp etc/systemd/system/*.service /etc/systemd/system/
-systemctl daemon-reload
-```
-
-### Method 3: SD Card Installation
-
-**For booting from SD card**:
+**For custom configurations**:
 
 ```bash
-# Prepare SD card (2GB+ recommended)
-sudo fdisk /dev/sdX  # Create partitions
+# Copy scripts
+sudo cp usr/local/bin/jesteros-*.sh /usr/local/bin/
+sudo chmod +x /usr/local/bin/jesteros-*.sh
 
-# Format partitions
-sudo mkfs.vfat -F 16 /dev/sdX1  # Boot partition
-sudo mkfs.ext4 /dev/sdX2        # Root partition
+# Create data directory
+sudo mkdir -p /var/jesteros/typewriter
 
-# Mount partitions
-sudo mount /dev/sdX1 /mnt/boot
-sudo mount /dev/sdX2 /mnt/root
+# Install init script
+sudo cp etc/init.d/jesteros /etc/init.d/
+sudo chmod +x /etc/init.d/jesteros
 
-# Copy kernel
-sudo cp boot/uImage /mnt/boot/
+# Enable at boot
+sudo update-rc.d jesteros defaults
 
-# Extract rootfs
-sudo tar -xzf rootfs.tar.gz -C /mnt/root/
-
-# Copy modules
-sudo cp -r lib/modules /mnt/root/lib/
-
-# Unmount
-sudo umount /mnt/boot /mnt/root
+# Start service
+sudo /etc/init.d/jesteros start
 ```
 
----
+### Method 3: SD Card Deployment
 
-## 🔧 Init System Configuration
+**For development and testing**:
 
-### Android/Nook Stock ROM
-
-**Integration with Android init**:
-
+1. **Prepare SD card** with deployment package:
 ```bash
-# Add to /init.rc or create /init.squireos.rc
-service squireos /system/bin/sh /usr/local/bin/load-squireos-modules.sh
-    class late_start
-    oneshot
+# Copy to SD card
+cp -r deployment_package/* /media/sdcard/nook-deploy/
 ```
 
-### SystemD Configuration
+2. **Boot Nook** from SD card
 
-**Service file** (`squireos-modules.service`):
-```ini
-[Unit]
-Description=JesterOS Medieval Kernel Modules
-After=local-fs.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/load-squireos-modules.sh
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Enable service**:
+3. **Install from SD**:
 ```bash
-systemctl enable squireos-modules.service
-systemctl start squireos-modules.service
-```
-
-### SysV Init Configuration
-
-**Init script features**:
-- LSB compliant headers
-- Start/stop/restart/status support
-- Module load order management
-- Jester greeting on start
-
-**Enable at boot**:
-```bash
-# Debian/Ubuntu:
-update-rc.d squireos-modules defaults
-
-# RedHat/CentOS:
-chkconfig --add squireos-modules
-chkconfig squireos-modules on
-
-# Manual:
-ln -s /etc/init.d/squireos-modules /etc/rc3.d/S99squireos
-```
-
----
-
-## 📜 Module Loading
-
-### Automatic Loading at Boot
-
-The init scripts handle module loading in the correct order:
-
-1. **jesteros_core.ko** - Creates `/proc/jesteros/` filesystem
-2. **jester.ko** - ASCII art companion
-3. **typewriter.ko** - Writing statistics
-4. **wisdom.ko** - Quote system
-
-### Manual Module Loading
-
-```bash
-# Using provided script
-/usr/local/bin/load-squireos-modules.sh
-
-# Or manually
-insmod /lib/modules/2.6.29/squireos_core.ko
-insmod /lib/modules/2.6.29/jester.ko
-insmod /lib/modules/2.6.29/typewriter.ko
-insmod /lib/modules/2.6.29/wisdom.ko
-```
-
-### Verification
-
-```bash
-# Check modules loaded
-lsmod | grep -E "jester|typewriter|wisdom"
-
-# Check /proc interface
-ls -la /proc/jesteros/
-
-# View jester
-cat /proc/jesteros/jester
-
-# Check version
-cat /proc/jesteros/version
-```
-
----
-
-## 🎯 Deployment Targets
-
-### Nook Simple Touch (Primary)
-
-**Specifications**:
-- CPU: TI OMAP3621 @ 800MHz
-- RAM: 256MB
-- Storage: 2GB internal + SD slot
-- Display: 6" E-Ink
-
-**Installation Path**:
-```
-/boot/          # Kernel location
-/lib/modules/   # Module location
-/system/bin/    # Android binaries (if stock ROM)
-```
-
-### Nook with Custom ROM
-
-**Supported ROMs**:
-- NookManager
-- CM7 for Nook
-- Debian for Nook
-
-**Adjustments**:
-- Use appropriate init system
-- May need different kernel path
-- Check module compatibility
-
-### Development/Testing
-
-**Docker Container**:
-```bash
-# Test deployment in container
-docker run -it --rm -v $(pwd):/deploy debian:bullseye
-cd /deploy
+cd /mnt/sdcard/nook-deploy
 ./install.sh
 ```
 
+### Method 4: NookManager Integration
+
+**Using NookManager for rooted devices**:
+
+1. **Add to NookManager** SD card:
+```bash
+# Mount NookManager SD
+mount /dev/sdX1 /mnt/nookmanager
+
+# Copy JesterOS files
+cp -r usr/local/bin/* /mnt/nookmanager/files/usr/local/bin/
+cp etc/init.d/jesteros /mnt/nookmanager/files/etc/init.d/
+```
+
+2. **Boot from NookManager** - files install automatically
+
 ---
 
-## 📊 Deployment Verification
+## 🔧 Service Configuration
+
+### Init Systems Support
+
+#### SysV Init (Default for Nook)
+```bash
+# Start/stop/restart
+/etc/init.d/jesteros start
+/etc/init.d/jesteros stop
+/etc/init.d/jesteros restart
+
+# Enable at boot
+update-rc.d jesteros defaults
+
+# Disable at boot
+update-rc.d jesteros remove
+```
+
+#### Manual Start
+```bash
+# Direct execution
+/usr/local/bin/jesteros-userspace.sh &
+
+# With logging
+/usr/local/bin/jesteros-userspace.sh 2>&1 | tee /var/log/jesteros.log &
+```
+
+### Configuration Options
+
+```bash
+# Environment variables (set in /etc/default/jesteros)
+JESTEROS_HOME=/var/jesteros          # Data directory
+JESTEROS_UPDATE_INTERVAL=5           # Mood update interval (seconds)
+JESTEROS_DISPLAY=eink                # Display mode: eink or terminal
+```
+
+---
+
+## ✅ Verification
 
 ### Post-Installation Checks
 
 ```bash
 #!/bin/bash
-# Deployment verification script
+# verify-jesteros.sh
 
-echo "Checking JesterOS deployment..."
+echo "=== JesterOS Installation Verification ==="
 
-# 1. Check kernel
-if [ -f /boot/uImage.squireos ]; then
-    echo "✓ Kernel installed"
+# Check files installed
+echo -n "Scripts installed: "
+if [ -f /usr/local/bin/jesteros-userspace.sh ]; then
+    echo "✓"
 else
-    echo "✗ Kernel not found"
+    echo "✗"
+    exit 1
 fi
 
-# 2. Check modules
-for mod in squireos_core jester typewriter wisdom; do
-    if [ -f /lib/modules/2.6.29/${mod}.ko ]; then
-        echo "✓ Module ${mod}.ko present"
-    else
-        echo "✗ Module ${mod}.ko missing"
-    fi
-done
-
-# 3. Check scripts
-if [ -x /usr/local/bin/load-squireos-modules.sh ]; then
-    echo "✓ Loader script executable"
+# Check service running
+echo -n "Service running: "
+if pgrep -f jesteros > /dev/null; then
+    echo "✓"
 else
-    echo "✗ Loader script missing/not executable"
+    echo "✗"
+    exit 1
 fi
 
-# 4. Check init integration
-if systemctl list-unit-files | grep -q squireos; then
-    echo "✓ SystemD service registered"
-elif [ -f /etc/init.d/squireos-modules ]; then
-    echo "✓ SysV init script present"
+# Check interface available
+echo -n "Interface ready: "
+if [ -f /var/jesteros/jester ]; then
+    echo "✓"
+    cat /var/jesteros/jester
 else
-    echo "⚠ No init integration found"
+    echo "✗"
+    exit 1
 fi
 
-# 5. Check /proc interface
-if [ -d /proc/jesteros ]; then
-    echo "✓ JesterOS interface active"
-    ls /proc/jesteros/
-else
-    echo "✗ JesterOS interface not active"
-fi
+echo "=== JesterOS is working! ==="
+```
+
+### Functional Tests
+
+```bash
+# Test jester display
+cat /var/jesteros/jester
+
+# Test statistics tracking
+echo "test" > /tmp/test.txt
+sleep 6
+cat /var/jesteros/typewriter/stats
+
+# Test wisdom quotes
+cat /var/jesteros/wisdom
+sleep 1
+cat /var/jesteros/wisdom  # Should show different quote
 ```
 
 ---
 
-## 🚨 Troubleshooting
+## 🔄 Updates and Upgrades
+
+### Updating JesterOS
+
+```bash
+# Stop service
+sudo /etc/init.d/jesteros stop
+
+# Backup current version
+sudo cp -r /usr/local/bin/jesteros-*.sh /usr/local/bin/backup/
+
+# Copy new scripts
+sudo cp new-version/jesteros-*.sh /usr/local/bin/
+sudo chmod +x /usr/local/bin/jesteros-*.sh
+
+# Restart service
+sudo /etc/init.d/jesteros start
+```
+
+### Version Management
+
+```bash
+# Check version
+/usr/local/bin/jesteros-userspace.sh --version
+
+# Version file location
+cat /var/jesteros/version
+```
+
+---
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-#### Issue: Modules fail to load
-**Causes & Solutions**:
+#### Service Won't Start
 ```bash
-# Check kernel version
-uname -r  # Must be 2.6.29
+# Check for errors
+bash -x /usr/local/bin/jesteros-userspace.sh
 
-# Check module files
-ls -la /lib/modules/2.6.29/*.ko
+# Verify permissions
+ls -la /usr/local/bin/jesteros-*.sh
+chmod +x /usr/local/bin/jesteros-*.sh
+```
+
+#### Interface Not Available
+```bash
+# Create directory structure
+mkdir -p /var/jesteros/typewriter
 
 # Check permissions
-chmod 644 /lib/modules/2.6.29/*.ko
-
-# Check kernel log
-dmesg | grep -E "jester|squireos"
+chown -R root:root /var/jesteros
+chmod -R 755 /var/jesteros
 ```
 
-#### Issue: /proc/jesteros not created
-**Solutions**:
+#### E-Ink Display Issues
 ```bash
-# Ensure core module loaded first
-rmmod jester typewriter wisdom 2>/dev/null
-rmmod squireos_core 2>/dev/null
-insmod /lib/modules/2.6.29/squireos_core.ko
+# Test fbink
+which fbink || echo "fbink not installed"
+
+# Use terminal mode
+export JESTEROS_DISPLAY=terminal
+/usr/local/bin/jester-splash.sh
 ```
 
-#### Issue: Init script not running at boot
-**Solutions**:
+### Debug Mode
+
 ```bash
-# For SystemD
-systemctl status squireos-modules.service
-journalctl -u squireos-modules.service
+# Enable debug output
+export JESTEROS_DEBUG=1
+/usr/local/bin/jesteros-userspace.sh
 
-# For SysV
-/etc/init.d/squireos-modules status
+# Check logs
+tail -f /var/log/jesteros.log
 ```
 
-#### Issue: E-Ink display not showing jester
-**Solutions**:
-```bash
-# Install FBInk
-wget https://github.com/NiLuJe/FBInk/releases/download/v1.25.0/fbink
-chmod +x fbink
-./fbink -c  # Clear screen
-```
+---
+
+## 📊 Performance Impact
+
+### Resource Usage
+- **Memory**: ~500KB RAM (userspace scripts)
+- **CPU**: <1% average usage
+- **Disk**: ~50KB for scripts, <1MB for data
+- **Boot time**: +2 seconds for JesterOS startup
+
+### Optimization Tips
+- Adjust update interval for less CPU usage
+- Use terminal mode if E-Ink is slow
+- Disable unused features in config
 
 ---
 
 ## 🔐 Security Considerations
 
-### File Permissions
+### Permissions
+- Scripts run as root (for system integration)
+- Data files are world-readable
+- No network access required
+- No external dependencies
 
+### Hardening
 ```bash
-# Recommended permissions
-/boot/uImage                    - 644 root:root
-/lib/modules/2.6.29/*.ko        - 644 root:root
-/usr/local/bin/*.sh             - 755 root:root
-/etc/init.d/squireos-modules    - 755 root:root
-```
+# Restrict script permissions
+chmod 750 /usr/local/bin/jesteros-*.sh
 
-### Module Signing
-
-For production deployments:
-```bash
-# Sign modules (if kernel supports it)
-scripts/sign-file sha256 signing_key.pem signing_key.x509 module.ko
-```
-
-### Verification
-
-```bash
-# Verify package integrity
-sha256sum -c squireos-nook.sha256
-
-# Check module info
-modinfo /lib/modules/2.6.29/squireos_core.ko
+# Limit data directory access
+chmod 755 /var/jesteros
 ```
 
 ---
 
-## 📈 Deployment Metrics
+## 📦 Creating Deployment Packages
 
-### Package Sizes
-
-| Component | Size | Compressed |
-|-----------|------|------------|
-| Kernel (uImage) | 1.9MB | 1.8MB |
-| Modules (all) | 200KB | 150KB |
-| Scripts | 20KB | 10KB |
-| Total Package | 2.2MB | 2.0MB |
-
-### Installation Time
-
-| Method | Time | Notes |
-|--------|------|-------|
-| Automated | <1 min | With script |
-| Manual | 5 min | Step by step |
-| SD Card | 10 min | Including formatting |
-
-### Boot Impact
-
-- Module load time: ~2 seconds
-- Memory usage: <1MB for all modules
-- CPU impact: Negligible after init
-
----
-
-## 🔄 Updates and Maintenance
-
-### Updating Modules Only
+### Package Builder Script
 
 ```bash
-# Download update package
-wget https://example.com/squireos-modules-update.tar.gz
+#!/bin/bash
+# build-deployment-package.sh
 
-# Backup existing
-cp -r /lib/modules/2.6.29 /lib/modules/2.6.29.backup
+VERSION="1.0.0"
+PACKAGE_NAME="jesteros-nook-${VERSION}"
 
-# Install new modules
-tar -xzf squireos-modules-update.tar.gz -C /
+echo "Building JesterOS deployment package v${VERSION}"
 
-# Reload modules
-/etc/init.d/squireos-modules restart
-```
+# Create structure
+mkdir -p ${PACKAGE_NAME}/{usr/local/bin,etc/init.d,var/jesteros/typewriter,boot}
 
-### Updating Kernel
+# Copy files
+cp source/scripts/boot/jesteros-*.sh ${PACKAGE_NAME}/usr/local/bin/
+cp source/configs/system/jesteros.init ${PACKAGE_NAME}/etc/init.d/jesteros
+cp firmware/boot/uImage ${PACKAGE_NAME}/boot/ 2>/dev/null || true
 
-```bash
-# Backup current kernel
-cp /boot/uImage /boot/uImage.backup
+# Create installer
+cat > ${PACKAGE_NAME}/install.sh << 'EOF'
+#!/bin/bash
+set -e
+echo "Installing JesterOS userspace..."
+cp -r usr/local/bin/* /usr/local/bin/
+cp -r etc/init.d/* /etc/init.d/
+mkdir -p /var/jesteros/typewriter
+chmod +x /usr/local/bin/jesteros-*.sh
+chmod +x /etc/init.d/jesteros
+update-rc.d jesteros defaults 2>/dev/null || true
+echo "JesterOS installed successfully!"
+echo "Start with: /etc/init.d/jesteros start"
+EOF
 
-# Install new kernel
-cp new-uImage /boot/uImage
+chmod +x ${PACKAGE_NAME}/install.sh
 
-# Reboot required
-reboot
+# Create archive
+tar czf ${PACKAGE_NAME}.tar.gz ${PACKAGE_NAME}/
+echo "Package created: ${PACKAGE_NAME}.tar.gz"
 ```
 
 ---
 
-## 📚 Related Documentation
+## 🔗 Related Documentation
 
-- [Installation Guide](INSTALLATION_GUIDE.md)
-- [SD Card Setup](SD_CARD_SETUP.md)
-- [Module Configuration](MODULE_CONFIG.md)
-- [Troubleshooting Guide](TROUBLESHOOTING.md)
-
----
-
-## 🎭 Post-Installation
-
-Once installed, the medieval writing environment provides:
-
-- **Jester Companion**: ASCII art mood indicator
-- **Writing Statistics**: Track your progress
-- **Wisdom Quotes**: Inspiration while writing
-- **Distraction-Free**: No internet, pure focus
-
-Access features:
-```bash
-# View the jester
-cat /proc/jesteros/jester
-
-# Check writing stats
-cat /proc/jesteros/typewriter/stats
-
-# Get wisdom
-cat /proc/jesteros/wisdom
-
-# See version
-cat /proc/jesteros/version
-```
+- [JesterOS Userspace Deployment](deployment/DEPLOY_JESTEROS_USERSPACE.md)
+- [Boot Guide](BOOT_GUIDE_CONSOLIDATED.md)
+- [Migration from Kernel Modules](MIGRATION_TO_USERSPACE.md)
+- [Testing Procedures](TESTING_PROCEDURES.md)
 
 ---
 
-*"Deploy with confidence, write with joy!"* 🎭
-
-**Version**: 1.0.0  
-**Last Updated**: December 13, 2024  
-**Package Format**: tar.gz
+*"Deploy with joy, no kernel to annoy!"* 🚀📚

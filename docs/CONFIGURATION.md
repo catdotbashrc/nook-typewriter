@@ -39,28 +39,28 @@ menuconfig JESTEROS
     default m
 ```
 
-## The Great Renaming: JokerOS → JesterOS
+## JesterOS Evolution: From Kernel to Userspace
 
 ### Historical Context
-- **Original**: Inconsistent naming (JOKEROS, SQUIREOS, JokerOS)
-- **Problem**: Pre-flight checks failing due to mismatched module names
-- **Solution**: Unified under JesterOS brand to match JoKernel
-- **Philosophy**: "JesterOS and JoKernel - a match made in heaven"
+- **Original**: Kernel modules approach (JOKEROS, SQUIREOS naming)
+- **Problem**: Complex kernel compilation, cross-compilation issues
+- **Solution**: Moved to userspace implementation for simplicity
+- **Philosophy**: "Simple solutions for joyful writing"
 
-### What Changed
-1. **Directory Structure**:
-   - `source/kernel/src/drivers/jokeros/` → `source/kernel/src/drivers/jesteros/`
+### Architecture Evolution
+1. **Legacy Kernel Approach** (Deprecated):
+   - Kernel modules in `source/kernel/src/drivers/jokeros/`
+   - Required cross-compilation with Android NDK
+   - Created `/proc/jokeros/` interface
    
-2. **Module Names**:
-   - `jokeros_core.ko` → `jesteros_core.ko`
-   - All internal references updated
+2. **Current Userspace Approach**:
+   - Shell scripts in `source/scripts/boot/`
+   - No kernel compilation needed
+   - Creates `/var/jesteros/` interface
 
-3. **Config Symbols**:
-   - `CONFIG_JOKEROS` → `CONFIG_JESTEROS`
-   - All submodule configs updated
-
-4. **Proc Filesystem**:
-   - `/proc/jokeros/` → `/proc/jesteros/`
+4. **Filesystem Interface**:
+   - Old kernel: `/proc/jokeros/` (deprecated)
+   - New userspace: `/var/jesteros/`
 
 ## Critical Build Discovery: oldconfig vs olddefconfig
 
