@@ -1,0 +1,99 @@
+name: AI Development Metrics
+
+on:
+  push:
+    branches: [ai/*, ai-review/*]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  track-ai-metrics:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Calculate AI Metrics
+      run: |
+        echo "## 🤖 AI Development Metrics" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Count AI-tagged commits
+        AI_COMMITS=$(git log --grep="\[AI-SESSION" --oneline | wc -l)
+        echo "- AI Sessions: $AI_COMMITS" >> $GITHUB_STEP_SUMMARY
+        
+        # Extract token usage from commits
+        TOTAL_TOKENS=$(git log --grep="Token Usage:" --pretty=format:"%B" | \
+          grep -oE "Token Usage: ([0-9]+)K" | \
+          grep -oE "[0-9]+" | \
+          awk '{sum+=$1} END {print sum}')
+        echo "- Total Tokens Used: ${TOTAL_TOKENS}K" >> $GITHUB_STEP_SUMMARY
+        
+        # Count files changed
+        FILES_CHANGED=$(git diff --name-only origin/main..HEAD | wc -l)
+        echo "- Files Modified: $FILES_CHANGED" >> $GITHUB_STEP_SUMMARY
+        
+        # Calculate lines of code
+        LINES_ADDED=$(git diff --stat origin/main..HEAD | tail -1 | grep -oE "[0-9]+ insertion" | grep -oE "[0-9]+")
+        LINES_REMOVED=$(git diff --stat origin/main..HEAD | tail -1 | grep -oE "[0-9]+ deletion" | grep -oE "[0-9]+")
+        echo "- Lines Added: ${LINES_ADDED:-0}" >> $GITHUB_STEP_SUMMARY
+        echo "- Lines Removed: ${LINES_REMOVED:-0}" >> $GITHUB_STEP_SUMMARY
+        
+        # Token efficiency
+        if [ ! -z "$TOTAL_TOKENS" ] && [ ! -z "$LINES_ADDED" ] && [ "$TOTAL_TOKENS" -gt 0 ]; then
+          EFFICIENCY=$(echo "scale=2; $LINES_ADDED / $TOTAL_TOKENS" | bc)
+          echo "- Token Efficiency: $EFFICIENCY lines/K tokens" >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Check Memory Budget
+      run: |
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 💾 Memory Analysis" >> $GITHUB_STEP_SUMMARY
+        
+        # Simple size check for new files
+        find . -name "*.sh" -o -name "*.c" -newer .git/FETCH_HEAD | while read file; do
+          SIZE=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
+          SIZE_KB=$((SIZE / 1024))
+          if [ $SIZE_KB -gt 100 ]; then
+            echo "⚠️ Large file: $file (${SIZE_KB}KB)" >> $GITHUB_STEP_SUMMARY
+          fi
+        done
+    
+    - name: Label PR Based on Metrics
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: commits } = await github.rest.pulls.listCommits({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number
+          });
+          
+          const aiCommits = commits.filter(c => 
+            c.commit.message.includes('[AI-SESSION')
+          );
+          
+          if (aiCommits.length > 0) {
+            // Add AI-generated label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['ai-generated']
+            });
+            
+            // Calculate complexity based on session count
+            let complexityLabel = 'ai-simple';
+            if (aiCommits.length > 5) complexityLabel = 'ai-complex';
+            else if (aiCommits.length > 2) complexityLabel = 'ai-medium';
+            
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [complexityLabel]
+            });
+          }
