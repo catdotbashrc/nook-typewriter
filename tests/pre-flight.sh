@@ -4,6 +4,11 @@
 
 set -uo pipefail
 
+# Source configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$PROJECT_ROOT/.kernel.env"
+
 echo "*** Automated Pre-Flight Safety Checklist ***"
 echo "============================================="
 echo ""
@@ -72,13 +77,13 @@ echo "*** TECHNICAL VALIDATION ***"
 echo "----------------------------"
 
 # Check kernel modules
-check "JokerOS modules present" "ls source/kernel/src/drivers/jokeros/*.c 2>/dev/null | wc -l | grep -q 4"
-check "Module Makefile exists" "test -f source/kernel/src/drivers/jokeros/Makefile"
-check "Kernel config has JOKEROS enabled" "grep -q 'CONFIG_JOKEROS=m' source/kernel/src/.config 2>/dev/null || grep -q 'CONFIG_SQUIREOS=m' source/kernel/src/.config 2>/dev/null"
+check "JesterOS modules present" "ls source/kernel/src/drivers/jesteros/*.c 2>/dev/null | wc -l | grep -q 4"
+check "Module Makefile exists" "test -f source/kernel/src/drivers/jesteros/Makefile"
+check "Kernel config has JESTEROS enabled" "grep -q 'CONFIG_JESTEROS=' source/kernel/src/.config 2>/dev/null"
 
 # Check for dangerous patterns
 echo -n "Checking for dangerous code patterns... "
-if ! grep -r "panic\|BUG_ON\|__asm__" source/kernel/src/drivers/jokeros/*.c 2>/dev/null | grep -v "^[[:space:]]*\*" | grep -v "^[[:space:]]*\/\/" > /dev/null; then
+if ! grep -r "panic\|BUG_ON\|__asm__" source/kernel/src/drivers/jesteros/*.c 2>/dev/null | grep -v "^[[:space:]]*\*" | grep -v "^[[:space:]]*\/\/" > /dev/null; then
     echo "[PASS]"
     PASS_COUNT=$((PASS_COUNT + 1))
 else
