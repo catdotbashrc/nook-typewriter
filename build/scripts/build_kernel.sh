@@ -3,12 +3,16 @@
 
 set -e
 
+# Source build configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/.kernel.env"
+
 echo "═══════════════════════════════════════════════════════════════"
-echo "           JoKernel Build Script"
+echo "           JoKernel Build Script v${PROJECT_VERSION}"
 echo "═══════════════════════════════════════════════════════════════"
 
 # Ensure we're in the right directory
-cd "$(dirname "$0")"
+cd "$SCRIPT_DIR"
 
 # Check if XDA-proven Docker image exists, build if needed
 if ! docker images | grep -q "jokernel-unified"; then
@@ -28,11 +32,11 @@ docker run --rm \
         echo '→ Configuring kernel for Nook...'
         make ARCH=arm omap3621_gossamer_evt1c_defconfig
         
-        echo '→ Enabling JokerOS modules...'
-        echo 'CONFIG_JOKEROS=m' >> .config
-        echo 'CONFIG_JOKEROS_JESTER=y' >> .config
-        echo 'CONFIG_JOKEROS_TYPEWRITER=y' >> .config
-        echo 'CONFIG_JOKEROS_WISDOM=y' >> .config
+        echo '→ Enabling JesterOS modules...'
+        echo 'CONFIG_JESTEROS=m' >> .config
+        echo 'CONFIG_JESTEROS_JESTER=y' >> .config
+        echo 'CONFIG_JESTEROS_TYPEWRITER=y' >> .config
+        echo 'CONFIG_JESTEROS_WISDOM=y' >> .config
         
         echo '→ Building kernel (this may take 5-10 minutes)...'
         make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- oldconfig
@@ -65,7 +69,15 @@ else
     exit 1
 fi
 
+# Generate build info
+echo ""
+echo "→ Generating build information..."
+if [ -f "$SCRIPT_DIR/scripts/version-control.sh" ]; then
+    "$SCRIPT_DIR/scripts/version-control.sh" build
+    echo "✓ Build info generated"
+fi
+
 echo ""
 echo "═══════════════════════════════════════════════════════════════"
-echo "✓ JoKernel build complete!"
+echo "✓ JoKernel build complete! (v${PROJECT_VERSION})"
 echo "═══════════════════════════════════════════════════════════════"
