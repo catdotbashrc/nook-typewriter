@@ -1,0 +1,7 @@
+# SquireOS Module Dependencies
+# Load order matters - core must be loaded first
+
+squireos_core.ko:
+jester.ko: squireos_core.ko
+typewriter.ko: squireos_core.ko
+wisdom.ko: squireos_core.ko

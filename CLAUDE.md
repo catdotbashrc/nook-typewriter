@@ -1,28 +1,12 @@
-# CLAUDE.md - Nook Typewriter Project
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Philosophy
 
 This transforms a $20 used e-reader into a $400 distraction-free writing device. Every decision prioritizes **writers over features**.
 
-### Our Users
-- **Digital Minimalist Writers**: Escaping notifications to focus on words
-- **Retro Computing Enthusiasts**: Appreciating the "digital scriptorium" aesthetic  
-- **Budget-Conscious Creators**: Can't afford Freewrite, have old Nooks
-- **Environmental Advocates**: Preventing e-waste through repurposing
-
-### What This IS
-✅ Pure writing environment (Vim + E-Ink)
-✅ Whimsical medieval theme (QuillKernel)
-✅ Extreme battery life (weeks not hours)
-✅ Zero distractions by design
-
-### What This ISN'T
-❌ Development environment
-❌ Web browsing device
-❌ Email/social media machine
-❌ General purpose computer
-
-## Critical Constraints
+### Critical Constraints
 
 ```yaml
 Hardware Limits:
@@ -31,12 +15,112 @@ Hardware Limits:
   Display: 6" E-Ink (800x600, 16 grayscale)
   Storage: SD card based
   Power: <100mA USB output
+```
 
-Design Implications:
-  - Every MB matters for writing space
-  - E-Ink refresh = feature not bug (prevents addiction)
-  - Simple > Feature-rich
-  - Text-only is perfect
+### Memory Budget - DO NOT VIOLATE
+```
+Reserved for OS:     95MB (Debian base)
+Reserved for Vim:    10MB (editor + plugins)
+SACRED Writing Space: 160MB (DO NOT TOUCH)
+```
+
+## High-Level Architecture
+
+### System Layers
+```
+1. Android Base (Nook firmware) → Provides hardware drivers
+2. Linux Chroot (JokerOS) → Debian in /data/debian/
+3. JoKernel → Custom jester-themed kernel modules
+4. Writing Environment → Vim with minimal plugins
+```
+
+### Key Components
+
+**JoKernel Modules** (`source/kernel/src/drivers/`)
+- `jokeros_core.c`: Creates `/proc/jokeros/` filesystem
+- `jester.c`: ASCII art mood system based on system state
+- `typewriter.c`: Tracks keystrokes and writing achievements
+- `wisdom.c`: Rotating writing quotes for inspiration
+- Configuration via `Kconfig.squireos` with medieval-themed help text
+
+**Build System**
+- Main kernel build: `./build_kernel.sh` (Docker-based with `jokernel-builder` image)
+- Minimal boot environment: `minimal-boot.dockerfile` for MVP testing (<30MB)
+- Kernel uses Android NDK r10e with ARM cross-compiler targeting Linux 2.6.29
+- Cross-compilation: `arm-linux-androideabi-` toolchain
+
+**Boot Sequence**
+1. U-Boot loads kernel from SD card
+2. Android init starts
+3. Chroot to Debian at boot completion
+4. Launch `/usr/local/bin/boot-jester.sh` or MVP init script
+5. Load JokerOS modules (`insmod` commands in init scripts)
+6. Display jester and launch menu system
+
+## Essential Development Commands
+
+### Building the System
+
+```bash
+# Build optimized writing environment (recommended)
+docker build -t nook-writer --build-arg BUILD_MODE=writer -f nookwriter-optimized.dockerfile .
+
+# Export for deployment
+docker create --name nook-export nook-writer
+docker export nook-export | gzip > nook-writer.tar.gz
+docker rm nook-export
+
+# Build QuillKernel (main build script)
+./build_kernel.sh  # One-command kernel build with Docker
+
+# Build minimal boot environment for testing
+docker build -t nook-mvp-rootfs -f minimal-boot.dockerfile .
+docker create --name nook-export nook-mvp-rootfs
+docker export nook-export | gzip > nook-mvp-rootfs.tar.gz
+docker rm nook-export
+```
+
+### Testing
+
+```bash
+# Run improvement validation tests
+./tests/test-improvements.sh    # Validates script improvements and safety measures
+
+# Test kernel modules (user-space simulation)
+./source/kernel/test/test_modules.sh
+./source/kernel/test/simulate_module.sh
+
+# Test in Docker (won't have E-Ink)
+docker run -it --rm nook-writer vim /tmp/test.txt
+docker run --rm nook-writer /usr/local/bin/nook-menu.sh
+
+# Check memory impact of changes
+docker stats nook-writer --no-stream --format "RAM: {{.MemUsage}}"
+```
+
+### Deployment
+
+```bash
+# Install to SD card (requires root)
+sudo ./install_to_sdcard.sh
+
+# Test Docker image locally (no E-Ink support)
+docker run -it --rm nook-mvp-rootfs
+
+# Check memory usage
+docker stats nook-mvp-rootfs --no-stream --format "RAM: {{.MemUsage}}"
+```
+
+### Kernel Development
+
+```bash
+# Check if JoKernel modules are loaded (on device)
+cat /proc/jokeros/jester      # Should show ASCII jester
+cat /proc/jokeros/typewriter/stats  # Writing statistics
+cat /proc/jokeros/wisdom       # Random writing quote
+
+# Monitor writing statistics
+watch -n 5 'cat /proc/jokeros/typewriter/stats'
 ```
 
 ## Writer-First Development Rules
@@ -47,83 +131,64 @@ Design Implications:
 3. **Will this add distractions?**
 4. **Can writers understand the error messages?**
 
-### Memory Budget
-```
-Reserved for OS:     95MB (Debian base)
-Reserved for Vim:    10MB (editor + plugins)
-SACRED Writing Space: 160MB (DO NOT TOUCH)
-```
-
 ### E-Ink Considerations
 - Full refresh (`fbink -c`) = intentional pause for thought
 - Ghosting = gentle reminder of previous words
 - Slow menus = mindful interaction
 - No animations = focused attention
 
-## Essential Commands
+### Common Issues & Solutions
 
-### For Writers Testing Features
+**Kernel modules not loading:**
+- Modules go in `/lib/modules/2.6.29/` in rootfs  
+- Build modules with kernel: `make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- modules`
+- Load order: `jokeros_core.ko` first, then `jester.ko`, `typewriter.ko`, `wisdom.ko`
+- Check `dmesg | grep jokeros` for module errors
+- Verify kernel config: `CONFIG_JOKEROS=m` in `.config`
+
+**Memory exhaustion:**
+- Run `free -h` to check usage
+- Remove unnecessary vim plugins
+- Use minimal build mode if needed
+- Never exceed 96MB OS usage
+
+**E-Ink display issues:**
+- FBInk must be compiled for ARM (`fbink-v1.25.0-armv7`)
+- Fallback to terminal output in Docker
+- Manual refresh: `fbink -c`
+
+## Code Quality Standards
+
+### Shell Scripts
 ```bash
-# Quick test writing experience
-docker run -it --rm nook-system vim /tmp/test.txt
+# Always use for new scripts
+set -euo pipefail
+trap 'echo "Error at line $LINENO"' ERR
 
-# Check memory impact of changes
-docker stats nook-system --no-stream
+# Quote all variables
+echo "$USER_INPUT"  # Good
+echo $USER_INPUT    # Bad - injection risk
 
-# Verify distraction-free (should fail)
-docker run --rm nook-system ping google.com 2>/dev/null || echo "✓ No internet distractions"
+# Check commands exist
+command -v fbink >/dev/null 2>&1 || echo "No E-Ink support"
 ```
 
-### Building for Writers
-```bash
-# Standard build
-docker build -t nook-system -f nookwriter.dockerfile .
+### Kernel Modules (C)
+```c
+// Always validate buffer sizes
+snprintf(buffer, sizeof(buffer), format, args);  // Good
+sprintf(buffer, format, args);  // Bad - overflow risk
 
-# Test medieval theme
-docker run --rm nook-system cat /proc/squireos/motto 2>/dev/null || echo "Not on real hardware"
+// Check for integer overflow
+if (stats.words < UINT32_MAX) stats.words++;
 
-# Create writer's deployment
-docker create --name nook-export nook-system
-docker export nook-export | gzip > nook-debian.tar.gz
-docker rm nook-export
+// Use proper locking for shared data
+spin_lock(&stats_lock);
+// ... modify stats ...
+spin_unlock(&stats_lock);
 ```
 
-### QuillKernel (Medieval Magic)
-```bash
-cd nst-kernel
-./squire-kernel-patch.sh  # Adds jester, achievements, writing stats
-
-# Docker build (no toolchain needed!)
-docker build -f Dockerfile.build -t quillkernel .
-
-# Test the medieval experience
-cd test
-./verify-build-simple.sh  # Should see jester ASCII art
-```
-
-## Testing for Writers
-
-### What to Test
-```yaml
-Writing Flow:
-  - Can open Vim in <2 seconds?
-  - Does Ctrl+S save intuitively?
-  - Is word count visible?
-  - Do writing plugins work?
-
-Distractions:
-  - No network browsing possible?
-  - No app notifications?
-  - No social media access?
-  - Focus mode (\g in Vim) works?
-
-Battery:
-  - Changes increase power draw?
-  - WiFi off by default?
-  - CPU throttled appropriately?
-```
-
-### Writer-Friendly Error Messages
+### Error Messages
 ```bash
 # BAD: Technical jargon
 "Error: fbdev ioctl FBIOGET_VSCREENINFO failed"
@@ -135,42 +200,72 @@ Battery:
 "Alas! The digital parchment is not ready!"
 ```
 
-## Common Writer Issues
+## Testing Philosophy
 
-### "My keyboard doesn't work"
-- Need USB host kernel (version 174+)
-- Wireless keyboards need powered hub
-- Best: Wired USB from ~2011 era
+### "Test Enough to Sleep Well, Not to Pass an Audit"
 
-### "Screen looks weird"
-- E-Ink ghosting is normal (not a bug)
-- Press 5 in menu for full refresh
-- It's supposed to be slow (mindfulness!)
+This is a **hobby project for fun and learning**. Keep testing simple and practical:
 
-### "Can't save my work"
-- Space issue: Check with `df -h`
-- Vim command: `:w!` forces save
-- Emergency: USB mount SD card to recover
+#### Before ANY Hardware Deployment
+1. Run `./tests/smoke-test.sh` (takes 5 minutes)
+2. Run `./tests/pre-flight.sh` (safety checklist)
+3. Test in Docker first: `./tests/docker-test.sh`
+4. Boot from SD card (keeps device safe)
 
-### "How do I get my writing off?"
-- Option 1: rclone sync (menu option 3)
-- Option 2: Remove SD card, mount on PC
-- Option 3: Future feature - email to self
+#### What We Test (Priority Order)
+1. **Kernel safety** (most critical - prevents bricking!)
+   - Module compilation without warnings
+   - API compatibility with Linux 2.6.29
+   - Module loading simulation
+   - No obvious memory/resource issues
+2. **Basic functionality**
+   - Builds successfully  
+   - Boots to menu (< 20 seconds)
+   - Can write and save files
+   - Stays under memory limits
 
-## File Organization
+#### What We DON'T Test
+- 90% code coverage
+- Every edge case scenario
+- Performance microseconds
+- Enterprise compliance metrics
 
+#### Performance Targets (Realistic)
+- Boot time: < 20 seconds
+- Vim launch: < 2 seconds  
+- Menu response: < 500ms
+- Writing save: < 1 second
+- Total RAM usage: < 96MB (needs reality check!)
+
+**Remember**: Time spent over-testing = less time spent writing!
+
+## Critical Project Structure
+
+### Current Architecture (Post-Kernel Integration)
 ```
-Critical Paths:
-/usr/local/bin/nook-menu.sh    # Main writer interface
-/root/.vimrc                    # Writing configuration  
-/root/writing/                  # Sacred writing directory
-/proc/squireos/                 # Medieval theme interface
-
-Never Touch:
-/usr/share/doc/                # Wastes writing space
-/var/cache/                     # Precious RAM
-/usr/share/man/                 # No one reads on E-Ink
+source/
+├── kernel/              # Linux 2.6.29 with SquireOS modules
+│   ├── src/            # Full kernel source tree
+│   └── test/           # Module testing scripts
+├── configs/            # System configurations
+│   ├── ascii/          # Jester ASCII art collections
+│   ├── system/         # Boot services and system files
+│   └── vim/            # Vim configurations for writing
+└── scripts/            # System scripts organized by function
+    ├── boot/           # Boot sequence scripts
+    ├── menu/           # Menu system implementations
+    ├── services/       # Background services
+    └── lib/            # Common library functions
 ```
+
+### Script Safety Standards
+All shell scripts now implement:
+- `set -euo pipefail` for fail-fast behavior
+- Input validation functions (`validate_menu_choice`, `validate_path`)
+- Display abstraction for E-Ink compatibility
+- Standardized error handling with `error_handler`
+- Path traversal protection
+- Safe file operations with directory creation
 
 ## Contributing Guidelines
 
@@ -180,6 +275,8 @@ Never Touch:
 ✅ Battery life improvements
 ✅ More medieval whimsy
 ✅ Writer workflow enhancements
+✅ Shell script security improvements
+✅ Boot time optimizations
 
 ### Unwelcome Changes
 ❌ Web browsers or internet features
@@ -187,49 +284,28 @@ Never Touch:
 ❌ Media players or graphics
 ❌ Anything using >5MB RAM
 ❌ Features requiring constant refresh
+❌ Scripts without proper error handling
+❌ Removing safety validations
 
-### Testing Checklist
-- [ ] Works in 160MB free RAM?
-- [ ] E-Ink friendly (minimal refresh)?
-- [ ] No network dependencies?
-- [ ] Writer can understand errors?
-- [ ] Medieval theme maintained?
-- [ ] Battery impact measured?
+## Key Implementation Details
 
-## Quick Reference
+### Module Loading Sequence
+1. Kernel config enables `CONFIG_SQUIREOS=m` with sub-modules
+2. Init scripts load modules in dependency order
+3. `/proc/squireos/` interface becomes available
+4. Menu system reads from `/proc/squireos/{jester,typewriter/stats,wisdom}`
 
-### Memory Monitor
-```bash
-# During development
-watch -n 5 'free -h | grep Mem'
+### Security Model
+- All user input validated through `validate_menu_choice()` and `validate_path()`
+- File operations restricted to `/root/{notes,drafts,scrolls}/` directories
+- Path traversal attacks prevented by canonicalization checks
+- No network access or external communication
 
-# Before committing
-echo "=== Memory Impact ==="
-docker stats nook-system --no-stream --format "RAM: {{.MemUsage}}"
-```
-
-### Writer's Toolbox
-```vim
-" Vim commands writers need
-\g          " Goyo (focus mode)
-\p          " Pencil (better writing)
-:w          " Save
-:q          " Quit
-Ctrl+S      " Save (familiar to writers)
-Ctrl+Q      " Quit (familiar to writers)
-```
-
-### Medieval Debug
-```bash
-# Check if QuillKernel is active
-cat /proc/squireos/jester || echo "No jester (not QuillKernel)"
-
-# View writing statistics  
-cat /proc/squireos/typewriter/stats
-
-# Get inspiration
-cat /proc/squireos/wisdom
-```
+### Memory Optimization Strategies
+- Docker multi-stage builds minimize final image size
+- Aggressive cleanup removes docs, locales, and static libraries
+- Busybox-static provides essential utilities in single binary
+- Module loading only when hardware supports E-Ink display
 
 ## Philosophy Reminders
 
@@ -243,16 +319,12 @@ cat /proc/squireos/wisdom
 
 > "The jester reminds us: writing should be joyful"
 
-## Hardware Reality Check
-
-Remember what we're working with:
-- **CPU**: Slower than a 2008 iPhone
-- **RAM**: Less than a single Chrome tab
-- **Display**: Refreshes like paper, not pixels
-- **Purpose**: Writing, not computing
-
-Every line of code should respect these limits while serving writers who chose this device specifically for its constraints.
+> "By quill and candlelight, quality prevails!"
 
 ---
 
 *"By quill and candlelight, we code for those who write"* 🕯️📜
+
+## Activity Logging
+
+You have access to the `log_activity` tool. Use it to record your activities after every activity that is relevant for the project. This helps track development progress and understand what has been done.

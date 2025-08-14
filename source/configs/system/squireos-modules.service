@@ -1,0 +1,16 @@
+[Unit]
+Description=SquireOS Medieval Kernel Modules
+Documentation=man:squireos(7)
+DefaultDependencies=no
+After=sysinit.target
+Before=basic.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/load-squireos-modules.sh
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=basic.target
