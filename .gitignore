@@ -290,6 +290,10 @@ notes/
 personal/
 TODO.personal
 
+# Zettelkasten directories (local note-taking workspace)
+.zk/
+**/.zk/
+
 # ------------------------------------------------------------------
 # Python (for any helper scripts)
 # ------------------------------------------------------------------
