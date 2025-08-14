@@ -4,29 +4,34 @@
 
 set -euo pipefail
 
-echo "*** JokerOS Kernel Safety Validation ***"
+# Source configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+source "$PROJECT_ROOT/.kernel.env"
+
+echo "*** JesterOS Kernel Safety Validation ***"
 echo "========================================"
 echo ""
 echo "This is the MOST IMPORTANT test - kernel issues brick devices!"
 echo ""
 
 # Define our module path
-JOKEROS_PATH="source/kernel/src/drivers/jokeros"
+JESTEROS_PATH="source/kernel/src/drivers/jesteros"
 
 # Check if our modules exist
-if [ ! -d "$JOKEROS_PATH" ]; then
-    echo "[FAIL] JokerOS module directory not found!"
+if [ ! -d "$JESTEROS_PATH" ]; then
+    echo "[FAIL] JesterOS module directory not found!"
     exit 1
 fi
 
-echo "-> Testing JokerOS modules in: $JOKEROS_PATH"
+echo "-> Testing JesterOS modules in: $JESTEROS_PATH"
 echo ""
 
 # 1. Basic module structure check
 echo "-> Checking basic module structure..."
 MODULES_FOUND=0
-for module in jokeros_core.c jester.c typewriter.c wisdom.c; do
-    if [ -f "$JOKEROS_PATH/$module" ]; then
+for module in jesteros_core.c jester.c typewriter.c wisdom.c; do
+    if [ -f "$JESTEROS_PATH/$module" ]; then
         echo "  [FOUND] $module"
         MODULES_FOUND=$((MODULES_FOUND + 1))
     else
@@ -46,9 +51,9 @@ echo ""
 echo "-> Checking for unsafe string functions..."
 UNSAFE_COUNT=0
 for func in sprintf strcpy strcat; do
-    if grep -q "$func" $JOKEROS_PATH/*.c; then
+    if grep -q "$func" $JESTEROS_PATH/*.c; then
         echo "  [DANGER] Found unsafe function: $func"
-        grep -n "$func" $JOKEROS_PATH/*.c | head -3
+        grep -n "$func" $JESTEROS_PATH/*.c | head -3
         UNSAFE_COUNT=$((UNSAFE_COUNT + 1))
     fi
 done
@@ -66,7 +71,7 @@ echo "-> Checking for dangerous hardware access..."
 HARDWARE_FUNCS="ioremap __raw_write outb inb writeb readb"
 HARDWARE_COUNT=0
 for func in $HARDWARE_FUNCS; do
-    if grep -q "$func" $JOKEROS_PATH/*.c; then
+    if grep -q "$func" $JESTEROS_PATH/*.c; then
         echo "  [DANGER] Found hardware access: $func"
         HARDWARE_COUNT=$((HARDWARE_COUNT + 1))
     fi
@@ -83,9 +88,9 @@ echo ""
 # 4. Check for division by zero (kernel panic)
 echo "-> Checking for division by zero risks..."
 # Look for modulo with variables (not constants), excluding known safe cases
-if grep -n " % [a-zA-Z]" $JOKEROS_PATH/*.c | grep -v "wisdom_count\|% 60\|% 100" | grep -q .; then
+if grep -n " % [a-zA-Z]" $JESTEROS_PATH/*.c | grep -v "wisdom_count\|% 60\|% 100" | grep -q .; then
     echo "[FAIL] Found modulo operations with variables without zero checks!"
-    grep -n " % [a-zA-Z]" $JOKEROS_PATH/*.c | grep -v "wisdom_count\|% 60\|% 100"
+    grep -n " % [a-zA-Z]" $JESTEROS_PATH/*.c | grep -v "wisdom_count\|% 60\|% 100"
     echo "STOP: Division by zero causes immediate kernel panic!"
     exit 1
 else
@@ -98,7 +103,7 @@ echo "-> Checking module structure..."
 STRUCTURE_ERRORS=0
 
 # Check each module has required functions
-for module in $JOKEROS_PATH/*.c; do
+for module in $JESTEROS_PATH/*.c; do
     MODULE_NAME=$(basename "$module" .c)
     echo "  Checking $MODULE_NAME..."
     
@@ -133,8 +138,8 @@ echo "-> Checking for potential memory leaks..."
 LEAK_WARNINGS=0
 
 # Check malloc/free balance in our modules
-MALLOC_COUNT=$(cat $JOKEROS_PATH/*.c | grep -c "kmalloc\|kzalloc" 2>/dev/null || echo "0")
-FREE_COUNT=$(cat $JOKEROS_PATH/*.c | grep -c "kfree" 2>/dev/null || echo "0")
+MALLOC_COUNT=$(cat $JESTEROS_PATH/*.c | grep -c "kmalloc\|kzalloc" 2>/dev/null || echo "0")
+FREE_COUNT=$(cat $JESTEROS_PATH/*.c | grep -c "kfree" 2>/dev/null || echo "0")
 
 if [ "$MALLOC_COUNT" -gt 0 ] && [ "$FREE_COUNT" -eq 0 ]; then
     echo "[WARN] Found memory allocations but no kfree calls"
@@ -142,8 +147,8 @@ if [ "$MALLOC_COUNT" -gt 0 ] && [ "$FREE_COUNT" -eq 0 ]; then
 fi
 
 # Check proc entry cleanup
-PROC_CREATE_COUNT=$(cat $JOKEROS_PATH/*.c 2>/dev/null | grep -c "proc_create\|create_proc" || echo "0")
-PROC_REMOVE_COUNT=$(cat $JOKEROS_PATH/*.c 2>/dev/null | grep -c "remove_proc_entry" || echo "0")
+PROC_CREATE_COUNT=$(cat $JESTEROS_PATH/*.c 2>/dev/null | grep -c "proc_create\|create_proc" || echo "0")
+PROC_REMOVE_COUNT=$(cat $JESTEROS_PATH/*.c 2>/dev/null | grep -c "remove_proc_entry" || echo "0")
 
 if [ "$PROC_CREATE_COUNT" -gt 0 ] && [ "$PROC_REMOVE_COUNT" -eq 0 ]; then
     echo "[WARN] Creating proc entries but no cleanup found"
@@ -160,7 +165,7 @@ echo ""
 # 7. Check file sizes (memory usage)
 echo "-> Checking module sizes..."
 LARGE_MODULES=0
-for module in $JOKEROS_PATH/*.c; do
+for module in $JESTEROS_PATH/*.c; do
     SIZE=$(wc -c < "$module")
     SIZE_KB=$((SIZE / 1024))
     MODULE_NAME=$(basename "$module")

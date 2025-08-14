@@ -1,0 +1,11 @@
+JoKernel Build Information
+=============================
+Version: 1.0.0-alpha.1
+Git Hash: 0805497
+Git Branch: feature/issue-16-centralized-config
+Build Date: 2025-08-14 07:06:40 UTC
+Builder: jyeary@RESULT-SL207A
+Module: JESTEROS
+Kernel: 2.6.29
+Architecture: arm
+=============================
