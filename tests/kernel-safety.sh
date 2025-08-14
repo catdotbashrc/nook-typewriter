@@ -1,6 +1,6 @@
 #!/bin/bash
 # Kernel Safety Testing - The most important test for not bricking!
-# Simple validation of JokerOS kernel modules before hardware deployment
+# Simple validation of kernel safety (JesterOS now in userspace)
 
 set -euo pipefail
 
@@ -15,35 +15,17 @@ echo ""
 echo "This is the MOST IMPORTANT test - kernel issues brick devices!"
 echo ""
 
-# Define our module path
-JESTEROS_PATH="source/kernel/src/drivers/jesteros"
+# Check for JesterOS userspace scripts
+JESTEROS_SCRIPTS="source/scripts/boot/jesteros-userspace.sh"
 
-# Check if our modules exist
-if [ ! -d "$JESTEROS_PATH" ]; then
-    echo "[FAIL] JesterOS module directory not found!"
-    exit 1
-fi
-
-echo "-> Testing JesterOS modules in: $JESTEROS_PATH"
-echo ""
-
-# 1. Basic module structure check
-echo "-> Checking basic module structure..."
-MODULES_FOUND=0
-for module in jesteros_core.c jester.c typewriter.c wisdom.c; do
-    if [ -f "$JESTEROS_PATH/$module" ]; then
-        echo "  [FOUND] $module"
-        MODULES_FOUND=$((MODULES_FOUND + 1))
-    else
-        echo "  [MISSING] $module"
-    fi
-done
-
-if [ "$MODULES_FOUND" -eq 4 ]; then
-    echo "[PASS] All 4 JokerOS modules found"
+if [ -f "$JESTEROS_SCRIPTS" ]; then
+    echo "[PASS] JesterOS userspace implementation found"
+    echo "  -> JesterOS now runs as userspace services"
+    echo "  -> No kernel module compilation needed"
+    echo "  -> Interface at /var/jesteros/"
 else
-    echo "[FAIL] Missing JokerOS modules!"
-    exit 1
+    echo "[WARN] JesterOS userspace script not found"
+    echo "  -> Run ./install-jesteros-userspace.sh to install"
 fi
 echo ""
 
@@ -218,4 +200,4 @@ else
 fi
 
 echo ""
-echo "JokerOS Kernel Safety Check Complete"
+echo "Kernel Safety Check Complete (JesterOS in userspace)"

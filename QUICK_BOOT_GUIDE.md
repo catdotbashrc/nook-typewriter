@@ -57,7 +57,7 @@ sudo umount /mnt
 
 ### Success Signs:
 - Kernel boot messages on screen
-- JokerOS jester might appear (if display works)
+- JesterOS jester might appear (if display works)
 - System boots to some interface
 
 ### Failure Signs:
