@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This transforms a $20 used e-reader into a $400 distraction-free writing device. Every decision prioritizes **writers over features**.
 
+### Kernel Architecture Principle
+**Core Four Built-in**: The four JokerOS modules (core, jester, typewriter, wisdom) remain compiled into the kernel as our medieval soul (~20KB).
+
+**Everything Else as Modules**: All future kernel enhancements MUST be loadable modules (.ko files) to maintain a lean kernel and allow user choice.
+
 ### Critical Constraints
 
 ```yaml
