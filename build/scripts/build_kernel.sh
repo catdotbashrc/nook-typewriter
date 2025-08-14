@@ -33,13 +33,21 @@ docker run --rm \
         make ARCH=arm omap3621_gossamer_evt1c_defconfig
         
         echo '→ Enabling JesterOS modules...'
-        echo 'CONFIG_JESTEROS=m' >> .config
-        echo 'CONFIG_JESTEROS_JESTER=y' >> .config
-        echo 'CONFIG_JESTEROS_TYPEWRITER=y' >> .config
-        echo 'CONFIG_JESTEROS_WISDOM=y' >> .config
+        # Force JesterOS into config before oldconfig processes it
+        cat >> .config << 'EOF'
+
+#
+# JesterOS Configuration
+#
+CONFIG_JESTEROS=m
+CONFIG_JESTEROS_JESTER=y
+CONFIG_JESTEROS_TYPEWRITER=y
+CONFIG_JESTEROS_WISDOM=y
+# CONFIG_JESTEROS_DEBUG is not set
+EOF
         
         echo '→ Building kernel (this may take 5-10 minutes)...'
-        make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- oldconfig
+        make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- olddefconfig
         make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- uImage
         
         echo '→ Building modules...'
