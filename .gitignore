@@ -11,6 +11,8 @@ firmware/kernel/uImage
 firmware/kernel/modules/*.ko
 firmware/rootfs/usr/local/bin/*
 firmware/boot/*
+# Allow NookManager.img specifically
+!firmware/bootloaders/NookManager.img
 firmware/**/*.img
 firmware/**/*.tar.gz
 
@@ -269,8 +271,8 @@ deprecated/
 
 # Large image files (track with Git LFS if needed)
 images/2gb_clockwork-rc2.img
-NookManager.img
-*.img
+# NookManager.img - allowed for bootloader base
+# *.img - keep other images ignored for now
 !firmware/boot/uImage
 
 # Android NDK (if downloaded locally)
