@@ -35,7 +35,7 @@ help:
 	@echo ""
 	@echo "$(BOLD)Main Targets:$(RESET)"
 	@echo "  $(GREEN)make firmware$(RESET)    - Build complete firmware (kernel + rootfs)"
-	@echo "  $(GREEN)make kernel$(RESET)      - Build JoKernel with JokerOS modules"
+	@echo "  $(GREEN)make kernel$(RESET)      - Build kernel (JesterOS now in userspace)"
 	@echo "  $(GREEN)make rootfs$(RESET)      - Build root filesystem with scripts"
 	@echo "  $(GREEN)make image$(RESET)       - Create bootable SD card image"
 	@echo "  $(GREEN)make release$(RESET)     - Create release package with checksums"
@@ -69,7 +69,7 @@ firmware: check-tools kernel rootfs boot
 
 # Kernel build with Docker validation
 kernel: check-tools
-	@echo "$(BOLD)🔨 Building JoKernel with JokerOS modules...$(RESET)"
+	@echo "$(BOLD)🔨 Building kernel (JesterOS services in userspace)...$(RESET)"
 	@if [ ! -f build_kernel.sh ]; then \
 		echo "$(RED)Error: build_kernel.sh not found$(RESET)"; \
 		exit 1; \
@@ -84,7 +84,7 @@ kernel: check-tools
 rootfs:
 	@echo "$(BOLD)📦 Building root filesystem...$(RESET)"
 	@mkdir -p $(FIRMWARE_DIR)/rootfs/usr/local/bin
-	@mkdir -p $(FIRMWARE_DIR)/rootfs/etc/squireos
+	@mkdir -p $(FIRMWARE_DIR)/rootfs/etc/jesteros
 	@# Copy scripts with validation
 	@for dir in boot menu services lib; do \
 		if [ -d $(SCRIPTS_DIR)/$$dir ]; then \
@@ -94,7 +94,7 @@ rootfs:
 	done
 	@# Copy configurations
 	@if [ -d $(CONFIGS_DIR) ]; then \
-		cp -r $(CONFIGS_DIR)/ascii $(FIRMWARE_DIR)/rootfs/etc/jokeros/ 2>/dev/null || true; \
+		cp -r $(CONFIGS_DIR)/ascii $(FIRMWARE_DIR)/rootfs/etc/jesteros/ 2>/dev/null || true; \
 		cp -r $(CONFIGS_DIR)/vim $(FIRMWARE_DIR)/rootfs/etc/vim/ 2>/dev/null || true; \
 	fi
 	@# Set permissions
@@ -118,8 +118,8 @@ boot: kernel
 		echo "$(GREEN)   ✓ Boot configuration copied$(RESET)"; \
 	fi
 
-# SD card image creation
-image: firmware
+# SD card image creation (requires passing tests)
+image: test-gate firmware
 	@echo "$(BOLD)💾 Creating SD card image: $(IMAGE_NAME)$(RESET)"
 	@mkdir -p $(RELEASES_DIR)
 	@if [ -f build/scripts/create-image.sh ]; then \
@@ -187,8 +187,8 @@ distclean: clean
 	@rm -rf $(FIRMWARE_DIR)/ 2>/dev/null || true
 	@echo "$(GREEN)✓ Deep cleanup complete$(RESET)"
 
-# Flash to SD card with safety checks
-install: image
+# Flash to SD card with safety checks (REQUIRES PASSING TESTS)
+install: test-gate image
 	@echo "$(BOLD)🎯 Ready to flash to SD card$(RESET)"
 	@echo ""
 	@echo "$(YELLOW)⚠️  WARNING: This will erase your SD card!$(RESET)"
@@ -198,6 +198,18 @@ install: image
 	@echo ""
 	@echo "Replace /dev/sdX with your SD card device (use 'lsblk' to find it)"
 	@echo "$(RED)Double-check the device to avoid data loss!$(RESET)"
+
+# Emergency install without tests (USE WITH EXTREME CAUTION)
+force-install: image
+	@echo "$(RED)$(BOLD)⚠️  FORCING INSTALL WITHOUT TESTS ⚠️$(RESET)"
+	@echo "$(RED)This bypasses all safety checks!$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)⚠️  WARNING: This will erase your SD card!$(RESET)"
+	@echo ""
+	@echo "To flash the image, run:"
+	@echo "  $(BOLD)sudo dd if=$(RELEASES_DIR)/$(IMAGE_NAME) of=/dev/sdX bs=4M status=progress$(RESET)"
+	@echo ""
+	@echo "$(RED)YOU HAVE BEEN WARNED!$(RESET)"
 
 # New targets for validation and testing
 
@@ -223,6 +235,16 @@ test:
 		./tests/run-all-tests.sh; \
 	else \
 		echo "$(YELLOW)Test suite not found$(RESET)"; \
+	fi
+
+# Test gate - enforces critical tests before deployment
+test-gate:
+	@echo "$(BOLD)🏰 Running Test Gate Keeper...$(RESET)"
+	@if [ -f tests/gate-keeper.sh ]; then \
+		./tests/gate-keeper.sh || exit 1; \
+	else \
+		echo "$(RED)Error: Test gate keeper not found!$(RESET)"; \
+		exit 1; \
 	fi
 
 # Show dependencies

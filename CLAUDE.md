@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This transforms a $20 used e-reader into a $400 distraction-free writing device. Every decision prioritizes **writers over features**.
 
+### Architecture Principle
+**JesterOS Userspace**: The jester services (mood, typewriter stats, wisdom quotes) now run in userspace for simplicity and reliability (~10KB).
+
+**Minimal Kernel**: Keep the kernel lean and stable - all enhancements happen in userspace to avoid kernel compilation complexity.
+
 ### Critical Constraints
 
 ```yaml
@@ -29,19 +34,19 @@ SACRED Writing Space: 160MB (DO NOT TOUCH)
 ### System Layers
 ```
 1. Android Base (Nook firmware) → Provides hardware drivers
-2. Linux Chroot (JokerOS) → Debian in /data/debian/
-3. JoKernel → Custom jester-themed kernel modules
+2. Linux Chroot → Debian in /data/debian/
+3. JesterOS → Userspace jester-themed services
 4. Writing Environment → Vim with minimal plugins
 ```
 
 ### Key Components
 
-**JoKernel Modules** (`source/kernel/src/drivers/`)
-- `jokeros_core.c`: Creates `/proc/jokeros/` filesystem
-- `jester.c`: ASCII art mood system based on system state
-- `typewriter.c`: Tracks keystrokes and writing achievements
-- `wisdom.c`: Rotating writing quotes for inspiration
-- Configuration via `Kconfig.squireos` with medieval-themed help text
+**JesterOS Services** (userspace implementation)
+- Creates `/var/jesteros/` filesystem interface
+- `jester`: ASCII art mood system based on system state
+- `typewriter/stats`: Tracks keystrokes and writing achievements
+- `wisdom`: Rotating writing quotes for inspiration
+- Simple shell scripts - no kernel compilation needed!
 
 **Build System**
 - Main kernel build: `./build_kernel.sh` (Docker-based with `jokernel-builder` image)
@@ -54,7 +59,7 @@ SACRED Writing Space: 160MB (DO NOT TOUCH)
 2. Android init starts
 3. Chroot to Debian at boot completion
 4. Launch `/usr/local/bin/boot-jester.sh` or MVP init script
-5. Load JokerOS modules (`insmod` commands in init scripts)
+5. Start JesterOS userspace services
 6. Display jester and launch menu system
 
 ## Essential Development Commands
@@ -86,9 +91,8 @@ docker rm nook-export
 # Run improvement validation tests
 ./tests/test-improvements.sh    # Validates script improvements and safety measures
 
-# Test kernel modules (user-space simulation)
-./source/kernel/test/test_modules.sh
-./source/kernel/test/simulate_module.sh
+# Test JesterOS userspace services
+./test-jesteros-userspace.sh
 
 # Test in Docker (won't have E-Ink)
 docker run -it --rm nook-writer vim /tmp/test.txt
@@ -111,16 +115,19 @@ docker run -it --rm nook-mvp-rootfs
 docker stats nook-mvp-rootfs --no-stream --format "RAM: {{.MemUsage}}"
 ```
 
-### Kernel Development
+### JesterOS Development
 
 ```bash
-# Check if JoKernel modules are loaded (on device)
-cat /proc/jokeros/jester      # Should show ASCII jester
-cat /proc/jokeros/typewriter/stats  # Writing statistics
-cat /proc/jokeros/wisdom       # Random writing quote
+# Check JesterOS services (on device)
+cat /var/jesteros/jester      # Should show ASCII jester
+cat /var/jesteros/typewriter/stats  # Writing statistics
+cat /var/jesteros/wisdom       # Random writing quote
 
 # Monitor writing statistics
-watch -n 5 'cat /proc/jokeros/typewriter/stats'
+watch -n 5 'cat /var/jesteros/typewriter/stats'
+
+# Install JesterOS userspace
+./install-jesteros-userspace.sh
 ```
 
 ## Writer-First Development Rules
@@ -139,12 +146,12 @@ watch -n 5 'cat /proc/jokeros/typewriter/stats'
 
 ### Common Issues & Solutions
 
-**Kernel modules not loading:**
-- Modules go in `/lib/modules/2.6.29/` in rootfs  
-- Build modules with kernel: `make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- modules`
-- Load order: `jokeros_core.ko` first, then `jester.ko`, `typewriter.ko`, `wisdom.ko`
-- Check `dmesg | grep jokeros` for module errors
-- Verify kernel config: `CONFIG_JOKEROS=m` in `.config`
+**JesterOS services not running:**
+- Services installed in `/usr/local/bin/` 
+- Started by init script at boot
+- Check service status: `ps aux | grep jesteros`
+- View logs: `cat /var/log/jesteros.log`
+- Manual start: `/usr/local/bin/jesteros-userspace.sh`
 
 **Memory exhaustion:**
 - Run `free -h` to check usage
@@ -289,11 +296,11 @@ All shell scripts now implement:
 
 ## Key Implementation Details
 
-### Module Loading Sequence
-1. Kernel config enables `CONFIG_SQUIREOS=m` with sub-modules
-2. Init scripts load modules in dependency order
-3. `/proc/squireos/` interface becomes available
-4. Menu system reads from `/proc/squireos/{jester,typewriter/stats,wisdom}`
+### JesterOS Service Startup
+1. Init script runs at boot
+2. JesterOS userspace services start
+3. `/var/jesteros/` interface becomes available
+4. Menu system reads from `/var/jesteros/{jester,typewriter/stats,wisdom}`
 
 ### Security Model
 - All user input validated through `validate_menu_choice()` and `validate_path()`
