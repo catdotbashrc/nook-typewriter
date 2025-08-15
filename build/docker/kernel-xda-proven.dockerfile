@@ -27,12 +27,11 @@ RUN apt-get update && apt-get install -y \
 # Download Android NDK r12b (XDA-proven for NST)
 # Alternative to CodeSourcery that community has verified works
 # SHA256 checksum for Android NDK r12b to prevent supply chain attacks
-ENV NDK_SHA256="734135c3b66e3a7b9e36c0d07c4a0e31c67a9e5f9d2f8f4c3e8f5e7f8a9b0c1d2"
+ENV NDK_SHA256="eafae2d614e5475a3bcfd7c5f201db5b963cc1290ee3e8ae791ff0c66757781e"
 RUN mkdir -p /opt && \
     cd /opt && \
     wget -q https://dl.google.com/android/repository/android-ndk-r12b-linux-x86_64.zip && \
-    echo "${NDK_SHA256}  android-ndk-r12b-linux-x86_64.zip" | sha256sum -c - || \
-    (echo "Warning: NDK checksum validation failed, proceeding with caution") && \
+    echo "${NDK_SHA256}  android-ndk-r12b-linux-x86_64.zip" | sha256sum -c - && \
     unzip -q android-ndk-r12b-linux-x86_64.zip && \
     rm android-ndk-r12b-linux-x86_64.zip && \
     mv android-ndk-r12b android-ndk
