@@ -28,24 +28,54 @@ do_start() {
         /usr/local/bin/jester-splash-eink.sh
     fi
     
-    # Run the initialization
-    $DAEMON
+    # Initialize JesterOS directory structure
+    if [ -x /usr/local/bin/jesteros-userspace.sh ]; then
+        /usr/local/bin/jesteros-userspace.sh
+    fi
     
-    # Start the daemon for updates
-    start-stop-daemon --start --quiet --pidfile $PIDFILE \
-        --make-pidfile --background \
-        --exec $DAEMON -- --daemon
+    # Start services using the service manager
+    if [ -x /usr/local/bin/jesteros-service-manager.sh ]; then
+        # Initialize service management
+        /usr/local/bin/jesteros-service-manager.sh init
+        
+        # Start all services
+        /usr/local/bin/jesteros-service-manager.sh start all
+        
+        # Start the monitoring daemon
+        /usr/local/bin/jesteros-service-manager.sh monitor &
+        echo $! > $PIDFILE
+    else
+        # Fallback to old method
+        $DAEMON
+        start-stop-daemon --start --quiet --pidfile $PIDFILE \
+            --make-pidfile --background \
+            --exec $DAEMON -- --daemon
+    fi
     
     echo "$DESC started."
 }
 
 do_stop() {
     echo "Stopping $DESC..."
-    start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    
+    # Stop services using the service manager
+    if [ -x /usr/local/bin/jesteros-service-manager.sh ]; then
+        # Stop the monitoring daemon
+        if [ -f $PIDFILE ]; then
+            kill $(cat $PIDFILE) 2>/dev/null || true
+        fi
+        
+        # Stop all services
+        /usr/local/bin/jesteros-service-manager.sh stop all
+    else
+        # Fallback to old method
+        start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    fi
+    
     rm -f $PIDFILE
     
-    # Clean up the jesteros directory
-    rm -rf /var/jesteros
+    # Clean up the jesteros directory (optional, can be preserved)
+    # rm -rf /var/jesteros
     echo "$DESC stopped."
 }
 
