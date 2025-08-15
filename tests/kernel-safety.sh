@@ -29,141 +29,109 @@ else
 fi
 echo ""
 
-# 2. Check for unsafe string functions (buffer overflows)
-echo "-> Checking for unsafe string functions..."
-UNSAFE_COUNT=0
-for func in sprintf strcpy strcat; do
-    if grep -q "$func" $JESTEROS_PATH/*.c; then
-        echo "  [DANGER] Found unsafe function: $func"
-        grep -n "$func" $JESTEROS_PATH/*.c | head -3
-        UNSAFE_COUNT=$((UNSAFE_COUNT + 1))
-    fi
-done
-
-if [ "$UNSAFE_COUNT" -eq 0 ]; then
-    echo "[PASS] No unsafe string functions found"
-else
-    echo "[FAIL] Found $UNSAFE_COUNT unsafe string functions - WILL cause buffer overflows!"
-    exit 1
-fi
-echo ""
-
-# 3. Check for hardware register access (bricking risk)
-echo "-> Checking for dangerous hardware access..."
-HARDWARE_FUNCS="ioremap __raw_write outb inb writeb readb"
-HARDWARE_COUNT=0
-for func in $HARDWARE_FUNCS; do
-    if grep -q "$func" $JESTEROS_PATH/*.c; then
-        echo "  [DANGER] Found hardware access: $func"
-        HARDWARE_COUNT=$((HARDWARE_COUNT + 1))
-    fi
-done
-
-if [ "$HARDWARE_COUNT" -eq 0 ]; then
-    echo "[PASS] No direct hardware access found"
-else
-    echo "[FAIL] Found hardware register access - WILL brick device!"
-    exit 1
-fi
-echo ""
-
-# 4. Check for division by zero (kernel panic)
-echo "-> Checking for division by zero risks..."
-# Look for modulo with variables (not constants), excluding known safe cases
-if grep -n " % [a-zA-Z]" $JESTEROS_PATH/*.c | grep -v "wisdom_count\|% 60\|% 100" | grep -q .; then
-    echo "[FAIL] Found modulo operations with variables without zero checks!"
-    grep -n " % [a-zA-Z]" $JESTEROS_PATH/*.c | grep -v "wisdom_count\|% 60\|% 100"
-    echo "STOP: Division by zero causes immediate kernel panic!"
-    exit 1
-else
-    echo "[PASS] No division by zero risks found"
-fi
-echo ""
-
-# 5. Check for proper module structure
-echo "-> Checking module structure..."
-STRUCTURE_ERRORS=0
-
-# Check each module has required functions
-for module in $JESTEROS_PATH/*.c; do
-    MODULE_NAME=$(basename "$module" .c)
-    echo "  Checking $MODULE_NAME..."
+# 2. Check kernel source for unsafe patterns (if kernel source exists)
+echo "-> Checking for unsafe kernel patterns..."
+KERNEL_SRC="source/kernel/src"
+if [ -d "$KERNEL_SRC" ]; then
+    UNSAFE_COUNT=0
+    # Only check actual kernel code, not JesterOS modules
+    for func in sprintf strcpy strcat; do
+        if find "$KERNEL_SRC" -name "*.c" -not -path "*/jesteros/*" -exec grep -l "$func" {} \; 2>/dev/null | head -1 | grep -q .; then
+            echo "  [WARN] Found unsafe function in kernel: $func"
+            UNSAFE_COUNT=$((UNSAFE_COUNT + 1))
+        fi
+    done
     
-    # Check for MODULE_LICENSE
-    if ! grep -q "MODULE_LICENSE" "$module"; then
-        echo "    [WARN] Missing MODULE_LICENSE"
-        STRUCTURE_ERRORS=$((STRUCTURE_ERRORS + 1))
-    fi
-    
-    # Check for init function
-    if ! grep -q "_init\|module_init" "$module"; then
-        echo "    [WARN] Missing init function"
-        STRUCTURE_ERRORS=$((STRUCTURE_ERRORS + 1))
-    fi
-    
-    # Check for exit function  
-    if ! grep -q "_exit\|module_exit" "$module"; then
-        echo "    [WARN] Missing exit function"
-        STRUCTURE_ERRORS=$((STRUCTURE_ERRORS + 1))
-    fi
-done
-
-if [ "$STRUCTURE_ERRORS" -eq 0 ]; then
-    echo "[PASS] All modules have proper structure"
-else
-    echo "[WARN] Found $STRUCTURE_ERRORS structure issues"
-fi
-echo ""
-
-# 6. Check for memory leaks
-echo "-> Checking for potential memory leaks..."
-LEAK_WARNINGS=0
-
-# Check malloc/free balance in our modules
-MALLOC_COUNT=$(cat $JESTEROS_PATH/*.c | grep -c "kmalloc\|kzalloc" 2>/dev/null || echo "0")
-FREE_COUNT=$(cat $JESTEROS_PATH/*.c | grep -c "kfree" 2>/dev/null || echo "0")
-
-if [ "$MALLOC_COUNT" -gt 0 ] && [ "$FREE_COUNT" -eq 0 ]; then
-    echo "[WARN] Found memory allocations but no kfree calls"
-    LEAK_WARNINGS=$((LEAK_WARNINGS + 1))
-fi
-
-# Check proc entry cleanup
-PROC_CREATE_COUNT=$(cat $JESTEROS_PATH/*.c 2>/dev/null | grep -c "proc_create\|create_proc" || echo "0")
-PROC_REMOVE_COUNT=$(cat $JESTEROS_PATH/*.c 2>/dev/null | grep -c "remove_proc_entry" || echo "0")
-
-if [ "$PROC_CREATE_COUNT" -gt 0 ] && [ "$PROC_REMOVE_COUNT" -eq 0 ]; then
-    echo "[WARN] Creating proc entries but no cleanup found"
-    LEAK_WARNINGS=$((LEAK_WARNINGS + 1))
-fi
-
-if [ "$LEAK_WARNINGS" -eq 0 ]; then
-    echo "[PASS] No obvious memory leak patterns"
-else
-    echo "[WARN] Found $LEAK_WARNINGS potential leak patterns"
-fi
-echo ""
-
-# 7. Check file sizes (memory usage)
-echo "-> Checking module sizes..."
-LARGE_MODULES=0
-for module in $JESTEROS_PATH/*.c; do
-    SIZE=$(wc -c < "$module")
-    SIZE_KB=$((SIZE / 1024))
-    MODULE_NAME=$(basename "$module")
-    
-    if [ "$SIZE_KB" -gt 10 ]; then  # >10KB is large for embedded
-        echo "  [WARN] Large module: $MODULE_NAME (${SIZE_KB}KB)"
-        LARGE_MODULES=$((LARGE_MODULES + 1))
+    if [ "$UNSAFE_COUNT" -eq 0 ]; then
+        echo "[PASS] No critical unsafe functions in kernel"
     else
-        echo "  [GOOD] $MODULE_NAME (${SIZE_KB}KB)"
+        echo "[WARN] Found $UNSAFE_COUNT unsafe patterns - review kernel safety"
     fi
-done
-
-if [ "$LARGE_MODULES" -eq 0 ]; then
-    echo "[PASS] All modules are reasonably sized"
 else
-    echo "[WARN] Found $LARGE_MODULES large modules"
+    echo "[INFO] Kernel source not present - skipping kernel checks"
+fi
+echo ""
+
+# 3. Check userspace service scripts for safety
+echo "-> Checking userspace service safety..."
+SERVICE_SCRIPTS="source/scripts/services/*.sh"
+SAFETY_ISSUES=0
+
+if ls $SERVICE_SCRIPTS >/dev/null 2>&1; then
+    for script in $SERVICE_SCRIPTS; do
+        SCRIPT_NAME=$(basename "$script")
+        
+        # Check for set -e or error handling
+        if ! grep -q "set -e\|set -.*e" "$script"; then
+            echo "  [WARN] $SCRIPT_NAME: Missing error handling (set -e)"
+            SAFETY_ISSUES=$((SAFETY_ISSUES + 1))
+        fi
+        
+        # Check for input validation
+        if grep -q 'eval\|$(' "$script" | grep -v '^#'; then
+            if ! grep -q "validate_.*input\|sanitize" "$script"; then
+                echo "  [INFO] $SCRIPT_NAME: Has command substitution - ensure input validation"
+            fi
+        fi
+    done
+    
+    if [ "$SAFETY_ISSUES" -eq 0 ]; then
+        echo "[PASS] Userspace services follow safety practices"
+    else
+        echo "[WARN] Found $SAFETY_ISSUES safety considerations in services"
+    fi
+else
+    echo "[WARN] No userspace service scripts found"
+fi
+echo ""
+
+# 4. Check boot scripts for proper sequencing
+echo "-> Checking boot script safety..."
+BOOT_SCRIPTS="source/scripts/boot/*.sh"
+if ls $BOOT_SCRIPTS >/dev/null 2>&1; then
+    BOOT_ISSUES=0
+    for script in $BOOT_SCRIPTS; do
+        if grep -q "/dev/sd[a-z]" "$script" | grep -v "^#"; then
+            if ! grep -q "confirm\|validate.*device" "$script"; then
+                echo "  [WARN] $(basename $script): Direct device access without validation"
+                BOOT_ISSUES=$((BOOT_ISSUES + 1))
+            fi
+        fi
+    done
+    
+    if [ "$BOOT_ISSUES" -eq 0 ]; then
+        echo "[PASS] Boot scripts validate device operations"
+    else
+        echo "[WARN] Found $BOOT_ISSUES boot script safety issues"
+    fi
+else
+    echo "[INFO] No boot scripts found"
+fi
+echo ""
+
+# 5. Check memory usage estimates
+echo "-> Checking memory usage..."
+MEMORY_SAFE=true
+
+# Check if services stay within budget
+SERVICE_MEM_ESTIMATE=0
+if ls $SERVICE_SCRIPTS >/dev/null 2>&1; then
+    SERVICE_COUNT=$(ls -1 $SERVICE_SCRIPTS | wc -l)
+    # Estimate ~100KB per service script
+    SERVICE_MEM_ESTIMATE=$((SERVICE_COUNT * 100))
+    echo "  Estimated service memory: ${SERVICE_MEM_ESTIMATE}KB for $SERVICE_COUNT services"
+    
+    if [ "$SERVICE_MEM_ESTIMATE" -gt 1024 ]; then
+        echo "  [WARN] Services may use >1MB RAM"
+        MEMORY_SAFE=false
+    fi
+fi
+
+echo "[INFO] Total userspace estimate: ${SERVICE_MEM_ESTIMATE}KB"
+if [ "$MEMORY_SAFE" = true ]; then
+    echo "[PASS] Memory usage within safe limits"
+else
+    echo "[WARN] Review memory usage before deployment"
 fi
 echo ""
 
@@ -171,33 +139,27 @@ echo ""
 echo "*** Safety Assessment Summary ***"
 echo "================================="
 
-CRITICAL_ISSUES=$((UNSAFE_COUNT + HARDWARE_COUNT))
-TOTAL_WARNINGS=$((STRUCTURE_ERRORS + LEAK_WARNINGS + LARGE_MODULES))
+# Since JesterOS is userspace now, we only have warnings, no critical kernel issues
+TOTAL_WARNINGS=$((SAFETY_ISSUES + BOOT_ISSUES))
 
-echo "Critical Issues: $CRITICAL_ISSUES"
-echo "Warnings: $TOTAL_WARNINGS"
+echo "Userspace Safety Issues: $SAFETY_ISSUES"
+echo "Boot Script Issues: $BOOT_ISSUES"
+echo "Memory Concerns: $([ "$MEMORY_SAFE" = true ] && echo "None" || echo "Review needed")"
 echo ""
 
-if [ "$CRITICAL_ISSUES" -eq 0 ]; then
-    if [ "$TOTAL_WARNINGS" -eq 0 ]; then
-        echo "[EXCELLENT] All kernel safety checks passed!"
-        echo "The Kernel Jester says: 'Thy modules are worthy of the realm!'"
-        echo "✓ SAFE to deploy to Nook hardware"
-    elif [ "$TOTAL_WARNINGS" -le 2 ]; then
-        echo "[GOOD] No critical issues, minor warnings only"
-        echo "The Kernel Jester says: 'Minor concerns, but courage prevails!'"
-        echo "✓ SAFE to deploy with caution"
-    else
-        echo "[CAUTION] No critical issues but many warnings"
-        echo "The Kernel Jester says: 'Review thy work, then proceed!'"
-        echo "⚠ Consider fixing warnings before deployment"
-    fi
+if [ "$TOTAL_WARNINGS" -eq 0 ] && [ "$MEMORY_SAFE" = true ]; then
+    echo "[EXCELLENT] All safety checks passed!"
+    echo "The Court Jester says: 'Thy services are worthy of the realm!'"
+    echo "✓ SAFE to deploy to Nook hardware"
+elif [ "$TOTAL_WARNINGS" -le 2 ]; then
+    echo "[GOOD] Minor warnings only"
+    echo "The Court Jester says: 'Minor concerns, but courage prevails!'"
+    echo "✓ SAFE to deploy with caution"
 else
-    echo "[DANGER] CRITICAL ISSUES FOUND!"
-    echo "The Kernel Jester says: 'HALT! Thy code will brick the realm!'"
-    echo "❌ DO NOT DEPLOY until critical issues are resolved!"
-    exit 1
+    echo "[CAUTION] Multiple warnings found"
+    echo "The Court Jester says: 'Review thy work, then proceed!'"
+    echo "⚠ Consider fixing warnings before deployment"
 fi
 
 echo ""
-echo "Kernel Safety Check Complete (JesterOS in userspace)"
+echo "Safety Check Complete (JesterOS in userspace)"

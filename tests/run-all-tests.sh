@@ -98,25 +98,53 @@ run_category() {
 }
 
 # Run all test categories
-echo "Running Unit Tests by Category"
+echo "Running Test Suite"
 echo "==============================="
 
-# High Priority Categories
+# Core Safety Tests
 echo ""
-echo -e "${PURPLE}HIGH PRIORITY TESTS${NC}"
-run_category "toolchain"
-run_category "memory"
-run_category "modules"
-run_category "build"
+echo -e "${PURPLE}CORE SAFETY TESTS${NC}"
+echo "----------------------------------------"
+if [ -f "$TEST_ROOT/kernel-safety.sh" ]; then
+    run_test "$TEST_ROOT/kernel-safety.sh"
+fi
+if [ -f "$TEST_ROOT/pre-flight.sh" ]; then
+    run_test "$TEST_ROOT/pre-flight.sh"
+fi
 
-# Medium Priority Categories
+# Userspace Service Tests
 echo ""
-echo -e "${PURPLE}MEDIUM PRIORITY TESTS${NC}"
-run_category "eink"
-run_category "boot"
-run_category "theme"
-run_category "menu"
-run_category "docs"
+echo -e "${PURPLE}USERSPACE SERVICE TESTS${NC}"
+echo "----------------------------------------"
+if [ -f "$TEST_ROOT/test-userspace-services.sh" ]; then
+    run_test "$TEST_ROOT/test-userspace-services.sh"
+fi
+if [ -f "$TEST_ROOT/test-service-management.sh" ]; then
+    run_test "$TEST_ROOT/test-service-management.sh"
+fi
+
+# Integration Tests
+echo ""
+echo -e "${PURPLE}INTEGRATION TESTS${NC}"
+echo "----------------------------------------"
+if [ -f "$TEST_ROOT/test-jesteros-integration.sh" ]; then
+    run_test "$TEST_ROOT/test-jesteros-integration.sh"
+fi
+
+# High Priority Categories (if unit tests exist)
+if [ -d "$TEST_ROOT/unit" ]; then
+    echo ""
+    echo -e "${PURPLE}UNIT TESTS${NC}"
+    run_category "toolchain"
+    run_category "memory"
+    run_category "modules"
+    run_category "build"
+    run_category "eink"
+    run_category "boot"
+    run_category "theme"
+    run_category "menu"
+    run_category "docs"
+fi
 
 # Generate Test Report
 echo ""
@@ -140,18 +168,26 @@ cat > "$REPORT_FILE" << EOF
 
 ## Test Categories
 
-### High Priority Tests
+### Core Safety Tests
+- **Kernel Safety**: Validates kernel and userspace safety
+- **Pre-Flight**: Deployment readiness checks
+
+### Userspace Service Tests
+- **Service Components**: JesterOS userspace service validation
+- **Service Management**: Service lifecycle and dependency testing
+
+### Integration Tests
+- **Boot to Menu**: Complete system flow validation
+- **Memory Compliance**: Resource usage verification
+
+### Unit Tests (if available)
 - **Toolchain**: Cross-compilation and NDK verification
 - **Memory**: Resource constraint validation
-- **Modules**: SquireOS kernel module integrity
 - **Build**: Build system and Docker configuration
-
-### Medium Priority Tests
 - **E-Ink**: Display abstraction and compatibility
-- **Boot**: Boot sequence and module loading
+- **Boot**: Boot sequence validation
 - **Theme**: Medieval theme preservation
 - **Menu**: User interface and input validation
-- **Documentation**: Project documentation completeness
 
 EOF
 
