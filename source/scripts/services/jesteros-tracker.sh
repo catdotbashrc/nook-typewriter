@@ -131,10 +131,14 @@ EOF
     done
 }
 
+# PID file location (can be overridden by service manager)
+PIDFILE="${PIDFILE:-/var/run/jesteros/tracker.pid}"
+
+# Ensure PID directory exists
+mkdir -p "$(dirname "$PIDFILE")"
+
 # Main function
 main() {
-    echo "Starting JesterOS Writing Tracker..."
-    
     # Ensure directories exist
     mkdir -p "$JESTER_DIR/typewriter"
     mkdir -p "$WATCH_DIR"
@@ -146,4 +150,48 @@ main() {
     monitor_writing
 }
 
-main "$@"
+# Handle command line arguments for service manager compatibility
+case "${1:-start}" in
+    start|--daemon)
+        if [ "${1:-}" = "--daemon" ] || [ "${DAEMON_MODE:-}" = "1" ]; then
+            # Run in foreground for service manager
+            echo "Starting JesterOS Writing Tracker (daemon mode)..."
+            exec main
+        else
+            # Traditional background start
+            echo "Starting JesterOS Writing Tracker..."
+            main &
+            echo $! > "$PIDFILE"
+        fi
+        ;;
+    stop)
+        if [ -f "$PIDFILE" ]; then
+            pid=$(cat "$PIDFILE")
+            if kill -0 "$pid" 2>/dev/null; then
+                kill "$pid"
+                rm -f "$PIDFILE"
+                echo "Writing Tracker stopped."
+            else
+                echo "Writing Tracker not running (stale PID file)"
+                rm -f "$PIDFILE"
+            fi
+        else
+            echo "Writing Tracker not running."
+        fi
+        ;;
+    status)
+        if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+            echo "Writing Tracker is running (PID: $(cat "$PIDFILE"))"
+            if [ -f "$STATS_FILE" ]; then
+                echo ""
+                cat "$STATS_FILE"
+            fi
+        else
+            echo "Writing Tracker is not running."
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status|--daemon}"
+        exit 1
+        ;;
+esac
