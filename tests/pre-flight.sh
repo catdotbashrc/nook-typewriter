@@ -76,14 +76,15 @@ echo ""
 echo "*** TECHNICAL VALIDATION ***"
 echo "----------------------------"
 
-# Check kernel modules
-check "JesterOS modules present" "ls source/kernel/src/drivers/jesteros/*.c 2>/dev/null | wc -l | grep -q 4"
-check "Module Makefile exists" "test -f source/kernel/src/drivers/jesteros/Makefile"
-check "Kernel config has JESTEROS enabled" "grep -q 'CONFIG_JESTEROS=' source/kernel/src/.config 2>/dev/null"
+# Check userspace services
+check "JesterOS userspace services present" "ls source/scripts/services/*.sh 2>/dev/null | wc -l | grep -qE '[1-9]'"
+check "Service manager exists" "test -f source/scripts/services/jesteros-service-manager.sh"
+check "Boot integration exists" "test -f source/scripts/boot/jesteros-userspace.sh"
+check "Service configs present" "ls source/configs/services/*.conf 2>/dev/null | wc -l | grep -qE '[1-9]'"
 
-# Check for dangerous patterns
+# Check for dangerous patterns in scripts
 echo -n "Checking for dangerous code patterns... "
-if ! grep -r "panic\|BUG_ON\|__asm__" source/kernel/src/drivers/jesteros/*.c 2>/dev/null | grep -v "^[[:space:]]*\*" | grep -v "^[[:space:]]*\/\/" > /dev/null; then
+if ! grep -r "rm -rf /\|dd.*of=/dev/sda" source/scripts/ 2>/dev/null | grep -v "^[[:space:]]*#" > /dev/null; then
     echo "[PASS]"
     PASS_COUNT=$((PASS_COUNT + 1))
 else
