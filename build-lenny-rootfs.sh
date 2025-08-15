@@ -29,6 +29,13 @@ fi
 
 # Clean any existing rootfs
 if [ -d "$OUTPUT_DIR" ]; then
+    echo "WARNING: This will remove existing $OUTPUT_DIR directory!"
+    echo -n "Continue? (yes/no): "
+    read confirm
+    if [ "$confirm" != "yes" ]; then
+        echo "Aborted."
+        exit 1
+    fi
     echo "Removing existing $OUTPUT_DIR..."
     rm -rf "$OUTPUT_DIR"
 fi

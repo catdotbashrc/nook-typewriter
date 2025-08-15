@@ -1,8 +1,8 @@
 #!/bin/sh
-# SquireOS Installation Script for Nook
+# JesterOS Installation Script for Nook
 # Run as root on the target device
 
-echo "Installing SquireOS Medieval Writing System..."
+echo "Installing JesterOS Medieval Writing System..."
 
 # Check if running as root
 if [ "$(id -u)" != "0" ]; then
@@ -22,10 +22,21 @@ else
     INSTALL_TYPE="sysv"
 fi
 
+# Confirm installation
+echo ""
+echo "This will install JesterOS components to your system."
+echo "Installation type: $INSTALL_TYPE"
+echo -n "Continue? (yes/no): "
+read confirm
+if [ "$confirm" != "yes" ]; then
+    echo "Installation aborted."
+    exit 1
+fi
+
 # Install kernel (if provided)
 if [ -f boot/uImage ]; then
     echo "Installing kernel image..."
-    cp boot/uImage /boot/uImage.squireos
+    cp boot/uImage /boot/uImage.jesteros
     echo "  [OK] Kernel installed (manual boot configuration required)"
 fi
 

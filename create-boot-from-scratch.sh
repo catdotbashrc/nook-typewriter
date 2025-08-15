@@ -1,5 +1,5 @@
 #!/bin/bash
-# Create JoKernel boot SD card completely from scratch
+# Create JesterOS boot SD card completely from scratch
 # Method 3: Manual U-Boot Chain - No CWM dependencies!
 
 set -euo pipefail
@@ -37,17 +37,24 @@ print_error() {
 if [ -z "$SD_DEVICE" ]; then
     echo "Usage: $0 /dev/sdX"
     echo ""
-    echo "This script creates a bootable SD card for JoKernel FROM SCRATCH"
-    echo "No ClockworkMod, no legacy cruft - pure JoKernel boot!"
+    echo "This script creates a bootable SD card for JesterOS FROM SCRATCH"
+    echo "No ClockworkMod, no legacy cruft - pure JesterOS boot!"
     echo ""
     echo "WARNING: This will COMPLETELY ERASE the SD card!"
     exit 1
 fi
 
-# Safety check
-if [[ ! "$SD_DEVICE" =~ ^/dev/sd[a-z]$ ]] && [[ ! "$SD_DEVICE" =~ ^/dev/mmcblk[0-9]$ ]]; then
+# Safety check - CRITICAL: Prevent system drive targeting
+if [[ "$SD_DEVICE" == "/dev/sda" ]]; then
+    print_error "FATAL: Cannot target /dev/sda (system drive)"
+    echo "This would destroy your system! Please use a different device."
+    exit 1
+fi
+
+if [[ ! "$SD_DEVICE" =~ ^/dev/sd[b-z]$ ]] && [[ ! "$SD_DEVICE" =~ ^/dev/mmcblk[0-9]$ ]]; then
     print_error "Invalid device: $SD_DEVICE"
     echo "Device should be like /dev/sdb or /dev/mmcblk0"
+    echo "Note: /dev/sda is explicitly blocked for safety"
     exit 1
 fi
 
@@ -90,7 +97,7 @@ fi
 
 # Confirm with user
 echo "============================================"
-echo "JoKernel From-Scratch SD Card Creator"
+echo "JesterOS From-Scratch SD Card Creator"
 echo "============================================"
 echo "Target device: $SD_DEVICE"
 lsblk "$SD_DEVICE" 2>/dev/null || true
@@ -106,7 +113,7 @@ if [ "$confirm" != "GROUND-UP" ]; then
     exit 1
 fi
 
-print_info "Creating JoKernel boot SD from scratch..."
+print_info "Creating JesterOS boot SD from scratch..."
 
 # Step 1: Wipe and partition the SD card
 print_info "Wiping SD card..."
@@ -142,31 +149,31 @@ fi
 
 # Step 2: Format partitions
 print_info "Formatting partitions..."
-mkfs.vfat -F 16 -n "JOKER_BOOT" "$PART1"
-mkfs.ext4 -L "JOKER_ROOT" "$PART2"
-mkfs.ext4 -L "JOKER_DATA" "$PART3"
+mkfs.vfat -F 16 -n "JESTER_BOOT" "$PART1"
+mkfs.ext4 -L "JESTER_ROOT" "$PART2"
+mkfs.ext4 -L "JESTER_DATA" "$PART3"
 
 # Step 3: Mount partitions
 print_info "Mounting partitions..."
-mkdir -p /tmp/joker_boot /tmp/joker_root /tmp/joker_data
-mount "$PART1" /tmp/joker_boot
-mount "$PART2" /tmp/joker_root
-mount "$PART3" /tmp/joker_data
+mkdir -p /tmp/jester_boot /tmp/jester_root /tmp/jester_data
+mount "$PART1" /tmp/jester_boot
+mount "$PART2" /tmp/jester_root
+mount "$PART3" /tmp/jester_data
 
 # Step 4: Install bootloaders in EXACT ORDER for Nook compatibility
 print_info "Installing bootloaders in correct order..."
 if [ -f "$MLO_SOURCE" ]; then
     # CRITICAL: MLO must be the FIRST file copied to ensure contiguous storage
     print_info "Installing MLO (first stage bootloader)..."
-    cp "$MLO_SOURCE" /tmp/joker_boot/MLO
+    cp "$MLO_SOURCE" /tmp/jester_boot/MLO
     sync
     
     print_info "Installing u-boot.bin (second stage bootloader)..."  
-    cp "$UBOOT_SOURCE" /tmp/joker_boot/u-boot.bin
+    cp "$UBOOT_SOURCE" /tmp/jester_boot/u-boot.bin
     sync
     
     # Verify files are present and correct size
-    ls -la /tmp/joker_boot/{MLO,u-boot.bin}
+    ls -la /tmp/jester_boot/{MLO,u-boot.bin}
 else
     print_error "Cannot proceed without MLO and u-boot.bin"
     exit 1
@@ -174,7 +181,7 @@ fi
 
 # Step 5: Install kernel
 print_info "Installing JoKernel..."
-cp "$KERNEL_IMAGE" /tmp/joker_boot/uImage
+cp "$KERNEL_IMAGE" /tmp/jester_boot/uImage
 
 # Step 6: Create our custom boot script
 print_info "Creating JoKernel boot script..."
@@ -304,16 +311,16 @@ EOF
 
 # Compile boot script
 print_info "Compiling boot script..."
-mkimage -A arm -O linux -T script -C none -n "JoKernel Boot" -d /tmp/boot.cmd /tmp/joker_boot/boot.scr
+mkimage -A arm -O linux -T script -C none -n "JesterOS Boot" -d /tmp/boot.cmd /tmp/jester_boot/boot.scr
 
 # Also create alternative boot script names that Nook might look for
-cp /tmp/joker_boot/boot.scr /tmp/joker_boot/u-boot.scr
-cp /tmp/joker_boot/boot.scr /tmp/joker_boot/boot.scr.uimg
+cp /tmp/jester_boot/boot.scr /tmp/jester_boot/u-boot.scr
+cp /tmp/jester_boot/boot.scr /tmp/jester_boot/boot.scr.uimg
 
 # Step 7: Add boot splash and scripts
 print_info "Adding boot art..."
 if [ -f "firmware/boot/booting.txt" ]; then
-    cp firmware/boot/booting.txt /tmp/joker_boot/
+    cp firmware/boot/booting.txt /tmp/jester_boot/
 fi
 
 # Step 8: Setup root filesystem
@@ -321,17 +328,17 @@ print_info "Setting up root filesystem..."
 
 if [ -f "$ROOTFS_TAR" ]; then
     print_info "Extracting rootfs..."
-    tar -xzf "$ROOTFS_TAR" -C /tmp/joker_root/
+    tar -xzf "$ROOTFS_TAR" -C /tmp/jester_root/
 else
     print_info "Creating minimal rootfs from scratch..."
     
     # Create directory structure
-    mkdir -p /tmp/joker_root/{bin,sbin,etc,proc,sys,dev,tmp,var,usr,lib,root,boot}
-    mkdir -p /tmp/joker_root/etc/init.d
-    mkdir -p /tmp/joker_root/lib/modules/2.6.29
+    mkdir -p /tmp/jester_root/{bin,sbin,etc,proc,sys,dev,tmp,var,usr,lib,root,boot}
+    mkdir -p /tmp/jester_root/etc/init.d
+    mkdir -p /tmp/jester_root/lib/modules/2.6.29
     
     # Create essential files
-    cat > /tmp/joker_root/etc/fstab << 'FSTAB'
+    cat > /tmp/jester_root/etc/fstab << 'FSTAB'
 # JoKernel filesystem table
 proc            /proc           proc    defaults        0 0
 sysfs           /sys            sysfs   defaults        0 0
@@ -341,7 +348,7 @@ devtmpfs        /dev            devtmpfs defaults       0 0
 FSTAB
 
     # Create init script
-    cat > /tmp/joker_root/sbin/init << 'INIT'
+    cat > /tmp/jester_root/sbin/init << 'INIT'
 #!/bin/sh
 # JoKernel Init System
 
@@ -392,15 +399,15 @@ while true; do
     sleep 1
 done
 INIT
-    chmod +x /tmp/joker_root/sbin/init
+    chmod +x /tmp/jester_root/sbin/init
     
     # Add busybox if available
     if [ -f "rootfs/busybox" ]; then
-        cp rootfs/busybox /tmp/joker_root/bin/
-        chmod +x /tmp/joker_root/bin/busybox
+        cp rootfs/busybox /tmp/jester_root/bin/
+        chmod +x /tmp/jester_root/bin/busybox
         # Create symlinks for common commands
         for cmd in sh ls cat echo mount umount sleep clear; do
-            ln -s busybox /tmp/joker_root/bin/$cmd
+            ln -s busybox /tmp/jester_root/bin/$cmd
         done
     else
         print_warn "No busybox found - rootfs will be very minimal"
@@ -408,32 +415,32 @@ INIT
 fi
 
 # Step 9: Add kernel modules
-if [ -d "source/kernel/src/drivers/jokeros" ]; then
+if [ -d "source/kernel/src/drivers/jesteros" ]; then
     print_info "Copying kernel modules..."
-    find source/kernel/src/drivers/jokeros -name "*.ko" -exec cp {} /tmp/joker_root/lib/modules/2.6.29/ \; 2>/dev/null || true
+    find source/kernel/src/drivers/jesteros -name "*.ko" -exec cp {} /tmp/jester_root/lib/modules/2.6.29/ \; 2>/dev/null || true
 fi
 
 # Step 10: Add our scripts and configuration
-print_info "Adding JoKernel scripts..."
-cp -r firmware/boot/*.sh /tmp/joker_root/boot/ 2>/dev/null || true
-cp -r firmware/boot/*.txt /tmp/joker_root/boot/ 2>/dev/null || true
+print_info "Adding JesterOS scripts..."
+cp -r firmware/boot/*.sh /tmp/jester_root/boot/ 2>/dev/null || true
+cp -r firmware/boot/*.txt /tmp/jester_root/boot/ 2>/dev/null || true
 
 # Copy critical system validation modules
 if [ -f "firmware/boot/system_journal_validation.sh" ]; then
-    cp firmware/boot/system_journal_validation.sh /tmp/joker_root/boot/
-    chmod +x /tmp/joker_root/boot/system_journal_validation.sh
+    cp firmware/boot/system_journal_validation.sh /tmp/jester_root/boot/
+    chmod +x /tmp/jester_root/boot/system_journal_validation.sh
 fi
 
 if [ -f "firmware/boot/system_audit_validation.sh" ]; then
-    cp firmware/boot/system_audit_validation.sh /tmp/joker_root/boot/
-    chmod +x /tmp/joker_root/boot/system_audit_validation.sh
+    cp firmware/boot/system_audit_validation.sh /tmp/jester_root/boot/
+    chmod +x /tmp/jester_root/boot/system_audit_validation.sh
 fi
 
 # Step 11: Setup data partition
 print_info "Setting up data partition..."
-mkdir -p /tmp/joker_data/manuscripts
-mkdir -p /tmp/joker_data/backups
-echo "Your words go here" > /tmp/joker_data/manuscripts/README.txt
+mkdir -p /tmp/jester_data/manuscripts
+mkdir -p /tmp/jester_data/backups
+echo "Your words go here" > /tmp/jester_data/manuscripts/README.txt
 
 # Final sync and unmount
 print_info "Finalizing SD card..."
@@ -441,11 +448,11 @@ sync
 sync
 sync
 
-umount /tmp/joker_boot
-umount /tmp/joker_root
-umount /tmp/joker_data
+umount /tmp/jester_boot
+umount /tmp/jester_root
+umount /tmp/jester_data
 
-rmdir /tmp/joker_boot /tmp/joker_root /tmp/joker_data
+rmdir /tmp/jester_boot /tmp/jester_root /tmp/jester_data
 
 print_info "SD card creation complete!"
 echo ""

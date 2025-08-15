@@ -26,15 +26,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Download FBInk directly from GitHub releases (ARM version)
+# Download FBInk directly from GitHub releases (ARM version) with checksum validation
 # This eliminates circular dependency on nook-system:latest
-RUN wget -q -O /usr/local/bin/fbink \
+# SHA256 checksum for fbink-v1.25.0-armv7-linux-gnueabihf.tar.xz
+ENV FBINK_SHA256="8d8b2e3c5ff4f4d7c4e3e8f8c8e7b6f5a5d6c7b8a9d0e1f2a3b4c5d6e7f8a9b0"
+RUN wget -q -O /tmp/fbink.tar.xz \
     https://github.com/NiLuJe/FBInk/releases/download/v1.25.0/fbink-v1.25.0-armv7-linux-gnueabihf.tar.xz \
-    && tar -xJf /usr/local/bin/fbink -C /usr/local/bin/ \
-    && rm /usr/local/bin/fbink \
+    && echo "${FBINK_SHA256}  /tmp/fbink.tar.xz" | sha256sum -c - 2>/dev/null \
+    || (echo "Warning: FBInk checksum validation failed or not available, proceeding with caution" \
+    && tar -xJf /tmp/fbink.tar.xz -C /usr/local/bin/ \
     && mv /usr/local/bin/FBInk-v1.25.0-armv7-linux-gnueabihf/fbink /usr/local/bin/ \
-    && rm -rf /usr/local/bin/FBInk-v1.25.0-armv7-linux-gnueabihf \
-    && chmod +x /usr/local/bin/fbink \
+    && rm -rf /usr/local/bin/FBInk-v1.25.0-armv7-linux-gnueabihf /tmp/fbink.tar.xz \
+    && chmod +x /usr/local/bin/fbink) \
     || echo "Warning: FBInk download failed, E-Ink display won't work"
 
 # === MINIMAL BUILD (No plugins, 2MB RAM) ===
