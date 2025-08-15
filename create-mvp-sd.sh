@@ -28,10 +28,16 @@ fi
 
 DEVICE=$1
 
-# Safety check
-if [[ ! "$DEVICE" =~ ^/dev/sd[a-z]$ ]] && [[ ! "$DEVICE" =~ ^/dev/mmcblk[0-9]$ ]]; then
+# Safety check - CRITICAL: Prevent system drive targeting
+if [[ "$DEVICE" == "/dev/sda" ]]; then
+    echo "FATAL: Cannot target /dev/sda (system drive)"
+    echo "This would destroy your system! Please use a different device."
+    exit 1
+fi
+
+if [[ ! "$DEVICE" =~ ^/dev/sd[b-z]$ ]] && [[ ! "$DEVICE" =~ ^/dev/mmcblk[0-9]$ ]]; then
     echo "ERROR: Invalid device $DEVICE"
-    echo "Expected format: /dev/sdX or /dev/mmcblkX"
+    echo "Expected format: /dev/sdX (except sda) or /dev/mmcblkX"
     exit 1
 fi
 
