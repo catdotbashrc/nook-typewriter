@@ -152,31 +152,31 @@ else
     echo "ERROR: Cannot access /proc/modules" >> "$PROFILE_FILE"
 fi
 
-# 4. JokerOS specific analysis
-echo "-> Analyzing JokerOS components..."
+# 4. JesterOS specific analysis
+echo "-> Analyzing JesterOS components..."
 
 cat >> "$PROFILE_FILE" << EOF
 
-=== JOKEROS COMPONENT ANALYSIS ===
+=== JESTEROS COMPONENT ANALYSIS ===
 EOF
 
-# Check JokerOS modules specifically
-JOKEROS_TOTAL_KB=0
-for module in jokeros_core jester typewriter wisdom; do
+# Check JesterOS modules specifically
+JESTEROS_TOTAL_KB=0
+for module in jesteros_core jester typewriter wisdom; do
     if grep -q "^$module " /proc/modules 2>/dev/null; then
         SIZE=$(grep "^$module " /proc/modules | awk '{print $2}')
         SIZE_KB=$((SIZE / 1024))
-        JOKEROS_TOTAL_KB=$((JOKEROS_TOTAL_KB + SIZE_KB))
+        JESTEROS_TOTAL_KB=$((JESTEROS_TOTAL_KB + SIZE_KB))
         echo "  $module: ${SIZE_KB}KB" >> "$PROFILE_FILE"
     else
         echo "  $module: NOT LOADED" >> "$PROFILE_FILE"
     fi
 done
 
-JOKEROS_TOTAL_MB=$((JOKEROS_TOTAL_KB / 1024))
-echo "  Total JokerOS modules: ${JOKEROS_TOTAL_MB}MB (${JOKEROS_TOTAL_KB}KB)" >> "$PROFILE_FILE"
+JESTEROS_TOTAL_MB=$((JESTEROS_TOTAL_KB / 1024))
+echo "  Total JesterOS modules: ${JESTEROS_TOTAL_MB}MB (${JESTEROS_TOTAL_KB}KB)" >> "$PROFILE_FILE"
 
-echo "  JokerOS modules: ${JOKEROS_TOTAL_MB}MB"
+echo "  JesterOS modules: ${JESTEROS_TOTAL_MB}MB"
 
 # 5. Vim memory profiling
 echo "-> Profiling vim memory usage..."
@@ -307,7 +307,7 @@ echo ""
 echo "Key Findings:"
 echo "  OS Memory Usage:     ${USED_MB}MB / 96MB target"
 echo "  Available for Apps:  ${AVAILABLE_MB}MB / 160MB target"
-echo "  JokerOS Modules:     ${JOKEROS_TOTAL_MB}MB"
+echo "  JesterOS Modules:     ${JESTEROS_TOTAL_MB}MB"
 echo ""
 
 if [ "$USED_MB" -lt 80 ]; then

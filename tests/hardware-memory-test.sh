@@ -80,10 +80,10 @@ if [ -f "/proc/modules" ]; then
         printf "  %-20s %6dKB %s\n" "$name" "$SIZE_KB" "$used"
     done
     
-    # Check for JokerOS modules specifically
+    # Check for JesterOS modules specifically
     echo ""
-    echo "JokerOS modules status:"
-    for module in jokeros_core jester typewriter wisdom; do
+    echo "JesterOS modules status:"
+    for module in jesteros_core jester typewriter wisdom; do
         if grep -q "^$module " /proc/modules; then
             SIZE=$(grep "^$module " /proc/modules | awk '{print $2}')
             SIZE_KB=$((SIZE / 1024))
@@ -97,8 +97,8 @@ else
 fi
 echo ""
 
-# 4. JokerOS interface test
-echo "-> JokerOS interface memory test..."
+# 4. JesterOS interface test
+echo "-> JesterOS interface memory test..."
 echo ""
 echo "=== /var/jesteros Interface ==="
 if [ -d "/var/jesteros" ]; then

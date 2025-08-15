@@ -100,7 +100,7 @@ echo "Kernel: $(uname -r)"
 echo ""
 
 # Try to show jester if module is loaded
-cat /proc/jokeros/jester 2>/dev/null || echo "(Jester modules not loaded yet)"
+cat /var/jesteros/jester 2>/dev/null || echo "(JesterOS services not started yet)"
 
 # Keep running
 while true; do

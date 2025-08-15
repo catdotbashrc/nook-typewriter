@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build period-correct Debian Lenny (5.0) rootfs for JoKernel
+# Build period-correct Debian Lenny (5.0) rootfs for JesterOS
 # Lenny was released Feb 2009, perfect for our March 2009 kernel (2.6.29)
 
 set -euo pipefail
@@ -14,7 +14,7 @@ OUTPUT_DIR="${1:-lenny-rootfs}"
 ARCH="armel"  # ARM EABI for Nook
 
 echo "========================================"
-echo " JoKernel Debian Lenny Rootfs Builder"
+echo " JesterOS Debian Lenny Rootfs Builder"
 echo "========================================"
 echo ""
 echo "Building period-correct Debian 5.0 (2009)"
@@ -56,7 +56,7 @@ debootstrap \
             http://archive.debian.org/debian-archive/debian/
     }
 
-echo "Customizing rootfs for JoKernel..."
+echo "Customizing rootfs for JesterOS..."
 
 # Create essential directories
 mkdir -p "$OUTPUT_DIR"/lib/modules/2.6.29
@@ -69,7 +69,7 @@ mkdir -p "$OUTPUT_DIR"/boot
 # Create minimal init script
 cat > "$OUTPUT_DIR"/init << 'EOF'
 #!/bin/sh
-# JoKernel Init - Debian Lenny Edition
+# JesterOS Init - Debian Lenny Edition
 
 # Mount essential filesystems
 mount -t proc proc /proc
@@ -79,7 +79,7 @@ mount -t devtmpfs devtmpfs /dev 2>/dev/null || mount -t tmpfs tmpfs /dev
 clear
 echo ""
 echo "================================"
-echo "  JoKernel with Debian Lenny"
+echo "  JesterOS with Debian Lenny"
 echo "  Period-Correct 2009 Stack!"
 echo "================================"
 echo ""
@@ -89,7 +89,7 @@ echo "Kernel: $(uname -r)"
 echo "Debian: 5.0 Lenny (2009)"
 echo ""
 
-# Load JoKernel modules if present
+# Load JesterOS modules if present
 if [ -d /lib/modules/2.6.29 ]; then
     echo "Loading JokerOS modules..."
     for mod in /lib/modules/2.6.29/*.ko; do
@@ -101,9 +101,9 @@ if [ -d /lib/modules/2.6.29 ]; then
 fi
 
 # Show jester if available
-if [ -f /proc/jokeros/jester ]; then
+if [ -f /var/jesteros/jester ]; then
     echo ""
-    cat /proc/jokeros/jester
+    cat /var/jesteros/jester
 fi
 
 # Start a shell
@@ -159,7 +159,7 @@ echo ""
 echo "Rootfs directory: $OUTPUT_DIR/ ($SIZE)"
 echo "Compressed: ${OUTPUT_DIR}.tar.gz ($TARSIZE)"
 echo ""
-echo "Why Lenny is perfect for JoKernel:"
+echo "Why Lenny is perfect for JesterOS:"
 echo "  • Released Feb 2009 (kernel is March 2009)"
 echo "  • Native 2.6.26 kernel (ours is 2.6.29)"
 echo "  • Designed for 256MB RAM devices"
@@ -169,5 +169,5 @@ echo "  • Smaller than modern Debian"
 echo ""
 echo "To use:"
 echo "  1. Extract to SD card partition 2"
-echo "  2. Boot JoKernel"
+echo "  2. Boot JesterOS"
 echo "  3. Enjoy 2009 computing!"

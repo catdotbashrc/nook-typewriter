@@ -9,7 +9,7 @@ IMAGE_NAME := nook-typewriter-$(VERSION).img
 
 # Directory configuration with validation
 KERNEL_DIR := source/kernel
-JOKERNEL_DIR := source/kernel/jokernel
+JESTEROS_DIR := source/kernel/jesteros
 SCRIPTS_DIR := source/scripts
 CONFIGS_DIR := source/configs
 FIRMWARE_DIR := firmware
@@ -17,7 +17,7 @@ RELEASES_DIR := releases
 
 # Build configuration
 J_CORES := $(shell nproc 2>/dev/null || echo 4)
-DOCKER_IMAGE := jokernel-unified
+DOCKER_IMAGE := jesteros-unified
 
 # Colors for output (E-Ink friendly)
 RESET := \033[0m
