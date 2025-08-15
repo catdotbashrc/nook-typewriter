@@ -25,45 +25,57 @@ ACHIEVEMENT_FILE="$JESTER_DIR/achievements"
 # Jester ASCII art collection
 show_jester_happy() {
     cat << 'EOF'
-     .~"~.~"~.
-    /  ^   ^  \    
-   |  >  ◡  <  |   
-    \  ___  /      
-     |~|♦|~|       
-    d|     |b      
+     ___
+    /^ ^\   
+   | ◉ ◉ |  
+   |  ‿  |  
+    \___/   
+     | |    
+    /||\   
+   d | |b   
+  *jingle*
 EOF
 }
 
 show_jester_confused() {
     cat << 'EOF'
-     .~"~.~"~.
-    /  ?   ?  \    
-   |  >  ~  <  |   
-    \  ___  /      
-     |~|♦|~|       
-    d|     |b      
+     ___
+    /? ?\   
+   | ∘ ∘ |  
+   |  ~  |  
+    \___/   
+     | |    
+    /||\   
+   d | |b   
+     ???
 EOF
 }
 
 show_jester_sleepy() {
     cat << 'EOF'
-     .~"~.~"~.
-    /  -   -  \    
-   |  >  _  <  |   
-    \  ___  /      
-     |~|♦|~|       
-    d| zzz |b      
+     ___
+    /z z\   
+   | - - |  
+   |  _  |  
+    \___/   
+     | |    
+    /||\   
+   d | |b   
+    Zzz...
 EOF
 }
 
 show_jester_writing() {
     cat << 'EOF'
-     .~"~.~"~.
-    /  *   *  \    
-   |  >  ◡  <  |   ✎
-    \  ___  /      
-     |~|♦|~|       
-    d|     |b      
+     ___
+    /^ ^\   
+   | · · |  
+   |  ‿  |  
+    \___/   
+     |✍|    
+    /||\   
+   d | |b   
+ *scribble*
 EOF
 }
 

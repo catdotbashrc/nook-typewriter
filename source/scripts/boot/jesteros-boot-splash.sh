@@ -35,14 +35,20 @@ show_logo() {
 
                 "By quill and jest!"
 
-     ___
-    /^ ^\   Your Court Jester awakens...
-   | > < |  Ready to assist thy writing!
-   |  ⌣  |  
-    \___/   
-     | |    
-    /||\   
-   d | |b   
+                          @ @ @@ @ @                         
+                        @@@ @@@@@@ @@@                       
+                       @@@@  @@@@  @@@@                      
+                      @@  @@@◉  ◉@@@  @@                     
+                     @@ @@    ⌣    @@ @@                     
+      @@@@@@@@@@@@@@@@ `@@@@@    @@@@@  @@@@@@@@@@@@@@@     
+    @@@@               @@aa$@@@@@@@ao@@               @@@@   
+   @@                 @@oa#oooaaaooooo@@                 @@  
+  @@    @@@@@@@@@@@@@ @@@@ooooooooo@@@@@@@@@@@@@@@@@@     @@ 
+   @@@@@@$aao@@@@o*@@@@@@$@@@ooooo@@@ @@@@@@*$@@ @aao@@@@@@  
+    
+         Your Court Jester awakens to serve!
+       Ready to assist thy noble writing quest!
+         *jingle jingle* The bells do ring!   
 
         ═══════════════════════════════════════
 EOF
