@@ -187,17 +187,42 @@ show_boot_greeting() {
     sleep 3
 }
 
+# PID file location (can be overridden by service manager)
+PIDFILE="${PIDFILE:-/var/run/jesteros/jester.pid}"
+
+# Ensure PID directory exists
+mkdir -p "$(dirname "$PIDFILE")"
+
 # Main daemon
 case "${1:-start}" in
-    start)
-        show_boot_greeting
-        echo "Starting Court Jester daemon..."
-        monitor_writing &
-        echo $! > /var/run/jester.pid
+    start|--daemon)
+        # For service manager compatibility
+        if [ "${1:-}" = "--daemon" ] || [ "${DAEMON_MODE:-}" = "1" ]; then
+            # Run in foreground for service manager
+            create_proc_entries
+            exec monitor_writing
+        else
+            # Traditional background start
+            show_boot_greeting
+            echo "Starting Court Jester daemon..."
+            monitor_writing &
+            echo $! > "$PIDFILE"
+        fi
         ;;
     stop)
-        [ -f /var/run/jester.pid ] && kill $(cat /var/run/jester.pid)
-        rm -f /var/run/jester.pid
+        if [ -f "$PIDFILE" ]; then
+            pid=$(cat "$PIDFILE")
+            if kill -0 "$pid" 2>/dev/null; then
+                kill "$pid"
+                rm -f "$PIDFILE"
+                echo "Court Jester daemon stopped."
+            else
+                echo "Court Jester daemon not running (stale PID file)"
+                rm -f "$PIDFILE"
+            fi
+        else
+            echo "Court Jester daemon not running."
+        fi
         ;;
     status)
         if [ -f "$JESTER_DIR/ascii" ]; then
@@ -211,6 +236,6 @@ case "${1:-start}" in
         fi
         ;;
     *)
-        echo "Usage: $0 {start|stop|status}"
+        echo "Usage: $0 {start|stop|status|--daemon}"
         ;;
 esac

@@ -12,6 +12,8 @@ PROC_LINK="/proc/jesteros"
 create_jesteros_dirs() {
     mkdir -p "$JESTER_DIR"
     mkdir -p "$JESTER_DIR/typewriter"
+    mkdir -p "$JESTER_DIR/services"
+    mkdir -p "$JESTER_DIR/health"
     
     # Create symlink in /proc if possible (may fail, that's ok)
     ln -sf "$JESTER_DIR" "$PROC_LINK" 2>/dev/null || true
