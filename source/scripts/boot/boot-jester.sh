@@ -15,7 +15,7 @@ fi
 # E-Ink display initialization
 init_display() {
     # Use common display functions if available
-    if [[ "${JOKEROS_COMMON_LOADED:-0}" == "1" ]]; then
+    if [[ "${JESTEROS_COMMON_LOADED:-0}" == "1" ]]; then
         clear_display
         debug_log "Display initialized via common library"
     elif command -v fbink >/dev/null 2>&1; then
@@ -25,15 +25,15 @@ init_display() {
     fi
 }
 
-# Load JokerOS kernel modules
-load_jokeros_modules() {
-    echo "Loading JokerOS modules..."
+# Load JesterOS kernel modules (legacy - now using userspace)
+load_jesteros_modules() {
+    echo "Loading JesterOS modules (if present)..."
     
     # Load modules in proper order
     if [ -d /lib/modules/2.6.29 ]; then
         # Core module first
-        if [ -f /lib/modules/2.6.29/jokeros_core.ko ]; then
-            insmod /lib/modules/2.6.29/jokeros_core.ko 2>/dev/null || true
+        if [ -f /lib/modules/2.6.29/jesteros_core.ko ]; then
+            insmod /lib/modules/2.6.29/jesteros_core.ko 2>/dev/null || true
         fi
         
         # Then the feature modules
@@ -45,17 +45,17 @@ load_jokeros_modules() {
     fi
     
     # Verify modules loaded
-    if [ -d /proc/jokeros ]; then
-        echo "✓ JokerOS modules loaded successfully"
+    if [ -d /var/jesteros ]; then
+        echo "✓ JesterOS services available"
     else
-        echo "⚠ JokerOS modules may not be available"
+        echo "⚠ JesterOS services may not be available"
     fi
 }
 
 # Main boot sequence
 main() {
     # Load kernel modules
-    load_jokeros_modules
+    load_jesteros_modules
     
     # Initialize display
     init_display

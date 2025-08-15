@@ -11,7 +11,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}═══════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}    JokerOS Rootfs Test Suite${NC}"
+echo -e "${GREEN}    JesterOS Rootfs Test Suite${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════════${NC}"
 echo ""
 
@@ -125,7 +125,7 @@ if [[ "$response" =~ ^[Yy]$ ]]; then
                 echo "Found /init script"
                 echo "In real boot, this would:"
                 echo "  1. Mount /proc, /sys, /dev"
-                echo "  2. Load JokerOS modules"
+                echo "  2. Load JesterOS modules"
                 echo "  3. Show jester ASCII art"
                 echo "  4. Launch menu system"
             fi

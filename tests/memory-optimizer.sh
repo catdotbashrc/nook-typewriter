@@ -107,7 +107,7 @@ else
     
     echo "2. [KERNEL] Optimize kernel modules:"
     echo "   - Remove unused kernel modules"
-    echo "   - Optimize JokerOS module sizes"
+    echo "   - Optimize JesterOS service sizes"
     echo "   - Use minimal kernel configuration"
     echo ""
     

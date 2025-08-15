@@ -91,7 +91,7 @@ echo "=== Memory Budget Breakdown ==="
 # Base system estimates (from research and similar embedded systems)
 echo "Estimated memory allocation:"
 echo "  Kernel core:                   ~25MB"
-echo "  Kernel modules (JokerOS):      ~${MODULE_TOTAL_SIZE}KB" 
+echo "  Kernel modules (JesterOS):     ~${MODULE_TOTAL_SIZE}KB" 
 echo "  Basic system processes:        ~15MB"
 echo "  Bash shell:                    ~2MB"
 echo "  Init and services:             ~5MB"

@@ -114,8 +114,8 @@ else
 fi
 
 echo ""
-echo "=== JOKEROS READINESS ==="
-echo "Checking environment for JokerOS module loading..."
+echo "=== JESTEROS READINESS ==="
+echo "Checking environment for JesterOS module loading..."
 
 # Check if we can simulate module loading
 if [ -d "/proc" ] && [ -f "/proc/meminfo" ]; then
@@ -188,7 +188,7 @@ echo ""
 echo "Key Findings from Docker testing:"
 echo "  - Memory constraints properly applied"
 echo "  - Realistic memory usage measurements"
-echo "  - Environment ready for JokerOS testing"
+echo "  - Environment ready for JesterOS testing"
 echo ""
 echo "The Docker Jester says:"
 echo "'In constraints we find truth - thy Docker speaks reality!'"

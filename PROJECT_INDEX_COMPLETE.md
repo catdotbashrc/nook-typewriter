@@ -4,7 +4,7 @@
 
 ## 🎯 Project Overview
 
-**Project**: JoKernel (formerly QuillKernel)  
+**Project**: JesterOS (formerly JoKernel/QuillKernel)  
 **Purpose**: Transform a $20 Barnes & Noble Nook Simple Touch into a distraction-free writing device  
 **Philosophy**: "Every feature is a potential distraction. RAM saved is words written."  
 **Current Branch**: `dev` (7 commits ahead of origin)
@@ -81,12 +81,12 @@ sudo ./install_to_sdcard.sh
 
 ## 🏗️ Core Components
 
-### 1. JoKernel (Linux 2.6.29)
+### 1. JesterOS Kernel (Linux 2.6.29)
 - **Location**: `source/kernel/` (git submodule)
 - **Config**: Kernel config with `CONFIG_SQUIREOS=m`
 - **Toolchain**: Android NDK r10e with ARM cross-compiler
 - **Cross-compiler**: `arm-linux-androideabi-`
-- **Build**: Docker-based with `jokernel-builder` image
+- **Build**: Docker-based with `jesteros-builder` image
 
 ### 2. SquireOS Modules
 Medieval-themed kernel modules providing personality:
@@ -100,7 +100,7 @@ Medieval-themed kernel modules providing personality:
 
 ### 3. Build System
 - **Docker Images**:
-  - `jokernel-builder`: Kernel cross-compilation environment
+  - `jesteros-builder`: Kernel cross-compilation environment
   - `nook-writer`: Optimized writing environment (<96MB)
   - `nook-mvp-rootfs`: Minimal boot test (<30MB)
 - **Scripts**:
@@ -356,7 +356,7 @@ Total RAM: 256MB
 ### Current Configuration
 - **Kernel**: Linux 2.6.29 with CONFIG_SQUIREOS=m
 - **Toolchain**: Android NDK r10e (arm-linux-androideabi-)
-- **Docker Image**: jokernel-builder for cross-compilation
+- **Docker Image**: jesteros-builder for cross-compilation
 - **Module Loading**: Order matters - core first, then features
 - **Script Standards**: set -euo pipefail mandatory
 
