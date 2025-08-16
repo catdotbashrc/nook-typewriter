@@ -1,179 +1,291 @@
-# 📁 QuillKernel Project Structure
-## Optimized Organization (Post-Cleanup)
+# 📚 Nook Typewriter Project Structure
 
-### Current Directory Structure
-```
-nook-worktree/
-├── 📚 Documentation & Guides
-│   ├── README.md                      # Main project overview
-│   ├── PROJECT_INDEX.md               # Comprehensive project index
-│   ├── PROJECT_STRUCTURE.md           # This file - directory organization
-│   ├── CLAUDE.md                      # AI assistant guidelines
-│   ├── LICENSE                        # GPL v2 with Justin Yeary copyright
-│   ├── docs/                          # Detailed documentation
-│   │   ├── ASCII_ART_ADVANCED.md      # ASCII art generation guide
-│   │   ├── COMPLETE_PROJECT_INDEX.md  # Master documentation index
-│   │   ├── CONSOLE_FONTS_COMPATIBILITY.md # Font compatibility guide
-│   │   ├── DEPLOYMENT_INTEGRATION_GUIDE.md
-│   │   ├── KERNEL_API_REFERENCE.md
-│   │   ├── KERNEL_BUILD_EXPLAINED.md
-│   │   ├── KERNEL_MODULES_GUIDE.md    # Module development guide
-│   │   ├── NST_KERNEL_INDEX.md
-│   │   ├── QUILLOS_STYLE_GUIDE.md     # Visual & technical standards
-│   │   ├── TESTING_PROCEDURES.md
-│   │   ├── XDA-RESEARCH-FINDINGS.md
-│   │   ├── ui-components-design.md
-│   │   └── ui-iterative-refinement.md
-│   └── design/                        # Architecture documentation
-│       ├── ARCHITECTURE.md
-│       ├── COMPONENT-INTERACTIONS.md
-│       ├── EMBEDDED-PROJECT-STRUCTURE.md
-│       ├── KERNEL_INTEGRATION.md
-│       └── WIFI-SYNC-MODULE.md
-│
-├── 🔧 Source Code (Canonical)
-│   └── source/
-│       ├── kernel/                   # Kernel modules & testing
-│       │   ├── modules/              # SquireOS kernel modules
-│       │   │   ├── art_generator.c   # ASCII art generation module
-│       │   │   ├── Kconfig           # Module configuration
-│       │   │   └── Makefile          # Module build rules
-│       │   ├── src/                  # Kernel source (when added)
-│       │   └── test/                 # Module testing scripts
-│       ├── configs/                  # All configuration files
-│       │   ├── ascii/                # ASCII art resources
-│       │   │   └── jester/           # Jester art variations
-│       │   │       ├── jester-logo.txt
-│       │   │       ├── jester-variations.txt
-│       │   │       ├── medieval-elements.txt
-│       │   │       ├── silly-jester-collection.txt
-│       │   │       └── system-messages.txt
-│       │   ├── system/               # System configuration
-│       │   │   └── squireos-boot.service
-│       │   ├── vim/                  # Vim configurations
-│       │   │   ├── vimrc
-│       │   │   ├── vimrc-minimal
-│       │   │   ├── vimrc-writer
-│       │   │   └── vimrc-zk
-│       │   ├── zk-templates/         # Zettelkasten templates
-│       │   │   ├── daily.md
-│       │   │   └── default.md
-│       │   └── nook.conf             # Main system config
-│       ├── scripts/                  # Organized by function
-│       │   ├── boot/                 # Boot sequence scripts
-│       │   │   ├── boot-jester.sh
-│       │   │   └── squireos-boot.sh
-│       │   ├── menu/                 # Menu systems
-│       │   │   ├── nook-menu.sh
-│       │   │   ├── nook-menu-plugin.sh
-│       │   │   ├── nook-menu-zk.sh
-│       │   │   └── squire-menu.sh
-│       │   ├── services/             # Background services
-│       │   │   ├── health-check.sh
-│       │   │   └── jester-daemon.sh
-│       │   ├── lib/                  # Common libraries
-│       │   │   └── common.sh
-│       │   └── create-cwm-sdcard.sh  # SD card creation
-│       └── ui/                       # User interface components
-│           ├── components/           # UI building blocks
-│           │   ├── display.sh
-│           │   └── menu.sh
-│           ├── layouts/              # Screen layouts
-│           │   └── main-menu.sh
-│           └── themes/               # Visual themes
-│               └── ascii-art-library.txt
-│
-├── 🏗️ Build System
-│   ├── build/
-│   │   ├── docker/                  # Docker build files
-│   │   │   ├── kernel.dockerfile
-│   │   │   ├── kernel-xda-proven.dockerfile
-│   │   │   ├── minimal-boot.dockerfile
-│   │   │   ├── nookwriter-optimized.dockerfile
-│   │   │   └── rootfs.dockerfile
-│   │   └── scripts/                 # Build automation
-│   │       ├── build-all.sh
-│   │       └── build-kernel.sh
-│   ├── build_kernel.sh              # Main kernel build script
-│   └── boot/                         # Boot configuration
-│       └── uEnv.txt                 # U-Boot environment
-│
-├── 🧪 Testing Infrastructure
-│   └── tests/
-│       ├── run-all-tests.sh         # Master test runner
-│       ├── test-framework.sh        # Test infrastructure
-│       ├── test-high-priority.sh
-│       ├── test-improvements.sh
-│       ├── test-medium-priority.sh
-│       ├── test-ui-components.sh
-│       └── unit/                    # Unit test suite
-│           ├── boot/
-│           ├── build/
-│           ├── docs/
-│           ├── eink/
-│           ├── memory/
-│           ├── menu/
-│           ├── modules/
-│           ├── theme/
-│           └── toolchain/
-│
-└── 🛠️ Tools & Utilities
-    └── tools/
-        ├── deploy/                  # Deployment tools
-        │   └── flash-sd.sh
-        ├── migrate-to-embedded-structure.sh
-        └── test/
-            └── test-improvements.sh
-```
+*Transform a $20 e-reader into a distraction-free writing device*
 
-## Cleanup Summary
-
-### Files Removed
-- ❌ `/minimal-boot.dockerfile` (duplicate of `build/docker/minimal-boot.dockerfile`)
-- ❌ `/build/config/` (entire directory - duplicate of `source/configs/`)
-- ❌ `/build/splash/` (duplicate of `source/configs/ascii/jester/`)
-- ❌ `/build/config/vim/scripts/` (duplicate of `source/scripts/`)
-
-### Organization Improvements
-1. **Single source of truth**: All source files now in `/source/` directory
-2. **No duplicates**: Removed all duplicate configurations and scripts
-3. **Clear hierarchy**: Build files separate from source files
-4. **Logical grouping**: Scripts organized by function (boot, menu, services)
-
-### Directory Purposes
-
-| Directory | Purpose | Contents |
-|-----------|---------|----------|
-| `/source/` | All source code and configs | The canonical version of everything |
-| `/build/` | Build system only | Dockerfiles and build scripts |
-| `/docs/` | Documentation | All project documentation |
-| `/tests/` | Testing | Test suites and frameworks |
-| `/tools/` | Utilities | Deployment and migration tools |
-
-### Key Principles
-1. **DRY (Don't Repeat Yourself)**: No duplicate files
-2. **Single Source**: One canonical location for each file
-3. **Clear Organization**: Intuitive directory structure
-4. **Separation**: Source vs build vs docs clearly separated
-
-## Next Steps
-
-To maintain this clean structure:
-
-1. **Always add new files to `/source/`** not `/build/`
-2. **Keep build artifacts out of git** (add to .gitignore)
-3. **Update dockerfiles** to reference `/source/` paths
-4. **Document new components** in appropriate `/docs/` file
-5. **Test everything** after structural changes
-
-## Memory Impact
-
-Cleanup saved approximately:
-- **Disk space**: ~500KB (removed duplicates)
-- **Build time**: Faster builds with single source
-- **Maintenance**: Easier to maintain single versions
-- **Clarity**: Clear where to find/edit files
+**Version**: 1.0.0  
+**Updated**: December 2024  
+**Kernel**: Linux 2.6.29 with JesterOS modules
 
 ---
 
-*"A tidy castle is a productive castle"* - The Digital Chamberlain 🏰
+## 🎯 Quick Navigation
+
+| Directory | Purpose | Key Files |
+|-----------|---------|-----------|
+| [/](#root-directory) | Project root with essential configs | Makefile, README.md, CLAUDE.md |
+| [build/](#build) | Build system and scripts | Docker configs, build scripts |
+| [source/](#source) | Source code and kernel | kernel/, scripts/, configs/ |
+| [tests/](#tests) | Test suite and validation | Unit tests, integration tests |
+| [docs/](#docs) | Documentation | Guides, references, APIs |
+| [tools/](#tools) | Utilities and maintenance | Deployment, maintenance scripts |
+
+---
+
+## 📁 Directory Structure
+
+```
+nook/
+├── boot/                    # Boot configuration files
+├── build/                   # Build system
+├── cwm_package/            # ClockworkMod recovery package
+├── data/                   # Runtime data directory
+├── deployment_package/     # Deployment artifacts
+├── design/                 # Architecture and design docs
+├── docs/                   # Documentation
+├── firmware/               # Firmware binaries and modules
+├── images/                 # SD card and boot images
+├── releases/               # Release packages
+├── scripts/                # Utility scripts
+├── source/                 # Source code
+├── tests/                  # Test suite
+└── tools/                  # Development tools
+```
+
+---
+
+## 🏠 Root Directory
+
+Essential project files and configurations.
+
+```
+/
+├── README.md               # Project introduction and philosophy
+├── CLAUDE.md              # AI assistant instructions
+├── LICENSE                # GPL v2 license
+├── VERSION                # Current version (1.0.0)
+├── Makefile               # Main build system
+├── QUICK_START.md         # Getting started guide
+├── build.conf             # Build configuration
+├── project.conf           # Project settings
+├── lenny-rootfs.tar.gz   # Debian Lenny rootfs archive
+└── nook-mvp-rootfs.tar.gz # Minimal viable rootfs
+```
+
+### Key Commands
+- `make firmware` - Build complete system
+- `make sd-deploy` - Deploy to SD card
+- `make quick-build` - Fast incremental build
+- `make detect-sd` - Find SD card devices
+
+---
+
+## 🔨 build/
+
+Build system with Docker support and compilation scripts.
+
+```
+build/
+├── docker/                 # Docker configurations
+│   ├── kernel-xda-proven.dockerfile
+│   ├── minimal-boot.dockerfile
+│   └── nookwriter-optimized.dockerfile
+└── scripts/               # Build automation
+    ├── build_kernel.sh    # Main kernel builder
+    ├── build-lenny-rootfs.sh # Rootfs creation
+    ├── create-mvp-sd.sh   # SD card image creator
+    ├── create_deployment.sh
+    └── deploy_to_nook.sh
+```
+
+### Build Workflow
+1. `build_kernel.sh` - Compiles kernel with JesterOS modules
+2. `build-lenny-rootfs.sh` - Creates Debian Lenny base
+3. `create-mvp-sd.sh` - Generates bootable SD image
+
+---
+
+## 💻 source/
+
+Core source code including kernel, scripts, and configurations.
+
+```
+source/
+├── kernel/                # Linux 2.6.29 + JesterOS
+│   ├── src/              # Kernel source tree
+│   ├── jokernel/         # JokerOS legacy modules
+│   ├── quillkernel/      # QuillKernel writing features
+│   └── test/             # Kernel tests
+├── scripts/              # System scripts
+│   ├── boot/             # Boot sequence
+│   ├── menu/             # Menu system
+│   ├── services/         # Background services
+│   └── lib/              # Shared libraries
+├── configs/              # Configuration files
+│   ├── ascii/            # ASCII art collections
+│   ├── vim/              # Vim configurations
+│   ├── system/           # System configs
+│   └── services/         # Service definitions
+└── ui/                   # User interface
+    ├── components/       # UI components
+    ├── layouts/          # Screen layouts
+    └── themes/           # Visual themes
+```
+
+### JesterOS Modules
+- **jester** - ASCII art mood system
+- **typewriter** - Keystroke tracking
+- **wisdom** - Writing quotes
+
+---
+
+## 🧪 tests/
+
+Comprehensive test suite for validation and quality assurance.
+
+```
+tests/
+├── unit/                  # Unit tests by component
+│   ├── boot/             # Boot script tests
+│   ├── kernel/           # Kernel module tests
+│   ├── menu/             # Menu system tests
+│   └── modules/          # Module tests
+├── integration/          # Integration tests
+├── memory-profiles/      # Memory usage profiles
+├── reports/              # Test reports
+├── test-jesteros-*.sh    # JesterOS tests
+├── smoke-test.sh         # Quick validation
+├── pre-flight.sh         # Pre-deployment checks
+└── run-all-tests.sh      # Complete test suite
+```
+
+### Test Categories
+- **Kernel Safety** - Module loading, API compatibility
+- **Memory Tests** - RAM usage validation
+- **UI Tests** - Menu and display verification
+- **Boot Tests** - Startup sequence validation
+
+---
+
+## 📖 docs/
+
+Project documentation and references.
+
+```
+docs/
+├── kernel/               # Kernel documentation
+│   ├── KERNEL_BUILD_REFERENCE.md
+│   ├── KERNEL_INTEGRATION_GUIDE.md
+│   └── KERNEL_FEATURE_PLAN.md
+├── guides/               # User guides
+│   ├── QUICK_BOOT_GUIDE.md
+│   └── BUILD_INFO
+├── kernel-reference/     # Linux 2.6.29 references
+│   ├── KERNEL_DOCUMENTATION.md
+│   ├── module-building-2.6.29.md
+│   └── proc-filesystem-2.6.29.md
+├── deployment/           # Deployment guides
+├── *.md                  # Various documentation files
+└── archive/              # Archived docs
+```
+
+### Key Documentation
+- Boot guides and troubleshooting
+- Build system documentation
+- API references
+- Testing procedures
+
+---
+
+## 🛠️ tools/
+
+Development and maintenance utilities.
+
+```
+tools/
+├── maintenance/          # System maintenance
+│   ├── cleanup_nook_project.sh
+│   ├── fix-boot-loop.sh
+│   └── install-jesteros-userspace.sh
+├── deploy/               # Deployment tools
+│   └── flash-sd.sh
+├── debug/                # Debugging utilities
+├── test/                 # Testing tools
+├── windows-*.ps1         # Windows PowerShell scripts
+└── wsl-mount-usb.sh      # WSL USB mounting
+```
+
+---
+
+## 💾 firmware/
+
+Compiled firmware and runtime files.
+
+```
+firmware/
+├── boot/                 # Boot images
+│   ├── uImage           # Kernel image
+│   └── uEnv.txt         # Boot environment
+├── bootloaders/          # Bootloader files
+│   └── NookManager.img
+├── kernel/               # Kernel modules
+│   └── modules/         # Loadable modules
+└── rootfs/              # Root filesystem
+    ├── bin/             # Binaries
+    ├── etc/             # Configuration
+    └── usr/             # User programs
+```
+
+---
+
+## 🚀 Deployment
+
+### SD Card Structure
+```
+/dev/sde (or similar)
+├── partition 1 (boot)    # FAT32, bootloader + kernel
+│   ├── uImage
+│   ├── uEnv.txt
+│   └── MLO
+└── partition 2 (root)    # ext3, Linux rootfs
+    └── [extracted rootfs]
+```
+
+### Quick Deploy
+```bash
+# Auto-detect and deploy
+make sd-deploy
+
+# Specific device
+make sd-deploy SD_DEVICE=/dev/sde
+```
+
+---
+
+## 🎮 Key Scripts
+
+### Boot Scripts (`source/scripts/boot/`)
+- `jesteros-userspace.sh` - Main JesterOS launcher
+- `squireos-init.sh` - System initialization
+- `jester-splash.sh` - Boot splash screen
+
+### Menu System (`source/scripts/menu/`)
+- `nook-menu.sh` - Main menu interface
+- `squire-menu.sh` - Writing environment menu
+
+### Services (`source/scripts/services/`)
+- `jester-daemon.sh` - Mood monitoring
+- `jesteros-tracker.sh` - Statistics tracking
+
+---
+
+## 📊 Project Statistics
+
+- **Kernel**: Linux 2.6.29 (March 2009 vintage)
+- **Target Device**: Barnes & Noble Nook Simple Touch
+- **Architecture**: ARM (OMAP3)
+- **RAM Budget**: 256MB total (96MB OS, 160MB writing)
+- **Display**: 6" E-Ink (800x600, 16 grayscale)
+- **Storage**: SD card based
+
+---
+
+## 🏰 Philosophy
+
+> "Every feature is a potential distraction"  
+> "RAM saved is words written"  
+> "E-Ink limitations are features"  
+> "By quill and candlelight, we code for those who write"
+
+---
+
+*Generated with [Claude Code](https://claude.ai/code)*

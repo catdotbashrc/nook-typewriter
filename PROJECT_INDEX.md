@@ -1,418 +1,205 @@
-# 🏰 QuillKernel Project Index
+# 🗂️ Nook Typewriter Project Index
 
-*Comprehensive documentation index for the Nook Typewriter Project*
+*Complete navigation map for the JoKernel project - Last updated: 2025-08-15*
 
-## 📋 Table of Contents
-- [Project Overview](#project-overview)
-- [Repository Structure](#repository-structure)
-- [Documentation Guide](#documentation-guide)
-- [Core Components](#core-components)
-- [Development Workflow](#development-workflow)
-- [Testing Infrastructure](#testing-infrastructure)
-- [Deployment Process](#deployment-process)
-- [Quick Reference](#quick-reference)
+## 📋 Quick Navigation
 
----
+### 🚀 Essential Starting Points
+- **[README.md](README.md)** - Project overview and philosophy
+- **[QUICK_START.md](QUICK_START.md)** - Get started in 5 minutes
+- **[CLAUDE.md](CLAUDE.md)** - AI assistant guidelines
+- **[Documentation Hub](docs/00-indexes/README.md)** - Central documentation portal
 
-## 🎯 Project Overview
+### 📚 Documentation Categories (57 files)
 
-**QuillKernel** transforms a $20 Barnes & Noble Nook Simple Touch into a distraction-free writing device through:
-- Custom Linux kernel modules with medieval theming
-- Ultra-minimal memory footprint (<96MB system, >160MB for writing)
-- E-Ink optimized interface with ASCII art jester companion
-- Complete offline operation focused on pure writing
+#### [00-indexes](docs/00-indexes/) - Navigation & Organization
+- `README.md` - Documentation hub home
+- `navigation-guide.md` - How to find information
+- `comprehensive-index.md` - Complete file listing
+- `reorganization-summary.md` - Documentation structure
 
-### Key Achievements
-- ✅ Working kernel module system with `/proc/squireos/` interface
-- ✅ Docker-based cross-compilation environment
-- ✅ Comprehensive test suite with 90%+ coverage
-- ✅ Script safety improvements with validation and error handling
-- ✅ Minimal boot environment (<30MB compressed)
-- ✅ Complete documentation suite
+#### [01-getting-started](docs/01-getting-started/) - New User Guides
+- `quick-boot-guide.md` - Fast boot setup
+- `sd-card-boot-guide.md` - SD card preparation
+- `boot-guide-consolidated.md` - Complete boot reference
 
----
+#### [02-build](docs/02-build/) - Build System
+- `build-architecture.md` - System architecture
+- `build-system-documentation.md` - Build process details
+- `kernel-build-guide.md` - Kernel compilation
+- `rootfs-build.md` - Root filesystem creation
 
-## 📁 Repository Structure
+#### [03-jesteros](docs/03-jesteros/) - JesterOS Services
+- `jesteros-userspace-solution.md` - Userspace implementation
+- `jesteros-api-complete.md` - Complete API reference
+- `ascii-art-advanced.md` - ASCII jester art
+- `migration-to-userspace.md` - Kernel to userspace transition
 
+#### [04-kernel](docs/04-kernel/) - Kernel Documentation
+- `kernel-api-reference.md` - Kernel API docs
+- `kernel-build-reference.md` - Build reference
+- `kernel-integration-guide.md` - Integration guide
+- `kernel-modules-guide.md` - Module development
+
+#### [05-api-reference](docs/05-api-reference/) - API Documentation
+- `scripts-catalog.md` - Script reference
+- `source-api-reference.md` - Source code APIs
+- `scripts-documentation-complete.md` - Complete script docs
+
+#### [06-configuration](docs/06-configuration/) - Configuration
+- `configuration.md` - System configuration
+- `configuration-reference.md` - Config reference
+- `console-fonts-compatibility.md` - Font setup
+
+#### [07-deployment](docs/07-deployment/) - Deployment
+- `deployment-documentation.md` - Deployment guide
+- `deploy-jesteros-userspace.md` - JesterOS deployment
+- `deployment-integration-guide.md` - Integration steps
+
+#### [08-testing](docs/08-testing/) - Testing
+- `developer-testing-guide.md` - Testing procedures
+- `test-suite-documentation.md` - Test suite reference
+- `testing-procedures.md` - Testing workflows
+
+#### [09-ui-design](docs/09-ui-design/) - UI & Display
+- `ui-components-design.md` - UI component design
+- `boot-splash-implementation.md` - Boot screen
+- `ui-iterative-refinement.md` - UI improvements
+
+#### [10-troubleshooting](docs/10-troubleshooting/) - Problem Solving
+- `boot-loop-fix.md` - Boot loop resolution
+- `issue-18-solution.md` - Specific issue fixes
+
+#### [11-guides](docs/11-guides/) - Additional Guides
+- `build-info.md` - Build information
+- `quillos-style-guide.md` - Code style guide
+
+#### [kernel-reference](docs/kernel-reference/) - Kernel 2.6.29 Reference
+- `kernel-documentation.md` - Kernel docs
+- `module-building-2.6.29.md` - Module building
+- `proc-filesystem-2.6.29.md` - /proc filesystem
+- `memory-management-arm-2.6.29.md` - ARM memory management
+
+## 🏗️ Project Structure
+
+### Source Code Organization
 ```
-nook-worktree/
-├── 📚 Documentation
-│   ├── README.md                 # Main project overview
-│   ├── CLAUDE.md                 # AI assistant guidance
-│   ├── PROJECT_INDEX.md          # This comprehensive index
-│   ├── docs/                     # Detailed documentation
-│   │   ├── COMPLETE_PROJECT_INDEX.md    # Master documentation index
-│   │   ├── DEPLOYMENT_INTEGRATION_GUIDE.md
-│   │   ├── KERNEL_API_REFERENCE.md
-│   │   ├── KERNEL_BUILD_EXPLAINED.md
-│   │   ├── NST_KERNEL_INDEX.md
-│   │   ├── TESTING_PROCEDURES.md
-│   │   ├── XDA-RESEARCH-FINDINGS.md
-│   │   ├── ui-components-design.md
-│   │   └── ui-iterative-refinement.md
-│   └── design/                   # Architecture documentation
-│       ├── ARCHITECTURE.md
-│       ├── COMPONENT-INTERACTIONS.md
-│       ├── EMBEDDED-PROJECT-STRUCTURE.md
-│       ├── KERNEL_INTEGRATION.md
-│       └── WIFI-SYNC-MODULE.md
-│
-├── 🔧 Source Code
-│   ├── source/
-│   │   ├── kernel/              # Linux 2.6.29 with SquireOS modules
-│   │   │   ├── src/            # Full kernel source tree
-│   │   │   └── test/           # Module testing scripts
-│   │   ├── configs/            # System configurations
-│   │   │   ├── ascii/          # Jester ASCII art collections
-│   │   │   ├── system/         # Boot services and configs
-│   │   │   ├── vim/            # Writing environment setup
-│   │   │   └── zk-templates/   # Zettelkasten templates
-│   │   ├── scripts/            # System scripts by function
-│   │   │   ├── boot/           # Boot sequence scripts
-│   │   │   ├── menu/           # Menu system implementations
-│   │   │   ├── services/       # Background services
-│   │   │   └── lib/            # Common library functions
-│   │   └── ui/                 # User interface components
-│   │       ├── components/     # UI building blocks
-│   │       ├── layouts/        # Screen layouts
-│   │       └── themes/         # ASCII art and themes
-│
-├── 🏗️ Build System
-│   ├── build/
-│   │   ├── docker/             # Docker build files
-│   │   │   ├── kernel.dockerfile
-│   │   │   ├── kernel-xda-proven.dockerfile
-│   │   │   ├── minimal-boot.dockerfile
-│   │   │   ├── nookwriter-optimized.dockerfile
-│   │   │   └── rootfs.dockerfile
-│   │   ├── scripts/            # Build automation
-│   │   │   ├── build-all.sh
-│   │   │   └── build-kernel.sh
-│   │   ├── config/             # Build configurations
-│   │   └── splash/             # Boot splash screens
-│   ├── build_kernel.sh         # Main kernel build script
-│   └── minimal-boot.dockerfile  # MVP boot environment
-│
-├── 🧪 Testing
-│   ├── tests/
-│   │   ├── run-all-tests.sh    # Master test runner
-│   │   ├── test-framework.sh   # Test infrastructure
-│   │   ├── test-improvements.sh # Validate improvements
-│   │   ├── test-high-priority.sh
-│   │   ├── test-medium-priority.sh
-│   │   ├── test-ui-components.sh
-│   │   └── unit/               # Unit test suite
-│   │       ├── boot/           # Boot process tests
-│   │       ├── build/          # Build system tests
-│   │       ├── docs/           # Documentation tests
-│   │       ├── eink/           # Display tests
-│   │       ├── memory/         # Memory constraint tests
-│   │       ├── menu/           # Menu system tests
-│   │       ├── modules/        # Kernel module tests
-│   │       ├── theme/          # Medieval theme tests
-│   │       └── toolchain/      # Build toolchain tests
-│
-├── 🛠️ Tools & Utilities
-│   ├── tools/
-│   │   ├── deploy/             # Deployment scripts
-│   │   │   └── flash-sd.sh
-│   │   ├── migrate-to-embedded-structure.sh
-│   │   └── test/               # Testing utilities
-│
-└── 🚀 Boot Configuration
-    └── boot/
-        └── uEnv.txt            # U-Boot environment
-
+source/
+├── kernel/         # Linux 2.6.29 kernel + modules
+│   ├── src/       # Kernel source
+│   ├── jokernel/  # JoKernel modules
+│   └── quillkernel/ # QuillKernel modules
+├── configs/       # System configurations
+│   ├── ascii/     # ASCII art collections
+│   ├── system/    # System configs
+│   └── vim/       # Vim configurations
+├── scripts/       # System scripts
+│   ├── boot/      # Boot scripts
+│   ├── menu/      # Menu system
+│   └── services/  # Background services
+└── ui/           # UI components
+    ├── components/ # UI elements
+    ├── layouts/   # Screen layouts
+    └── themes/    # Visual themes
 ```
 
----
+### Build Infrastructure
+```
+build/
+├── docker/        # Docker build files
+│   ├── kernel-xda-proven.dockerfile
+│   ├── minimal-boot.dockerfile
+│   └── nookwriter-optimized.dockerfile
+└── scripts/       # Build automation
+    ├── build_kernel.sh
+    ├── create-boot-from-scratch.sh
+    └── deploy_to_nook.sh
+```
 
-## 📖 Documentation Guide
+### Test Suite
+```
+tests/
+├── test-jesteros-userspace.sh
+├── test-improvements.sh
+├── test-security.sh
+└── TEST_DOCUMENTATION.md
+```
 
-### Essential Documents
+## 🔧 Key Commands
 
-| Document | Purpose | Priority |
-|----------|---------|----------|
-| [README.md](README.md) | Project overview and quick start | **HIGH** |
-| [CLAUDE.md](CLAUDE.md) | Development guidelines and constraints | **HIGH** |
-| [docs/COMPLETE_PROJECT_INDEX.md](docs/COMPLETE_PROJECT_INDEX.md) | Master documentation index | **HIGH** |
-| [docs/DEPLOYMENT_INTEGRATION_GUIDE.md](docs/DEPLOYMENT_INTEGRATION_GUIDE.md) | SD card setup and deployment | **MEDIUM** |
-| [docs/KERNEL_API_REFERENCE.md](docs/KERNEL_API_REFERENCE.md) | Module development API | **MEDIUM** |
-| [docs/TESTING_PROCEDURES.md](docs/TESTING_PROCEDURES.md) | Testing methodology | **MEDIUM** |
-| [design/ARCHITECTURE.md](design/ARCHITECTURE.md) | System architecture | **LOW** |
-
-### Documentation by Audience
-
-#### 👤 For Writers/Users
-- Start with [README.md](README.md#quick-start)
-- Review [Boot Process](CLAUDE.md#boot-sequence)
-- Check [Menu System](source/scripts/menu/)
-
-#### 👨‍💻 For Developers
-- Read [CLAUDE.md](CLAUDE.md) for development philosophy
-- Study [KERNEL_API_REFERENCE.md](docs/KERNEL_API_REFERENCE.md)
-- Follow [Code Quality Standards](CLAUDE.md#code-quality-standards)
-- Use [Testing Procedures](docs/TESTING_PROCEDURES.md)
-
-#### 🔧 For System Administrators
-- Follow [Deployment Guide](docs/DEPLOYMENT_INTEGRATION_GUIDE.md)
-- Review [Boot Configuration](boot/uEnv.txt)
-- Check [Troubleshooting](CLAUDE.md#common-issues--solutions)
-
----
-
-## ⚙️ Core Components
-
-### 1. Kernel Modules (`source/kernel/`)
-
-| Module | Purpose | /proc Interface |
-|--------|---------|-----------------|
-| `squireos_core.c` | Base module, creates filesystem | `/proc/squireos/motto` |
-| `jester.c` | ASCII art companion with moods | `/proc/squireos/jester` |
-| `typewriter.c` | Writing statistics tracking | `/proc/squireos/typewriter/stats` |
-| `wisdom.c` | Rotating writing quotes | `/proc/squireos/wisdom` |
-
-### 2. Build System
-
-| Component | File | Purpose |
-|-----------|------|---------|
-| Main Build | `build_kernel.sh` | One-command kernel build |
-| Docker Builder | `build/docker/kernel.dockerfile` | Cross-compilation environment |
-| Minimal Boot | `minimal-boot.dockerfile` | MVP testing environment |
-| Writer Image | `build/docker/nookwriter-optimized.dockerfile` | Production writing environment |
-
-### 3. Menu System (`source/scripts/menu/`)
-
-| Script | Purpose | Features |
-|--------|---------|----------|
-| `nook-menu.sh` | Main menu interface | E-Ink optimized, input validation |
-| `squire-menu.sh` | Advanced options | System management, medieval theme |
-| `nook-menu-zk.sh` | Zettelkasten menu | Note organization system |
-| `nook-menu-plugin.sh` | Plugin management | Vim plugin configuration |
-
-### 4. Boot Scripts (`source/scripts/boot/`)
-
-| Script | Purpose | Load Order |
-|--------|---------|------------|
-| `squireos-boot.sh` | Main boot sequence | 1st |
-| `boot-jester.sh` | Jester initialization | 2nd |
-| Module loading | Load kernel modules | 3rd |
-| Menu launch | Start interface | 4th |
-
-### 5. Safety Features
-
-| Feature | Implementation | Location |
-|---------|---------------|----------|
-| Input Validation | `validate_menu_choice()` | `source/scripts/lib/common.sh` |
-| Path Protection | `validate_path()` | `source/scripts/lib/common.sh` |
-| Error Handling | `set -euo pipefail` | All shell scripts |
-| Display Abstraction | `display_output()` | `source/ui/components/display.sh` |
-
----
-
-## 🔄 Development Workflow
-
-### Quick Commands
-
+### Building
 ```bash
-# Build kernel with Docker
-./build_kernel.sh
-
-# Build minimal boot environment
-docker build -t nook-mvp-rootfs -f minimal-boot.dockerfile .
-
-# Run tests
-./tests/run-all-tests.sh
-
-# Test improvements
-./tests/test-improvements.sh
-
-# Deploy to SD card
-sudo ./tools/deploy/flash-sd.sh
+make firmware          # Complete build
+make quick-build      # Fast incremental build
+./build_kernel.sh     # Docker kernel build
+make sd-deploy        # Deploy to SD card
 ```
 
-### Development Cycle
-
-1. **Planning** → Review [CLAUDE.md](CLAUDE.md#writer-first-development-rules)
-2. **Coding** → Follow [Code Standards](CLAUDE.md#code-quality-standards)
-3. **Testing** → Run [Test Suite](tests/run-all-tests.sh)
-4. **Building** → Use [build_kernel.sh](build_kernel.sh)
-5. **Deployment** → Follow [Deployment Guide](docs/DEPLOYMENT_INTEGRATION_GUIDE.md)
-6. **Validation** → Check [Performance Targets](CLAUDE.md#performance-targets)
-
----
-
-## 🧪 Testing Infrastructure
-
-### Test Categories
-
-| Category | Coverage | Location |
-|----------|----------|----------|
-| Unit Tests | 90%+ | `tests/unit/` |
-| Integration | 85%+ | `tests/test-framework.sh` |
-| Performance | Memory/Boot | `tests/test-high-priority.sh` |
-| Safety | Input validation | `tests/test-improvements.sh` |
-| UI Components | Display/Menu | `tests/test-ui-components.sh` |
-
-### Critical Test Suites
-
+### Testing
 ```bash
-# Essential tests before deployment
-./tests/test-high-priority.sh    # Critical functionality
-./tests/test-improvements.sh      # Safety validations
-./tests/unit/memory/              # Memory constraints
-./tests/unit/boot/                # Boot sequence
+make test             # Run all tests
+./test-jesteros-userspace.sh  # Test JesterOS
+./tests/test-improvements.sh   # Validate improvements
 ```
 
----
-
-## 📦 Deployment Process
-
-### Pre-Deployment Checklist
-
-- [ ] All tests passing (`./tests/run-all-tests.sh`)
-- [ ] Memory usage <96MB (`docker stats`)
-- [ ] Boot time <20 seconds
-- [ ] Jester displays correctly
-- [ ] Menu system responsive
-- [ ] Writing environment launches
-
-### SD Card Deployment
-
+### Docker Operations
 ```bash
-# 1. Build production image
+# Build optimized writer environment
 docker build -t nook-writer --build-arg BUILD_MODE=writer \
   -f build/docker/nookwriter-optimized.dockerfile .
 
-# 2. Export rootfs
-docker create --name nook-export nook-writer
-docker export nook-export | gzip > nook-writer.tar.gz
-docker rm nook-export
+# Build minimal boot environment
+docker build -t nook-mvp-rootfs \
+  -f build/docker/minimal-boot.dockerfile .
 
-# 3. Flash to SD card
-sudo ./tools/deploy/flash-sd.sh /dev/sdX nook-writer.tar.gz
-
-# 4. Insert SD card and boot Nook
-# Hold page-turn buttons during power-on
+# Test locally
+docker run -it --rm nook-writer vim /tmp/test.txt
 ```
 
----
+## 📊 Project Statistics
 
-## 📊 Quick Reference
+- **Documentation Files**: 57 markdown files
+- **Documentation Categories**: 13 organized directories
+- **Source Modules**: 4 main components (kernel, configs, scripts, ui)
+- **Build Targets**: 5 (kernel, rootfs, firmware, image, release)
+- **Test Coverage Target**: 90%+
+- **Memory Budget**: <96MB OS, 160MB writing space
 
-### Memory Budget
-```yaml
-OS Reserved:        95MB   # Debian base system
-Vim Reserved:       10MB   # Editor + minimal plugins
-Writing Space:     160MB   # SACRED - DO NOT TOUCH
-Total Available:   256MB   # Hardware limit
-```
+## 🎯 Development Philosophy
 
-### Performance Targets
-```yaml
-Boot Time:        <20 seconds
-Menu Response:   <500ms
-Vim Launch:       <2 seconds
-Save Operation:   <1 second
-RAM Usage:        <96MB total
-```
+1. **Writers First**: Every decision prioritizes the writing experience
+2. **Memory Sacred**: 160MB reserved exclusively for writing
+3. **Distraction-Free**: No internet, no notifications, just words
+4. **E-Ink Optimized**: Interface designed for E-Ink characteristics
+5. **Medieval Whimsy**: Jester-themed interface for writing joy
 
-### Hardware Specifications
-```yaml
-CPU:     TI OMAP3621 @ 800MHz (ARM Cortex-A8)
-RAM:     256MB DDR
-Display: 6" E-Ink, 800x600, 16 grayscale levels
-Storage: 2GB internal + SD card slot
-Power:   USB limited to <100mA output
-```
+## 🔗 Important Files
 
-### Critical Files
+### Configuration
+- [build.conf](build.conf) - Build configuration
+- [Makefile](Makefile) - Main build system
+- [.project-context-cache.json](.project-context-cache.json) - Cached project context
 
-| File | Purpose | Modify With Care |
-|------|---------|-----------------|
-| `build_kernel.sh` | Main build script | ⚠️ HIGH |
-| `source/kernel/src/drivers/Kconfig.squireos` | Module configuration | ⚠️ HIGH |
-| `source/scripts/lib/common.sh` | Core functions | ⚠️ HIGH |
-| `minimal-boot.dockerfile` | Boot environment | ⚠️ MEDIUM |
-| `boot/uEnv.txt` | Boot parameters | ⚠️ MEDIUM |
+### Documentation Indices
+- [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) - Doc organization
+- [MASTER_DOCUMENTATION_INDEX.md](MASTER_DOCUMENTATION_INDEX.md) - Complete listing
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Directory structure
 
----
+### Security & Improvements
+- [SECURITY_IMPROVEMENTS_SUMMARY.md](SECURITY_IMPROVEMENTS_SUMMARY.md) - Security enhancements
+- [CLEANUP_REPORT.md](CLEANUP_REPORT.md) - Cleanup status
 
-## 🎭 Project Philosophy
+## 📜 License & Contributing
 
-### Core Principles
-1. **Writers First** - Every decision prioritizes writing experience
-2. **Memory Sacred** - 160MB reserved for writing is untouchable
-3. **Simplicity Wins** - Choose simple over complex always
-4. **E-Ink Features** - Limitations are features, not bugs
-5. **Medieval Joy** - Maintain whimsy and delight
-
-### Development Mantras
-> "Every feature is a potential distraction"
-
-> "RAM saved is words written"
-
-> "By quill and candlelight, we code for those who write"
+This is a hobby project for fun and learning. Contributions welcome that:
+- ✅ Reduce memory usage
+- ✅ Improve writing tools
+- ✅ Add medieval whimsy
+- ✅ Enhance battery life
+- ❌ Add internet features
+- ❌ Include distractions
+- ❌ Use >5MB RAM
 
 ---
 
-## 🤝 Contributing
-
-### Welcome Contributions
-✅ Memory optimization  
-✅ Writing tools (spell check, thesaurus)  
-✅ Battery improvements  
-✅ Medieval whimsy  
-✅ Security enhancements  
-
-### Unwelcome Changes
-❌ Internet features  
-❌ Development tools  
-❌ Media players  
-❌ >5MB RAM features  
-❌ Constant refresh features  
-
----
-
-## 📈 Project Status
-
-### Completed ✅
-- [x] Kernel module architecture
-- [x] Docker build environment  
-- [x] Minimal boot system
-- [x] Test infrastructure
-- [x] Script safety improvements
-- [x] Documentation suite
-
-### In Progress 🔄
-- [ ] Hardware testing on actual Nook
-- [ ] Power management optimization
-- [ ] Writing application integration
-
-### Future Plans 📅
-- [ ] Spell checker integration
-- [ ] Advanced writing statistics
-- [ ] Battery life optimization
-- [ ] Release packaging
-
----
-
-## 🏆 Credits
-
-- **Felix Hädicke** - Original NST kernel foundation
-- **NiLuJe** - FBInk E-Ink library
-- **XDA Community** - Research and guidance
-- **Medieval Scribes** - Eternal inspiration
-- **Claude Code** - Documentation assistance
-
----
-
-*"In this digital age, we craft tools worthy of the greatest scribes"*
-
-**🕯️📜 By quill and compiler, excellence prevails! 📜🕯️**
-
----
-
-*QuillKernel Project Index v1.1.0*  
-*Last Updated: 2024*  
-*Generated with medieval precision*
+*"By quill and candlelight, we code for those who write"* 🕯️📜

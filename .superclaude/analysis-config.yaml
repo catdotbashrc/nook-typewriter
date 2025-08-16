@@ -1,0 +1,131 @@
+# SuperClaude Analysis Configuration for Nook Typewriter Project
+# This file configures how SuperClaude analyzes the project
+
+project:
+  name: "nook-typewriter"
+  type: "embedded-linux"
+  description: "E-reader to typewriter conversion with JesterOS userspace"
+
+analysis:
+  # Directories to EXCLUDE from code analysis
+  # These contain upstream/vendor code we don't maintain
+  exclude_paths:
+    - "source/kernel/src/"     # Linux 2.6.29 vanilla kernel (11,773 C files)
+    - "lenny-rootfs/"           # Debian Lenny base system
+    - ".git/"                   # Git repository data
+    - "node_modules/"           # If any JS tools are added
+    - "build/cache/"            # Build artifacts
+    
+  # Directories to INCLUDE in analysis (our actual code)
+  include_paths:
+    - "source/scripts/"         # Our shell scripts (boot, menu, services)
+    - "source/configs/"         # Our configuration files
+    - "build/"                  # Our build scripts and Dockerfiles
+    - "tools/"                  # Our maintenance and deployment tools
+    - "tests/"                  # Our test suites
+    - "docs/"                   # Our documentation
+    
+  # File patterns to analyze
+  analyze_patterns:
+    shell_scripts: "*.sh"
+    dockerfiles: ["Dockerfile*", "*.dockerfile"]
+    configs: ["*.conf", "*.cfg", "*.yaml", "*.yml"]
+    documentation: ["*.md", "*.txt"]
+    
+  # File patterns to SKIP even in included directories
+  skip_patterns:
+    - "*.o"                     # Object files
+    - "*.ko"                    # Kernel modules
+    - "*.img"                   # Disk images
+    - "uImage"                  # Kernel images
+
+security:
+  # Focus security scanning on our code only
+  scan_focus:
+    - shell_safety: "Check for set -euo pipefail in shell scripts"
+    - input_validation: "Check for validate_* functions in menu scripts"
+    - path_traversal: "Check for path canonicalization"
+    - variable_quoting: "Check for proper variable quoting in shell"
+    
+  # Known and accepted risks (don't report these)
+  accepted_risks:
+    - "Linux 2.6.29 kernel CVEs (device is air-gapped)"
+    - "Unsafe C functions in vanilla kernel (not our code)"
+    - "Legacy kernel version (hardware requirement)"
+
+quality:
+  # Quality metrics that matter for this project
+  important_metrics:
+    - shell_script_safety_compliance  # % with safety headers
+    - input_validation_coverage        # % of user-facing scripts
+    - boot_time_seconds                # Target: <20s
+    - memory_usage_mb                  # Target: <96MB
+    - test_coverage                    # Target: >80%
+    
+  # Metrics to ignore (not relevant for embedded project)
+  ignore_metrics:
+    - npm_audit_score
+    - docker_scan_vulnerabilities
+    - kernel_code_coverage  # We don't test vanilla kernel
+
+performance:
+  # Performance targets for embedded device
+  targets:
+    boot_time_seconds: 20
+    memory_usage_mb: 96
+    vim_launch_seconds: 2
+    menu_response_ms: 500
+    
+  # What to measure
+  measure:
+    - "Boot sequence timing"
+    - "Service startup parallelization"
+    - "E-Ink refresh operations"
+    - "Memory usage at idle"
+
+reporting:
+  # How to calculate health scores
+  scoring:
+    # Only score OUR code, not vendor code
+    exclude_vendor_code: true
+    
+    # Adjust weights for embedded project
+    weights:
+      security: 0.3    # Important but mitigated by air-gap
+      quality: 0.4     # Most important for maintainability
+      performance: 0.2  # Important for user experience
+      testing: 0.1     # Good to have but not critical
+      
+  # Custom rules for this project
+  custom_rules:
+    - id: "shell-safety"
+      description: "Shell scripts must have safety headers"
+      pattern: "set -euo pipefail"
+      severity: "high"
+      applies_to: "*.sh"
+      
+    - id: "input-validation"
+      description: "User-facing scripts must validate input"
+      pattern: "validate_|sanitize_"
+      severity: "high"
+      applies_to: "source/scripts/menu/*.sh"
+
+# Additional context for SuperClaude
+context:
+  hardware:
+    device: "Nook Simple Touch"
+    cpu: "800MHz ARM"
+    ram: "256MB"
+    display: "6-inch E-Ink"
+    
+  constraints:
+    - "Must preserve 160MB for writing (sacred space)"
+    - "OS must use <96MB RAM"
+    - "No network connectivity (air-gapped)"
+    - "E-Ink display (slow refresh)"
+    
+  philosophy:
+    - "Writers over features"
+    - "Simplicity over complexity"
+    - "Medieval theme throughout"
+    - "Distractions are bugs"

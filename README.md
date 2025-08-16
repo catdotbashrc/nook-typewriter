@@ -2,7 +2,7 @@
 ### Transform Your E-Reader into a Distraction-Free Writing Machine
 
 ## 📚 Complete Documentation
-**[→ View Master Index](MASTER_INDEX.md)** - Comprehensive documentation hub with 40+ guides, references, and procedures
+**[→ View Documentation Hub](docs/00-indexes/README.md)** - Organized documentation system with 60+ guides in 12 categories using standardized naming conventions
 
 ## 📋 Table of Contents
 - [Project Overview](#project-overview)
@@ -11,7 +11,7 @@
 - [Quick Start](#quick-start)
 - [Development Setup](#development-setup)
 - [Build System](#build-system)
-- [Kernel Modules](#kernel-modules)
+- [JesterOS Services](#jesteros-services)
 - [Testing](#testing)
 - [Deployment](#deployment)
 - [Project Structure](#project-structure)
@@ -203,54 +203,71 @@ config SQUIREOS_WISDOM
     bool "Enable writing wisdom quotes"
 ```
 
-## 🎭 Kernel Modules
+## 🎭 JesterOS Services
 
-### Module Overview
+### Service Overview (Userspace)
 
-| Module | Purpose | /proc Interface |
-|--------|---------|-----------------|
-| `squireos_core.c` | Base module, creates /proc/squireos | `/proc/squireos/motto` |
-| `jester.c` | ASCII art jester with moods | `/proc/squireos/jester` |
-| `typewriter.c` | Keystroke and word tracking | `/proc/squireos/typewriter/stats` |
-| `wisdom.c` | Rotating writing quotes | `/proc/squireos/wisdom` |
+| Service | Purpose | Interface Location | Health Check |
+|---------|---------|-------------------|---------------|
+| **jester-daemon** | ASCII art companion with moods | `/var/jesteros/jester` | Mood updates every 30s |
+| **jesteros-tracker** | Writing statistics & achievements | `/var/jesteros/typewriter/stats` | File monitoring active |
+| **health-check** | System resource monitoring | `/var/jesteros/health/status` | Memory < 96MB limit |
+| **service-manager** | Central service orchestration | `/var/jesteros/services/status` | All services running |
 
-### Module Development
+### Service Development
 
-Example module structure:
-```c
-// squireos_core.c
-#include <linux/module.h>
-#include <linux/proc_fs.h>
+Example JesterOS service structure:
+```bash
+#!/bin/bash
+# New JesterOS Service Template
+set -euo pipefail
 
-static struct proc_dir_entry *squireos_root;
+# Source common functions
+. "$(dirname "$0")/../lib/common.sh"
 
-static int __init squireos_init(void) {
-    squireos_root = proc_mkdir("squireos", NULL);
-    // Create proc entries
-    return 0;
+# Service configuration
+SERVICE_NAME="New Service"
+INTERFACE_DIR="/var/jesteros/newservice"
+PID_FILE="/var/run/jesteros/newservice.pid"
+
+# Main service loop
+run_service() {
+    while true; do
+        # Service logic here
+        update_service_status
+        sleep 30
+    done
 }
 
-static void __exit squireos_exit(void) {
-    remove_proc_entry("squireos", NULL);
+# Health check
+check_service_health() {
+    [[ -f "$INTERFACE_DIR/status" ]] && 
+    grep -q "healthy" "$INTERFACE_DIR/status"
 }
 
-module_init(squireos_init);
-module_exit(squireos_exit);
-MODULE_LICENSE("GPL");
+main "$@"
 ```
 
-### Testing Modules
+### Testing Services
 
 ```bash
-# User-space testing
-./test/test_modules.sh
+# Start all JesterOS services
+sudo jesteros-service-manager.sh start all
 
-# Load modules on device
-insmod /lib/modules/squireos_core.ko
-insmod /lib/modules/jester.ko
+# Check service status
+jesteros-service-manager.sh status
 
-# Verify
-cat /proc/squireos/jester
+# View jester companion
+cat /var/jesteros/jester
+
+# Check writing statistics
+cat /var/jesteros/typewriter/stats
+
+# Monitor system health
+cat /var/jesteros/health/status
+
+# Enable continuous monitoring
+jesteros-service-manager.sh monitor
 ```
 
 ## 🧪 Testing

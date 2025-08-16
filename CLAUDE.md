@@ -265,6 +265,37 @@ source/
     └── lib/            # Common library functions
 ```
 
+## Analysis and Testing Scope
+
+### IMPORTANT: Code Analysis Boundaries
+When analyzing this project for security, quality, or performance:
+
+**EXCLUDE from analysis** (vanilla Linux kernel - NOT our code):
+- `source/kernel/src/` - This is the unmodified Linux 2.6.29 kernel
+- Any `.c` or `.h` files in kernel directories
+- The 2,986 files with unsafe C functions are in vanilla kernel, accepted risk
+
+**INCLUDE in analysis** (our actual project code):
+- `source/scripts/` - All our shell scripts (boot, menu, services)
+- `source/configs/` - Configuration files
+- `build/` - Build scripts and Dockerfiles
+- `tools/` - Maintenance and deployment tools
+- `tests/` - Test suites
+- `docs/` - Documentation
+
+### Security Focus Areas
+Focus security analysis ONLY on our code:
+- Shell scripts in `source/scripts/` (check for safety headers, input validation)
+- Build scripts (check for proper error handling)
+- Menu systems (check for path traversal protection)
+- Boot scripts (check for race conditions)
+
+The Linux 2.6.29 kernel's unsafe functions are a **documented accepted risk** mitigated by:
+- Air-gapped operation (no network)
+- Minimal attack surface (no external input)
+- Read-only filesystem
+- Single-user device
+
 ### Script Safety Standards
 All shell scripts now implement:
 - `set -euo pipefail` for fail-fast behavior
