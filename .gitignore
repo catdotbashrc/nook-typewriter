@@ -37,64 +37,25 @@ build/tmp/
 # Kernel Build Artifacts (CRITICAL - DO NOT COMMIT)
 # ------------------------------------------------------------------
 
-# Object files and modules
-source/kernel/src/**/*.o
-source/kernel/src/**/*.ko
-source/kernel/src/**/*.mod.c
-source/kernel/src/**/*.mod
-source/kernel/src/**/*.cmd
-source/kernel/src/**/*.order
-source/kernel/src/**/*.symvers
-source/kernel/src/**/*.markers
-source/kernel/src/**/modules.order
-source/kernel/src/**/Module.symvers
-source/kernel/src/**/.tmp_versions/
-source/kernel/src/**/built-in.o
-source/kernel/src/**/*.ko.cmd
-source/kernel/src/**/.*.ko.cmd
-source/kernel/src/**/.*.o.cmd
+# Entire kernel source (not stored in repo - download during build)
+kernel/src/
 
-# Kernel build system files
-source/kernel/src/.config
-source/kernel/src/.config.old
-source/kernel/src/.version
-source/kernel/src/System.map
-source/kernel/src/Module.markers
-source/kernel/src/Module.symvers
-source/kernel/src/vmlinux
-source/kernel/src/vmlinux.o
-source/kernel/src/.tmp_*
-
-# Generated headers and configs
-source/kernel/src/include/config/
-source/kernel/src/include/generated/
-source/kernel/src/include/linux/autoconf.h
-source/kernel/src/include/linux/version.h
-source/kernel/src/include/linux/utsrelease.h
-source/kernel/src/include/asm
-source/kernel/src/include/asm-arm/mach-types.h
-
-# Architecture specific
-source/kernel/src/arch/arm/boot/Image
-source/kernel/src/arch/arm/boot/zImage
-source/kernel/src/arch/arm/boot/uImage
-source/kernel/src/arch/arm/boot/compressed/piggy.gz
-source/kernel/src/arch/arm/boot/compressed/piggy.o
-source/kernel/src/arch/arm/boot/compressed/vmlinux
-
-# Generated kernel tools
-source/kernel/src/scripts/basic/fixdep
-source/kernel/src/scripts/basic/docproc
-source/kernel/src/scripts/basic/hash
-source/kernel/src/scripts/conmakehash
-source/kernel/src/scripts/kallsyms
-source/kernel/src/scripts/ihex2fw
-source/kernel/src/scripts/kconfig/conf
-source/kernel/src/scripts/kconfig/mconf
-source/kernel/src/scripts/mod/modpost
-source/kernel/src/scripts/mod/mk_elfconfig
-source/kernel/src/scripts/mod/elfconfig.h
-source/kernel/src/usr/gen_init_cpio
+# Object files and modules (anywhere in the project)
+**/*.o
+**/*.ko
+**/*.mod.c
+**/*.mod
+**/*.cmd
+**/*.order
+**/*.symvers
+**/*.markers
+**/modules.order
+**/Module.symvers
+**/.tmp_versions/
+**/built-in.o
+**/*.ko.cmd
+**/.*.ko.cmd
+**/.*.o.cmd
 
 # ------------------------------------------------------------------
 # Testing & Profiling
@@ -265,9 +226,10 @@ temp/
 # Project Specific
 # ------------------------------------------------------------------
 
-# Old/deprecated directories
-source/kernel-old/
-source/kernel-backup/
+# Old/deprecated directories (these have been migrated)
+source/
+scripts/lib/common.sh
+build/scripts/source/
 old/
 deprecated/
 
@@ -330,15 +292,16 @@ build/
 !LICENSE
 !CHANGELOG
 
-# Keep source code
-!source/**/*.c
-!source/**/*.h
-!source/**/*.S
-!source/**/*.sh
+# Keep runtime code (new structure)
+!runtime/**/*.sh
+!runtime/configs/**
+!runtime/ui/**
+!runtime/modules/**
 
-# Keep configs
-!source/configs/**
-!configs/**
+# Keep development tools
+!development/**/*.sh
+!development/docker/**
+!tools/**
 
 # Keep test scripts
 !tests/*.sh
@@ -347,4 +310,6 @@ build/
 # Keep build scripts
 !build.sh
 !build_kernel.sh
-!install_to_sdcard.sh
+!install_to_sdcard.sh*.o
+*.ko
+kernel/src/
