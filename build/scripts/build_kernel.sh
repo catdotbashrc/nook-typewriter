@@ -23,9 +23,13 @@ fi
 # Build the kernel using Docker
 echo ""
 echo "→ Starting kernel build with XDA-proven toolchain..."
+
+# Get absolute path to project root  
+PROJECT_ROOT="${PROJECT_ROOT:-/home/jyeary/projects/personal/nook}"
+
 docker run --rm \
-    -v "$(pwd)/source/kernel:/kernel" \
-    -v "$(pwd)/source/kernel/jokernel/modules:/modules" \
+    -v "${PROJECT_ROOT}/source/kernel:/kernel" \
+    -v "${PROJECT_ROOT}/firmware:/firmware" \
     -w /kernel/src \
     jokernel-unified \
     bash -c "
@@ -67,11 +71,11 @@ EOF
 
 echo ""
 echo "→ Copying build artifacts..."
-mkdir -p firmware/boot
-if [ -f source/kernel/src/arch/arm/boot/uImage ]; then
-    cp source/kernel/src/arch/arm/boot/uImage firmware/boot/
+mkdir -p "${PROJECT_ROOT}/firmware/boot"
+if [ -f "${PROJECT_ROOT}/source/kernel/src/arch/arm/boot/uImage" ]; then
+    cp "${PROJECT_ROOT}/source/kernel/src/arch/arm/boot/uImage" "${PROJECT_ROOT}/firmware/boot/"
     echo "✓ Kernel image copied to firmware/boot/uImage"
-    ls -lh firmware/boot/uImage
+    ls -lh "${PROJECT_ROOT}/firmware/boot/uImage"
 else
     echo "✗ Could not find uImage"
     exit 1

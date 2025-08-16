@@ -18,6 +18,9 @@ RELEASES_DIR := releases
 # Build configuration
 J_CORES := $(shell nproc 2>/dev/null || echo 4)
 DOCKER_IMAGE := jesteros-unified
+SD_DEVICE ?= auto
+BUILD_LOG := build.log
+TIMESTAMP := $(shell date +%Y%m%d_%H%M%S)
 
 # Colors for output (E-Ink friendly)
 RESET := \033[0m
@@ -27,11 +30,17 @@ YELLOW := \033[33m
 RED := \033[31m
 
 .PHONY: all clean distclean kernel rootfs firmware image release help test validate deps check-tools
+.PHONY: quick-build quick-deploy sd-deploy detect-sd build-status
 
 help:
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
 	@echo "$(BOLD)           🏰 Nook Typewriter Build System 🏰$(RESET)"
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
+	@echo ""
+	@echo "$(BOLD)Quick Start:$(RESET)"
+	@echo "  $(GREEN)make quick-build$(RESET) - Fast build (kernel only if unchanged)"
+	@echo "  $(GREEN)make sd-deploy$(RESET)   - Build and deploy to SD card (auto-detect)"
+	@echo "  $(GREEN)make sd-deploy SD_DEVICE=/dev/sde$(RESET) - Deploy to specific device"
 	@echo ""
 	@echo "$(BOLD)Main Targets:$(RESET)"
 	@echo "  $(GREEN)make firmware$(RESET)    - Build complete firmware (kernel + rootfs)"
@@ -44,11 +53,12 @@ help:
 	@echo "  $(GREEN)make test$(RESET)        - Run all tests"
 	@echo "  $(GREEN)make validate$(RESET)    - Validate build environment"
 	@echo "  $(GREEN)make check-tools$(RESET) - Check required tools"
+	@echo "  $(GREEN)make detect-sd$(RESET)   - Detect SD card devices"
 	@echo ""
 	@echo "$(BOLD)Utility:$(RESET)"
 	@echo "  $(GREEN)make clean$(RESET)       - Clean build artifacts"
 	@echo "  $(GREEN)make distclean$(RESET)   - Deep clean (including Docker cache)"
-	@echo "  $(GREEN)make install$(RESET)     - Flash to SD card (requires sudo)"
+	@echo "  $(GREEN)make build-status$(RESET)- Show build status and logs"
 	@echo "  $(GREEN)make deps$(RESET)        - Show build dependencies"
 	@echo ""
 	@echo "$(BOLD)Configuration:$(RESET)"
@@ -63,21 +73,27 @@ all: validate firmware
 firmware: check-tools kernel rootfs boot
 	@echo "$(GREEN)$(BOLD)✅ Firmware build complete!$(RESET)"
 	@echo "  Kernel: $(shell ls -lh $(FIRMWARE_DIR)/boot/uImage 2>/dev/null | awk '{print $$5}')"
+	@echo "  MLO: $(shell ls -lh $(FIRMWARE_DIR)/boot/MLO 2>/dev/null | awk '{print $$5}')"
+	@echo "  U-Boot: $(shell ls -lh $(FIRMWARE_DIR)/boot/u-boot.bin 2>/dev/null | awk '{print $$5}')"
 	@echo "  Modules: $(shell find $(FIRMWARE_DIR)/kernel -name '*.ko' 2>/dev/null | wc -l) modules"
 	@echo "  Scripts: $(shell ls $(FIRMWARE_DIR)/rootfs/usr/local/bin/*.sh 2>/dev/null | wc -l) scripts"
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
 
-# Kernel build with Docker validation
+# Kernel build with Docker validation and logging
 kernel: check-tools
 	@echo "$(BOLD)🔨 Building kernel (JesterOS services in userspace)...$(RESET)"
-	@if [ ! -f build_kernel.sh ]; then \
-		echo "$(RED)Error: build_kernel.sh not found$(RESET)"; \
+	@echo "[$(TIMESTAMP)] Starting kernel build" >> $(BUILD_LOG)
+	@if [ ! -f build/scripts/build_kernel.sh ]; then \
+		echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)"; \
+		echo "[$(TIMESTAMP)] ERROR: build/scripts/build_kernel.sh not found" >> $(BUILD_LOG); \
 		exit 1; \
 	fi
 	@if ! docker images | grep -q $(DOCKER_IMAGE); then \
 		echo "$(YELLOW)Building Docker image $(DOCKER_IMAGE)...$(RESET)"; \
+		echo "[$(TIMESTAMP)] Building Docker image" >> $(BUILD_LOG); \
 	fi
-	@./build_kernel.sh || (echo "$(RED)Kernel build failed!$(RESET)" && exit 1)
+	@./build/scripts/build_kernel.sh 2>&1 | tee -a $(BUILD_LOG) || (echo "$(RED)Kernel build failed!$(RESET)" && exit 1)
+	@echo "[$(TIMESTAMP)] Kernel build successful" >> $(BUILD_LOG)
 	@echo "$(GREEN)✓ Kernel build successful$(RESET)"
 
 # Root filesystem with medieval scripts
@@ -101,8 +117,53 @@ rootfs:
 	@chmod +x $(FIRMWARE_DIR)/rootfs/usr/local/bin/*.sh 2>/dev/null || true
 	@echo "$(GREEN)✓ Root filesystem prepared$(RESET)"
 
+# Bootloader extraction from ClockworkMod image
+bootloaders:
+	@mkdir -p $(FIRMWARE_DIR)/boot
+	@echo "$(BOLD)🔧 Checking bootloader files...$(RESET)"
+	@if [ ! -f $(FIRMWARE_DIR)/boot/MLO ] || [ ! -f $(FIRMWARE_DIR)/boot/u-boot.bin ]; then \
+		echo "$(YELLOW)   ⚠ Bootloaders missing - attempting extraction$(RESET)"; \
+		if [ -f build/scripts/extract-bootloaders-dd.sh ]; then \
+			./build/scripts/extract-bootloaders-dd.sh; \
+		elif [ -f build/scripts/extract-bootloaders.sh ]; then \
+			echo "   Note: This requires sudo for mounting"; \
+			./build/scripts/extract-bootloaders.sh || true; \
+		else \
+			echo "$(RED)   ✗ No extraction scripts found!$(RESET)"; \
+			exit 1; \
+		fi; \
+		if [ ! -f $(FIRMWARE_DIR)/boot/MLO ] || [ ! -f $(FIRMWARE_DIR)/boot/u-boot.bin ]; then \
+			echo "$(YELLOW)   ⚠ Automatic extraction failed$(RESET)"; \
+			echo "   Please extract manually:"; \
+			echo "   1. Run: sudo ./build/scripts/extract-bootloaders.sh"; \
+			echo "   2. Or follow instructions from extract-bootloaders-dd.sh"; \
+			exit 1; \
+		fi; \
+	else \
+		echo "$(GREEN)   ✓ Bootloaders present$(RESET)"; \
+		ls -lh $(FIRMWARE_DIR)/boot/MLO $(FIRMWARE_DIR)/boot/u-boot.bin; \
+	fi
+
+# Boot script generation
+boot-script:
+	@mkdir -p $(FIRMWARE_DIR)/boot
+	@echo "$(BOLD)📝 Creating boot script...$(RESET)"
+	@echo 'setenv bootargs console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=ext4 rw' > $(FIRMWARE_DIR)/boot/boot.cmd
+	@echo 'fatload mmc 0 0x81c00000 uImage' >> $(FIRMWARE_DIR)/boot/boot.cmd
+	@echo 'bootm 0x81c00000' >> $(FIRMWARE_DIR)/boot/boot.cmd
+	@if command -v mkimage >/dev/null 2>&1; then \
+		mkimage -A arm -O linux -T script -C none -n "Boot Script" \
+			-d $(FIRMWARE_DIR)/boot/boot.cmd $(FIRMWARE_DIR)/boot/boot.scr; \
+		cp $(FIRMWARE_DIR)/boot/boot.scr $(FIRMWARE_DIR)/boot/u-boot.scr; \
+		cp $(FIRMWARE_DIR)/boot/boot.scr $(FIRMWARE_DIR)/boot/boot.scr.uimg; \
+		echo "$(GREEN)   ✓ Boot scripts created$(RESET)"; \
+	else \
+		echo "$(YELLOW)   ⚠ mkimage not found - boot script not compiled$(RESET)"; \
+		echo "   Install u-boot-tools for boot script compilation"; \
+	fi
+
 # Boot partition preparation
-boot: kernel
+boot: kernel bootloaders boot-script
 	@echo "$(BOLD)🥾 Preparing boot partition...$(RESET)"
 	@mkdir -p $(FIRMWARE_DIR)/boot
 	@# Copy kernel image
@@ -117,6 +178,7 @@ boot: kernel
 		cp boot/uEnv.txt $(FIRMWARE_DIR)/boot/; \
 		echo "$(GREEN)   ✓ Boot configuration copied$(RESET)"; \
 	fi
+	@echo "$(GREEN)✓ Boot partition ready with all components$(RESET)"
 
 # SD card image creation
 image: firmware
@@ -193,10 +255,13 @@ install: image
 	@echo ""
 	@echo "$(YELLOW)⚠️  WARNING: This will erase your SD card!$(RESET)"
 	@echo ""
+	@echo "Available SD card devices:"
+	@$(MAKE) detect-sd
+	@echo ""
 	@echo "To flash the image, run:"
 	@echo "  $(BOLD)sudo dd if=$(RELEASES_DIR)/$(IMAGE_NAME) of=/dev/sdX bs=4M status=progress$(RESET)"
 	@echo ""
-	@echo "Replace /dev/sdX with your SD card device (use 'lsblk' to find it)"
+	@echo "Or use: $(BOLD)make sd-deploy SD_DEVICE=/dev/sdX$(RESET)"
 	@echo "$(RED)Double-check the device to avoid data loss!$(RESET)"
 
 # New targets for validation and testing
@@ -213,16 +278,27 @@ validate: check-tools
 	@echo "$(BOLD)✅ Validating build environment...$(RESET)"
 	@test -d $(KERNEL_DIR) || (echo "$(RED)Error: Kernel directory not found$(RESET)" && exit 1)
 	@test -d $(SCRIPTS_DIR) || (echo "$(RED)Error: Scripts directory not found$(RESET)" && exit 1)
-	@test -f build_kernel.sh || (echo "$(RED)Error: build_kernel.sh not found$(RESET)" && exit 1)
+	@test -f build/scripts/build_kernel.sh || (echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)" && exit 1)
 	@echo "$(GREEN)✓ Environment validated$(RESET)"
 
-# Run test suite
+# Run test suite (simple!)
 test:
-	@echo "$(BOLD)🧪 Running test suite...$(RESET)"
-	@if [ -f tests/run-all-tests.sh ]; then \
-		./tests/run-all-tests.sh; \
+	@echo "$(BOLD)🧪 Running tests...$(RESET)"
+	@cd tests && ./run-tests.sh
+
+# Run just safety check
+test-safety:
+	@echo "$(BOLD)🛡️ Running safety check...$(RESET)"
+	@cd tests && ./01-safety-check.sh
+
+# Run old comprehensive tests (archived)
+test-old:
+	@echo "$(BOLD)📦 Running archived tests...$(RESET)"
+	@echo "$(YELLOW)Note: These are overcomplicated. Use 'make test' instead!$(RESET)"
+	@if [ -f tests/archive/run-all-tests.sh ]; then \
+		cd tests/archive && ./run-all-tests.sh; \
 	else \
-		echo "$(YELLOW)Test suite not found$(RESET)"; \
+		echo "$(YELLOW)Old tests not found (good!)$(RESET)"; \
 	fi
 
 # Show dependencies
@@ -233,5 +309,128 @@ deps:
 	@echo "  - ARM cross-compiler (arm-linux-androideabi)"
 	@echo "  - 4GB+ free disk space"
 	@echo "  - Linux or WSL2 environment"
+
+# Quick build target - skips unchanged components
+quick-build:
+	@echo "$(BOLD)⚡ Quick build mode$(RESET)"
+	@if [ -f $(FIRMWARE_DIR)/boot/uImage ] && [ build/scripts/build_kernel.sh -ot $(FIRMWARE_DIR)/boot/uImage ]; then \
+		echo "$(YELLOW)Kernel unchanged, skipping rebuild$(RESET)"; \
+	else \
+		$(MAKE) kernel; \
+	fi
+	@$(MAKE) rootfs
+	@echo "$(GREEN)✓ Quick build complete$(RESET)"
+
+# Detect SD card devices (excluding system and Docker drives)
+detect-sd:
+	@echo "$(BOLD)🔍 Detecting SD card devices...$(RESET)"
+	@echo "$(YELLOW)⚠️  Excluding sda-sdd (system/Docker drives)$(RESET)"
+	@lsblk -d -o NAME,SIZE,MODEL,TRAN | grep -E "(sd|mmcblk)" | grep -v -E "sda|sdb|sdc|sdd" || echo "No removable devices found"
+	@echo ""
+	@echo "Safe removable devices (likely SD cards):"
+	@for dev in $$(ls /dev/sd[e-z] /dev/mmcblk[0-9] 2>/dev/null); do \
+		if [ -b $$dev ]; then \
+			size=$$(lsblk -b -d -o SIZE -n $$dev 2>/dev/null); \
+			if [ "$$size" -lt "68719476736" ]; then \
+				echo "  $$dev - $$(lsblk -d -o SIZE,MODEL -n $$dev 2>/dev/null)"; \
+			fi; \
+		fi; \
+	done
+
+# Auto-deploy to SD card (safe mode - excludes system and Docker drives)
+sd-deploy: firmware
+	@echo "$(BOLD)💾 Deploying to SD card$(RESET)"
+	@if [ "$(SD_DEVICE)" = "auto" ]; then \
+		echo "Auto-detecting SD card (excluding system/Docker drives)..."; \
+		SD_CARD=$$(ls /dev/sd[e-z] /dev/mmcblk[0-9] 2>/dev/null | head -1); \
+		if [ -z "$$SD_CARD" ]; then \
+			echo "$(RED)No safe SD card detected!$(RESET)"; \
+			echo "Detected devices (excluded sda-sdd for safety):"; \
+			@$(MAKE) detect-sd; \
+			echo "Please specify: make sd-deploy SD_DEVICE=/dev/sdX"; \
+			exit 1; \
+		fi; \
+	else \
+		SD_CARD="$(SD_DEVICE)"; \
+		if echo "$$SD_CARD" | grep -qE "/dev/sd[a-d]"; then \
+			echo "$(RED)ERROR: Cannot deploy to system/Docker drives (sda-sdd)!$(RESET)"; \
+			echo "These are protected system/Windows/Docker drives."; \
+			exit 1; \
+		fi; \
+	fi; \
+	echo "$(YELLOW)Target device: $$SD_CARD$(RESET)"; \
+	echo "$(RED)⚠️  This will ERASE $$SD_CARD!$(RESET)"; \
+	read -p "Continue? (yes/NO): " confirm; \
+	if [ "$$confirm" = "yes" ]; then \
+		echo "Writing base image..."; \
+		sudo dd if=images/2gb_clockwork-rc2.img of=$$SD_CARD bs=4M status=progress || exit 1; \
+		sync; \
+		echo "Mounting partitions..."; \
+		sudo mkdir -p /mnt/nook-boot /mnt/nook-root; \
+		sudo mount $${SD_CARD}1 /mnt/nook-boot || sudo mount $${SD_CARD}p1 /mnt/nook-boot || exit 1; \
+		if [ -f $(KERNEL_DIR)/src/arch/arm/boot/uImage ]; then \
+			echo "Copying kernel..."; \
+			sudo cp $(KERNEL_DIR)/src/arch/arm/boot/uImage /mnt/nook-boot/; \
+		fi; \
+		if [ -f nook-mvp-rootfs.tar.gz ]; then \
+			echo "Extracting rootfs (this may take a while)..."; \
+			sudo mount $${SD_CARD}2 /mnt/nook-root || sudo mount $${SD_CARD}p2 /mnt/nook-root || exit 1; \
+			sudo tar -xzf nook-mvp-rootfs.tar.gz -C /mnt/nook-root/; \
+			sudo umount /mnt/nook-root; \
+		fi; \
+		sudo umount /mnt/nook-boot; \
+		sync; \
+		echo "$(GREEN)✅ SD card ready! You can now boot your Nook$(RESET)"; \
+	else \
+		echo "Deployment cancelled"; \
+	fi
+
+# Quick deploy - just kernel to existing SD card (safe mode)
+quick-deploy:
+	@echo "$(BOLD)⚡ Quick deploy (kernel only)$(RESET)"
+	@if [ "$(SD_DEVICE)" = "auto" ]; then \
+		SD_CARD=$$(ls /dev/sd[e-z] /dev/mmcblk[0-9] 2>/dev/null | head -1); \
+	else \
+		SD_CARD="$(SD_DEVICE)"; \
+		if echo "$$SD_CARD" | grep -qE "/dev/sd[a-d]"; then \
+			echo "$(RED)ERROR: Cannot deploy to system/Docker drives (sda-sdd)!$(RESET)"; \
+			exit 1; \
+		fi; \
+	fi; \
+	if [ -z "$$SD_CARD" ]; then \
+		echo "$(RED)No SD card specified!$(RESET)"; \
+		exit 1; \
+	fi; \
+	echo "Deploying to $$SD_CARD..."; \
+	sudo mkdir -p /mnt/nook-boot; \
+	sudo mount $${SD_CARD}1 /mnt/nook-boot || sudo mount $${SD_CARD}p1 /mnt/nook-boot || exit 1; \
+	if [ -f $(KERNEL_DIR)/src/arch/arm/boot/uImage ]; then \
+		sudo cp $(KERNEL_DIR)/src/arch/arm/boot/uImage /mnt/nook-boot/; \
+		echo "$(GREEN)✓ Kernel updated$(RESET)"; \
+	else \
+		echo "$(RED)Kernel not found! Run 'make kernel' first$(RESET)"; \
+	fi; \
+	sudo umount /mnt/nook-boot; \
+	sync
+
+# Show build status and recent logs
+build-status:
+	@echo "$(BOLD)📊 Build Status$(RESET)"
+	@echo "═══════════════════════════════════════════"
+	@if [ -f $(FIRMWARE_DIR)/boot/uImage ]; then \
+		echo "Kernel: $(GREEN)✓$(RESET) Built $$(stat -c %y $(FIRMWARE_DIR)/boot/uImage | cut -d' ' -f1,2)"; \
+	else \
+		echo "Kernel: $(RED)✗$(RESET) Not built"; \
+	fi
+	@if [ -d $(FIRMWARE_DIR)/rootfs/usr/local/bin ] && [ "$$(ls -A $(FIRMWARE_DIR)/rootfs/usr/local/bin 2>/dev/null)" ]; then \
+		echo "Rootfs: $(GREEN)✓$(RESET) $$(ls $(FIRMWARE_DIR)/rootfs/usr/local/bin/*.sh 2>/dev/null | wc -l) scripts installed"; \
+	else \
+		echo "Rootfs: $(RED)✗$(RESET) Not built"; \
+	fi
+	@if [ -f $(BUILD_LOG) ]; then \
+		echo ""; \
+		echo "Recent build log:"; \
+		tail -5 $(BUILD_LOG); \
+	fi
 
 .DEFAULT_GOAL := help

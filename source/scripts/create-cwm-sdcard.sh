@@ -83,17 +83,17 @@ fi
 
 # Install new kernel
 echo "→ Installing QuillKernel..."
-cp /tmp/kernel/uImage /system/kernel
-chmod 644 /system/kernel
+# Use install for atomic permission setting
+install -m 0644 -o root -g root /tmp/kernel/uImage /system/kernel
 
 # Install SquireOS modules
 if [ -d /tmp/modules ]; then
     echo "→ Installing SquireOS modules..."
     mkdir -p /system/lib/modules
-    cp /tmp/modules/*.ko /system/lib/modules/ 2>/dev/null || true
-    
-    # Set proper permissions
-    chmod 644 /system/lib/modules/*.ko 2>/dev/null || true
+    # Install modules with proper permissions atomically
+    for module in /tmp/modules/*.ko; do
+        [ -f "$module" ] && install -m 0644 -o root -g root "$module" /system/lib/modules/ || true
+    done
 fi
 
 # Create module loading script
@@ -116,7 +116,11 @@ else
 fi
 MODEOF
 
-chmod 755 /system/bin/load-squireos.sh
+# Set executable permissions atomically
+temp_script=$(mktemp)
+cp /system/bin/load-squireos.sh "$temp_script"
+install -m 0755 -o root -g root "$temp_script" /system/bin/load-squireos.sh
+rm -f "$temp_script"
 
 # Update init scripts to load modules
 if [ -f /system/etc/init.d/01modules ]; then
@@ -124,7 +128,11 @@ if [ -f /system/etc/init.d/01modules ]; then
 else
     echo "#!/system/bin/sh" > /system/etc/init.d/01modules
     echo "/system/bin/load-squireos.sh" >> /system/etc/init.d/01modules
-    chmod 755 /system/etc/init.d/01modules
+    # Set executable permissions atomically
+    temp_init=$(mktemp)
+    cp /system/etc/init.d/01modules "$temp_init"
+    install -m 0755 -o root -g root "$temp_init" /system/etc/init.d/01modules
+    rm -f "$temp_init"
 fi
 
 echo ""
@@ -141,7 +149,11 @@ umount /system
 exit 0
 EOF
 
-    chmod +x "$CWM_DIR/scripts/install-quillkernel.sh"
+    # Make script executable using install
+    temp_installer=$(mktemp)
+    cp "$CWM_DIR/scripts/install-quillkernel.sh" "$temp_installer"
+    install -m 0755 "$temp_installer" "$CWM_DIR/scripts/install-quillkernel.sh"
+    rm -f "$temp_installer"
     echo "  ✓ Installation script created"
 }
 
@@ -179,7 +191,11 @@ unzip -o "$ZIP" scripts/* -d /tmp/
 
 # Run installation script
 ui_print "Installing QuillKernel..."
-chmod +x /tmp/scripts/install-quillkernel.sh
+# Make installer executable atomically
+temp_exec=$(mktemp)
+cp /tmp/scripts/install-quillkernel.sh "$temp_exec"
+install -m 0755 "$temp_exec" /tmp/scripts/install-quillkernel.sh
+rm -f "$temp_exec"
 /tmp/scripts/install-quillkernel.sh
 
 if [ $? -eq 0 ]; then
@@ -195,7 +211,11 @@ ui_print "Installation complete. Happy writing!"
 exit 0
 EOF
 
-    chmod +x "$CWM_DIR/META-INF/com/google/android/update-binary"
+    # Make update-binary executable atomically
+    temp_binary=$(mktemp)
+    cp "$CWM_DIR/META-INF/com/google/android/update-binary" "$temp_binary"
+    install -m 0755 "$temp_binary" "$CWM_DIR/META-INF/com/google/android/update-binary"
+    rm -f "$temp_binary"
     echo "  ✓ CWM update-binary created"
 }
 
