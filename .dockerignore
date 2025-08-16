@@ -1,26 +1,56 @@
-# Git and version control
-.git
+# ==================================================================
+# Nook Typewriter - Docker Build Context Ignore
+# ==================================================================
+# This file optimizes Docker builds by excluding unnecessary files
+# from the build context, reducing build time and image size
+
+# ------------------------------------------------------------------
+# Version Control
+# ------------------------------------------------------------------
+.git/
 .gitignore
 .gitattributes
+.gitmodules
 
-# Documentation
-README.md
+# ------------------------------------------------------------------
+# Documentation (not needed in Docker images)
+# ------------------------------------------------------------------
 *.md
+!CLAUDE.md  # Keep AI guidance for reference
 docs/
+design/
+images/
+*.pdf
+*.txt
 
-# Docker files
+# ------------------------------------------------------------------
+# Docker & CI/CD
+# ------------------------------------------------------------------
 docker-compose.yml
 docker-compose.*.yml
 .dockerignore
+Dockerfile*
+*.dockerfile
+# Exception: We might need our own Dockerfiles for reference
+!build/docker/*.dockerfile
 
-# IDE and editor files
+# ------------------------------------------------------------------
+# IDE and Editor Files
+# ------------------------------------------------------------------
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
+*.swn
 *~
+.*.swp
+\#*\#
+.\#*
 
-# OS generated files
+# ------------------------------------------------------------------
+# OS Generated Files
+# ------------------------------------------------------------------
 .DS_Store
 .DS_Store?
 ._*
@@ -28,23 +58,113 @@ docker-compose.*.yml
 .Trashes
 ehthumbs.db
 Thumbs.db
+.directory
+.Trash-*
 
-# Logs
+# ------------------------------------------------------------------
+# Build Artifacts & Outputs
+# ------------------------------------------------------------------
+firmware/
+releases/
+*.img
+*.tar.gz
+*.zip
+*.iso
+*.bin
+*.elf
+
+# ------------------------------------------------------------------
+# Kernel Build Artifacts (Large)
+# ------------------------------------------------------------------
+source/kernel/src/**/*.o
+source/kernel/src/**/*.ko
+source/kernel/src/**/*.cmd
+source/kernel/src/.tmp_versions/
+source/kernel/src/vmlinux
+source/kernel/src/System.map
+source/kernel/src/arch/arm/boot/Image
+source/kernel/src/arch/arm/boot/zImage
+# Keep uImage as we might reference it
+!source/kernel/src/arch/arm/boot/uImage
+
+# ------------------------------------------------------------------
+# Test Artifacts
+# ------------------------------------------------------------------
+tests/reports/
+tests/**/*.log
+test_report_*.md
+coverage/
+*.coverage
+*.gcov
+
+# ------------------------------------------------------------------
+# Logs & Temporary Files
+# ------------------------------------------------------------------
 *.log
 logs/
-
-# Temporary files
+*.err
+*.out
 tmp/
 temp/
 *.tmp
-
-# Backup files
-backups/
+*.temp
 *.bak
 *.backup
+*.old
+*.orig
 
-# Data directories (will be mounted as volumes)
-data/
+# ------------------------------------------------------------------
+# Large Files Not Needed for Build
+# ------------------------------------------------------------------
+images/2gb_clockwork-rc2.img
+android-ndk-*/
+ndk/
+toolchain/
+sdcard/
+*.sdcard
+lenny-rootfs.tar.gz
+lenny-rootfs/
+nook-mvp-rootfs.tar.gz
 
-# Include config directory for build
-!config/**
+# ------------------------------------------------------------------
+# Personal/Local Files
+# ------------------------------------------------------------------
+notes/
+personal/
+TODO.personal
+.zk/
+**/.zk/
+
+# ------------------------------------------------------------------
+# Python (helper scripts)
+# ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.pytest_cache/
+
+# ------------------------------------------------------------------
+# EXPLICITLY INCLUDE for Docker builds
+# ------------------------------------------------------------------
+# Source code and scripts
+!source/
+!source/**/*.sh
+!source/**/*.c
+!source/**/*.h
+!source/configs/
+!source/configs/**
+
+# Build scripts
+!build/scripts/
+!build/scripts/**
+
+# Essential configurations
+!Makefile
+!build.conf
+!project.conf
+!VERSION
+
+# Boot configurations
+!boot/
+!boot/**

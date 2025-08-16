@@ -197,11 +197,13 @@ docs/latex/
 # Docker
 # ------------------------------------------------------------------
 
-# Docker files (optional - uncomment if needed)
-# .dockerignore
-
 # Docker build cache
 docker-cache/
+
+# IMPORTANT: Track Docker build configurations
+!build/docker/
+!build/docker/**/*.dockerfile
+!build/docker/**/*.Dockerfile
 
 # ------------------------------------------------------------------
 # Operating System Files
