@@ -2,6 +2,10 @@
 # JesterOS Boot Splash - E-Ink Optimized Version
 # Designed for 800x600 6" grayscale display
 
+# Safety settings for reliable E-Ink display
+set -eu
+trap 'echo "Error in jester-splash-eink.sh at line $LINENO" >&2' ERR
+
 # Function to center text (approximately)
 center_text() {
     printf "%*s\n" $(( (80 + ${#1}) / 2 )) "$1"

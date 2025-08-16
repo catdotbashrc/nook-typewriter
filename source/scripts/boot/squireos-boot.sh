@@ -2,6 +2,21 @@
 # SquireOS Boot Sequence with E-Ink Friendly Animations
 # Shows branded startup sequence with jester mascot
 
+# Safety settings for reliable boot
+set -euo pipefail
+trap 'echo "Error in squireos-boot.sh at line $LINENO" >&2' ERR
+
+# Boot logging configuration
+BOOT_LOG="${BOOT_LOG:-/var/log/jesteros-boot.log}"
+boot_log() {
+    local level="${1:-INFO}"
+    local message="${2:-}"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] [squireos-boot] $message" >> "$BOOT_LOG" 2>/dev/null || true
+    [ "$level" = "ERROR" ] && echo "[squireos-boot] ERROR: $message" >&2
+}
+
+boot_log "INFO" "Starting SquireOS boot sequence"
+
 # Source common functions and safety settings
 COMMON_PATH="${COMMON_PATH:-/usr/local/bin/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
@@ -10,20 +25,19 @@ if [[ -f "$COMMON_PATH" ]]; then
     BOOT_PHASE_DELAY="${BOOT_PHASE_DELAY:-0.5}"
     BOOT_ITEM_DELAY="${BOOT_ITEM_DELAY:-0.2}"
 else
-    # Fallback safety settings
-    set -euo pipefail
-    trap 'echo "Error at line $LINENO"' ERR
+    # Common.sh not found, but safety already set at top
+    boot_log "WARN" "Common library not found at $COMMON_PATH"
     BOOT_PHASE_DELAY=0.5
     BOOT_ITEM_DELAY=0.2
 fi
 
 # Function to display with FBInk or fallback to echo
 display() {
-    local y_pos="$1"
+    local y_pos="${1:-0}"
     shift
     local text="$*"
     if [[ "${SQUIREOS_COMMON_LOADED:-0}" == "1" ]] && has_eink; then
-        fbink -y "$y_pos" "$text" 2>/dev/null
+        fbink -y "$y_pos" "$text" 2>/dev/null || boot_log "WARN" "Failed to display text at y=$y_pos"
     else
         echo "$text"
     fi
@@ -48,6 +62,7 @@ if ! declare -f e_sleep >/dev/null 2>&1; then
 fi
 
 # Start boot sequence
+boot_log "INFO" "Initializing display for boot sequence"
 clear_screen
 
 # Phase 1: Candle lighting
@@ -233,6 +248,15 @@ clear_screen
 
 # If this is the actual boot script, start the menu
 # Otherwise just exit (for testing)
-if [ "$1" == "--start-menu" ]; then
-    exec /usr/local/bin/squire-menu.sh
+if [ "${1:-}" == "--start-menu" ]; then
+    boot_log "INFO" "Starting squire menu"
+    if [ -x /usr/local/bin/squire-menu.sh ]; then
+        exec /usr/local/bin/squire-menu.sh
+    else
+        boot_log "ERROR" "Squire menu not found or not executable"
+        echo "ERROR: Cannot start squire menu!" >&2
+        exit 1
+    fi
+else
+    boot_log "INFO" "Boot sequence complete (test mode)"
 fi

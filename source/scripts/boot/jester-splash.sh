@@ -2,6 +2,18 @@
 # JesterOS Boot Splash Screen
 # "A grand entrance for our noble fool!"
 
+# Safety settings for reliable boot display
+set -eu
+trap 'echo "Error in jester-splash.sh at line $LINENO" >&2' ERR
+
+# Boot logging
+BOOT_LOG="${BOOT_LOG:-/var/log/jesteros-boot.log}"
+boot_log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [jester-splash] $1" >> "$BOOT_LOG" 2>/dev/null || true
+}
+
+boot_log "Starting JesterOS splash screen"
+
 # Clear screen for dramatic effect
 clear
 

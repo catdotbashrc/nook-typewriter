@@ -2,12 +2,26 @@
 # Complete JesterOS Boot Sequence
 # Shows splash screen, then initializes JesterOS userspace
 
-set -e
+# Enhanced safety settings for reliable boot
+set -euo pipefail
+trap 'echo "Error in boot-with-jester.sh at line $LINENO" >&2' ERR
+
+# Boot logging
+BOOT_LOG="${BOOT_LOG:-/var/log/jesteros-boot.log}"
+boot_log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [boot-with-jester] $1" >> "$BOOT_LOG" 2>/dev/null || true
+    echo "[boot] $1" >&2
+}
+
+boot_log "Starting complete JesterOS boot sequence"
 
 # Detect if we're on E-Ink display
 IS_EINK=0
 if [ -e /dev/fb0 ] && command -v fbink >/dev/null 2>&1; then
     IS_EINK=1
+    boot_log "E-Ink display detected"
+else
+    boot_log "No E-Ink display found, using terminal output"
 fi
 
 # Show appropriate splash screen

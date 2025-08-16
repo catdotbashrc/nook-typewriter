@@ -2,6 +2,10 @@
 # Animated Dancing Jester Boot Sequence
 # "The fool doth dance at dawn!"
 
+# Safety settings for reliable animation
+set -eu
+trap 'echo "Error in jester-dance.sh at line $LINENO" >&2' ERR
+
 # Frame delay for animation
 DELAY=0.3
 

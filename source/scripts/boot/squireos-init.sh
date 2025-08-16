@@ -3,19 +3,35 @@
 # Runs during Android boot to load medieval modules
 # "Before the digital dawn, we prepare the scriptorium"
 
+# Safety settings for reliable boot
+set -eu
+trap 'echo "Error in squireos-init.sh at line $LINENO" >&2' ERR
+
 # Android/Nook specific paths
 CHROOT_PATH=/data/debian
 MODULE_PATH=$CHROOT_PATH/lib/modules/2.6.29
 LOG_FILE=/data/squireos-boot.log
 
-# Logging
+# Enhanced logging with timestamps
+LOG_TIMESTAMP_FORMAT="+%Y-%m-%d %H:%M:%S"
+
+# Enhanced logging function with levels
 log() {
-    echo "$(date): $1" >> $LOG_FILE
-    echo "$1"
+    local level="${2:-INFO}"
+    local message="$1"
+    local timestamp="$(date "$LOG_TIMESTAMP_FORMAT")"
+    echo "[$timestamp] [$level] [squireos-init] $message" >> $LOG_FILE 2>/dev/null || true
+    echo "[squireos-init] $message"
 }
+
+# Convenience logging functions
+log_info() { log "$1" "INFO"; }
+log_error() { log "$1" "ERROR"; }
+log_debug() { log "$1" "DEBUG"; }
 
 # Banner
 show_banner() {
+    log_info "Displaying SquireOS boot banner"
     echo "======================================="
     echo "    SquireOS Medieval Boot Sequence"
     echo "======================================="

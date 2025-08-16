@@ -3,7 +3,17 @@
 # Creates /proc-like entries without kernel modules
 # "Work smarter, not harder" - Ancient Jester Proverb
 
-set -e
+# Safety settings for reliable service startup
+set -eu
+trap 'echo "Error in jesteros-userspace.sh at line $LINENO" >&2' ERR
+
+# Logging configuration
+LOG_FILE="${LOG_FILE:-/var/log/jesteros.log}"
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [jesteros-userspace] $1" >> "$LOG_FILE" 2>/dev/null || true
+}
+
+log_message "Starting JesterOS userspace services"
 
 JESTER_DIR="/var/jesteros"
 PROC_LINK="/proc/jesteros"

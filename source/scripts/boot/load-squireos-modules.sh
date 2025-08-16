@@ -3,7 +3,9 @@
 # Loads medieval kernel modules at boot
 # "By quill and candlelight, we awaken the digital scriptorium"
 
-set -e
+# Safety settings for reliable module loading
+set -eu
+trap 'echo "Error in load-squireos-modules.sh at line $LINENO" >&2' ERR
 
 # Configuration
 MODULE_DIR="/lib/modules/2.6.29"
