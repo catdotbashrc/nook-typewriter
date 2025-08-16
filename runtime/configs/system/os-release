@@ -1,0 +1,14 @@
+NAME="JesterOS"
+VERSION="1.0.0"
+ID=jesteros
+ID_LIKE=debian
+PRETTY_NAME="JesterOS 1.0.0 (Parchment)"
+VERSION_ID="1.0.0"
+HOME_URL="https://github.com/jyeary/nook"
+SUPPORT_URL="https://github.com/jyeary/nook/issues"
+BUG_REPORT_URL="https://github.com/jyeary/nook/issues"
+PRIVACY_POLICY_URL="Your words are sealed by oath"
+VERSION_CODENAME=parchment
+DEBIAN_CODENAME=bullseye
+JESTER_MOTTO="By quill and candlelight"
+MASCOT="The Derpy Court Jester"

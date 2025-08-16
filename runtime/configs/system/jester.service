@@ -1,0 +1,14 @@
+[Unit]
+Description=Court Jester - Medieval Writing Companion
+After=multi-user.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/jester-daemon.sh start
+ExecStop=/usr/local/bin/jester-daemon.sh stop
+PIDFile=/var/run/jester.pid
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

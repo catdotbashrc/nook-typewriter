@@ -1,0 +1,193 @@
+# SquireOS System Message ASCII Art Collection
+# E-Ink optimized for various system states and messages
+
+## SAVING/WRITING MESSAGES
+
+### Auto-save in progress
+```
+   .~"~.     ✎
+  ( o o )   /   Thy words are being
+  | > < |  /    preserved in the annals...
+   \___/ _/     
+    |♦|
+```
+
+### Save successful
+```
+   .~"~.
+  ( ^ ^ )  ✓   Manuscript sealed
+  | > < |       with great success!
+   \‿‿‿/        
+    |♦|
+```
+
+### Save failed
+```
+   .~!!!~.
+  ( O O )  ✗   Alas! The ink has spilled!
+  | > < |       Thy words could not be saved!
+   \ ~ /        
+    |♦|
+```
+
+## FILE OPERATIONS
+
+### Creating new file
+```
+   .~"~.        Fresh parchment unfurls
+  ( o o ) ≈≈≈   before thee...
+  | > < | ≈≈≈   
+   \___/        
+    |♦|
+```
+
+### Deleting file
+```
+   .~"~.     
+  ( ; ; )  🔥   Art thou certain, m'lord?
+  | > < |       This scroll shall burn!
+   \ ~ /        
+    |♦|
+```
+
+### File not found
+```
+   .~???~.
+  ( o o )  ?    The scroll thou seekest
+  | >.< |  ?    has vanished into the void!
+   \___/   ?    
+    |♦|
+```
+
+## NETWORK/SYNC OPERATIONS
+
+### Syncing
+```
+   .~"~.    ↑↓   The messenger gallops
+  ( - - )   ↑↓   to distant lands...
+  | > < |   ↑↓   
+   \___/         
+    |♦|
+```
+
+### Sync complete
+```
+   .~"~.
+  ( ^ ^ )       The messenger returns!
+  | > < |       All scrolls delivered!
+   \‿‿‿/        
+    |♦|
+```
+
+### No network
+```
+   .~"~.
+  ( x x )      The bridge is out!
+  | > < |       No path to the cloud realm!
+   \___/        
+    |♦|
+```
+
+## SYSTEM STATES
+
+### Low battery
+```
+   .~zzz~.
+  ( - - )  🕯️   The candle burns low...
+  | > < |       Seek ye a power source!
+   \ _ /        
+    |♦|
+```
+
+### Shutting down
+```
+   .~"~.
+  ( - - )       Fare thee well...
+  | > < |  ...  Until the morrow...
+   \ _ /   ...  
+    |♦|    ...
+```
+
+### System error
+```
+   !!!!!!!!
+  / @ @ \  ⚠️   CATASTROPHE!
+  | >>> |       The kingdom crashes!
+  \ === /       
+   |♦|♦|
+```
+
+### Update available
+```
+   .~*~*~.
+  ( o o )  📜   New wisdom awaits!
+  | > < |       An update from the scribes!
+   \___/        
+    |♦|
+```
+
+## EDITING STATES
+
+### Insert mode
+```
+   .~"~.
+  ( o o ) ✎    Ready to inscribe
+  | > < |       thy thoughts...
+   \___/        
+    |♦|
+```
+
+### Command mode
+```
+   .~"~.
+  ( ◉ ◉ ) ⚔️   Awaiting thy
+  | > < |       noble command!
+   \___/        
+    |♦|
+```
+
+### Search mode
+```
+   .~"~.
+  ( o o ) 🔍   What dost thou
+  | > ? |       seek, m'lord?
+   \___/        
+    |♦|
+```
+
+## SPECIAL OCCASIONS
+
+### Word count milestone
+```
+   \o/~.~\o/
+    | ^ ^ |  🎊  HUZZAH! 
+    | > < |      Thou hast written
+    \ ‿‿‿ /      {count} words!
+     |♦|♦|       A feat most noble!
+```
+
+### Daily goal reached
+```
+   .~🌟~.
+  ( ^ ^ )  ✨   Thy daily quest
+  | > < |       is complete!
+   \‿‿‿/        Well done, m'lord!
+    |♦|
+```
+
+### Long writing session
+```
+   .~"~.
+  ( @ @ )  ⏰   Many hours have passed...
+  | > < |       Perhaps 'tis time
+   \___/        for a respite?
+    |♦|
+```
+
+## Implementation Notes:
+- All art uses simple ASCII characters
+- Designed for monospace display
+- High contrast for E-Ink
+- Each message includes context
+- Jester expressions match the message mood
+- Can be displayed with fbink or echo
