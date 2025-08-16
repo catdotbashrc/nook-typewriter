@@ -1,5 +1,5 @@
 #!/bin/bash
-# Common functions and settings for SquireOS scripts
+# Common functions and settings for JesterOS scripts
 # By quill and candlelight, we maintain consistency
 
 # === Shell Safety Settings ===
@@ -40,7 +40,7 @@ readonly MEDIUM_DELAY=0.8
 readonly LONG_DELAY=2
 
 # Paths
-readonly SQUIREOS_PROC="/proc/squireos"
+readonly SQUIREOS_PROC="/var/jesteros"
 readonly JESTER_DIR="/var/lib/jester"
 readonly NOTES_DIR="/root/notes"
 readonly DRAFTS_DIR="/root/drafts"

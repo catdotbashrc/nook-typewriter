@@ -1,16 +1,16 @@
 #!/bin/sh
-# SquireOS Module Loading Script
+# JesterOS Module Loading Script
 # Loads medieval kernel modules at boot
 # "By quill and candlelight, we awaken the digital scriptorium"
 
 # Safety settings for reliable module loading
 set -eu
-trap 'echo "Error in load-squireos-modules.sh at line $LINENO" >&2' ERR
+trap 'echo "Error in load-jesteros-modules.sh at line $LINENO" >&2' ERR
 
 # Configuration
 MODULE_DIR="/lib/modules/2.6.29"
 LOG_FILE="/var/log/squireos.log"
-PROC_ROOT="/proc/squireos"
+PROC_ROOT="/var/jesteros"
 
 # Logging function
 log_message() {
@@ -22,7 +22,7 @@ log_message() {
 show_banner() {
     cat << 'EOF'
 ===============================================
-      SquireOS Medieval Writing System
+      JesterOS Medieval Writing System
 ===============================================
          .~"~.~"~.
         /  o   o  \    
@@ -75,13 +75,13 @@ main() {
     mkdir -p "$(dirname "$LOG_FILE")"
     
     log_message "========================================="
-    log_message "SquireOS Module Loading Service Starting"
+    log_message "JesterOS Module Loading Service Starting"
     log_message "========================================="
     
     # Load modules in dependency order
-    log_message "Loading SquireOS kernel modules..."
+    log_message "Loading JesterOS kernel modules..."
     
-    # 1. Core module first (creates /proc/squireos)
+    # 1. Core module first (creates /var/jesteros)
     if load_module "squireos_core"; then
         verify_module "$PROC_ROOT"
         
@@ -115,7 +115,7 @@ main() {
     
     log_message ""
     log_message "========================================="
-    log_message "SquireOS modules loaded successfully!"
+    log_message "JesterOS modules loaded successfully!"
     log_message "Digital scriptorium ready for writing."
     log_message "========================================="
     

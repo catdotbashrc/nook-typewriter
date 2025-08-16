@@ -122,10 +122,10 @@ else
 fi
 
 # Writing Statistics (if available)
-if [ -f /proc/squireos/typewriter/stats ]; then
+if [ -f /var/jesteros/typewriter/stats ]; then
     display_line 23 "WRITING STATS:"
-    words_today=$(grep "Words today:" /proc/squireos/typewriter/stats 2>/dev/null | awk '{print $3}' || echo "0")
-    total_words=$(grep "Total words:" /proc/squireos/typewriter/stats 2>/dev/null | awk '{print $3}' || echo "0")
+    words_today=$(grep "Words today:" /var/jesteros/typewriter/stats 2>/dev/null | awk '{print $3}' || echo "0")
+    total_words=$(grep "Total words:" /var/jesteros/typewriter/stats 2>/dev/null | awk '{print $3}' || echo "0")
     display_line 24 "  Today: $words_today words"
     display_line 25 "  Total: $total_words words"
 elif [ -d ~/notes ] || [ -d ~/writing ] || [ -d ~/drafts ]; then

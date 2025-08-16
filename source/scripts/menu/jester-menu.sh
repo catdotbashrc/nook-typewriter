@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-# SquireOS Main Menu with Jester Mascot
+# JesterOS Main Menu with Jester Mascot
 # E-Ink optimized with graceful fallback
 
 # Clear screen
@@ -10,7 +10,7 @@ fbink -c || clear
 # Display jester header (simplified for E-Ink)
 echo "
      .~\"~.~\"~.
-    /  o   o  \\     SquireOS Literary Workshop  
+    /  o   o  \\     JesterOS Literary Workshop  
    |  >  ◡  <  |    ========================
     \\  ___  /       
      |~|♦|~|        'Avoid the Chinese pharmacy method!'

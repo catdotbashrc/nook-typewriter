@@ -1,21 +1,21 @@
 #!/bin/bash
-# SquireOS Boot Sequence with E-Ink Friendly Animations
+# JesterOS Boot Sequence with E-Ink Friendly Animations
 # Shows branded startup sequence with jester mascot
 
 # Safety settings for reliable boot
 set -euo pipefail
-trap 'echo "Error in squireos-boot.sh at line $LINENO" >&2' ERR
+trap 'echo "Error in jesteros-boot.sh at line $LINENO" >&2' ERR
 
 # Boot logging configuration
 BOOT_LOG="${BOOT_LOG:-/var/log/jesteros-boot.log}"
 boot_log() {
     local level="${1:-INFO}"
     local message="${2:-}"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] [squireos-boot] $message" >> "$BOOT_LOG" 2>/dev/null || true
-    [ "$level" = "ERROR" ] && echo "[squireos-boot] ERROR: $message" >&2
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] [jesteros-boot] $message" >> "$BOOT_LOG" 2>/dev/null || true
+    [ "$level" = "ERROR" ] && echo "[jesteros-boot] ERROR: $message" >&2
 }
 
-boot_log "INFO" "Starting SquireOS boot sequence"
+boot_log "INFO" "Starting JesterOS boot sequence"
 
 # Source common functions and safety settings
 COMMON_PATH="${COMMON_PATH:-/usr/local/bin/common.sh}"
@@ -127,7 +127,7 @@ e_sleep "${LONG_DELAY:-1.5}"
 
 # Phase 5: Loading sequence
 clear_screen
-display 2 "SquireOS Parchment (1.0.0)"
+display 2 "JesterOS Parchment (1.0.0)"
 display 3 "=========================="
 display 5 "Preparing thy digital scriptorium..."
 e_sleep "$BOOT_ITEM_DELAY"
@@ -228,7 +228,7 @@ clear_screen
 cat << 'EOF' | fbink -S 2>/dev/null || cat
        .~"~.~"~.
       /  ^   ^  \
-     |  >  ◡  <  |    SquireOS Ready!
+     |  >  ◡  <  |    JesterOS Ready!
       \  ___  /       
        |~|♦|~|        "Your faithful squire awaits thy command!"
       d|     |b       
@@ -250,8 +250,8 @@ clear_screen
 # Otherwise just exit (for testing)
 if [ "${1:-}" == "--start-menu" ]; then
     boot_log "INFO" "Starting squire menu"
-    if [ -x /usr/local/bin/squire-menu.sh ]; then
-        exec /usr/local/bin/squire-menu.sh
+    if [ -x /usr/local/bin/jester-menu.sh ]; then
+        exec /usr/local/bin/jester-menu.sh
     else
         boot_log "ERROR" "Squire menu not found or not executable"
         echo "ERROR: Cannot start squire menu!" >&2

@@ -46,44 +46,32 @@ init_display() {
     fi
 }
 
-# Load JesterOS kernel modules (legacy - now using userspace)
-load_jesteros_modules() {
-    local module_count=0
-    echo "Loading JesterOS modules (if present)..."
-    boot_log "INFO" "Attempting to load JesterOS modules"
+# Verify JesterOS userspace services
+verify_jesteros_services() {
+    echo "Verifying JesterOS userspace services..."
+    boot_log "INFO" "Checking JesterOS userspace services"
     
-    # Load modules in proper order
-    if [ -d /lib/modules/2.6.29 ]; then
-        # Core module first
-        if [ -f /lib/modules/2.6.29/jesteros_core.ko ]; then
-            if insmod /lib/modules/2.6.29/jesteros_core.ko 2>/dev/null; then
-                boot_log "INFO" "Loaded jesteros_core module"
-                ((module_count++))
-            else
-                boot_log "WARN" "Failed to load jesteros_core module"
-            fi
-        fi
+    # JesterOS now runs entirely in userspace - no kernel modules needed!
+    # Services are provided by shell scripts in /var/jesteros/
+    
+    if [ -d /var/jesteros ]; then
+        echo "✓ JesterOS services directory available"
+        boot_log "INFO" "JesterOS userspace services ready at /var/jesteros/"
         
-        # Then the feature modules
-        for module in jester typewriter wisdom; do
-            if [ -f /lib/modules/2.6.29/${module}.ko ]; then
-                if insmod /lib/modules/2.6.29/${module}.ko 2>/dev/null; then
-                    boot_log "INFO" "Loaded ${module} module"
-                    ((module_count++))
-                else
-                    boot_log "WARN" "Failed to load ${module} module"
-                fi
+        # Check for key service files
+        local services_found=0
+        for service in jester typewriter/stats wisdom; do
+            if [ -e "/var/jesteros/$service" ]; then
+                boot_log "INFO" "Found service: $service"
+                ((services_found++))
             fi
         done
-    fi
-    
-    # Verify modules loaded
-    if [ -d /var/jesteros ]; then
-        echo "✓ JesterOS services available ($module_count modules loaded)"
-        boot_log "INFO" "JesterOS services ready with $module_count modules"
+        
+        echo "✓ JesterOS services available ($services_found services found)"
+        boot_log "INFO" "JesterOS ready with $services_found userspace services"
     else
-        echo "⚠ JesterOS services may not be available"
-        boot_log "WARN" "JesterOS services directory not found"
+        echo "⚠ JesterOS services directory not found - will be created"
+        boot_log "WARN" "JesterOS services directory not found yet"
     fi
 }
 
@@ -91,8 +79,8 @@ load_jesteros_modules() {
 main() {
     boot_log "INFO" "Starting main boot sequence"
     
-    # Load kernel modules
-    load_jesteros_modules
+    # Verify JesterOS userspace services (no kernel modules needed)
+    verify_jesteros_services
     
     # Initialize display
     init_display

@@ -48,11 +48,11 @@ create_cwm_structure() {
         return 1
     fi
     
-    # Copy SquireOS modules if they exist
+    # Copy JesterOS modules if they exist
     if [ -d "$PROJECT_ROOT/source/kernel/src" ]; then
         find "$PROJECT_ROOT/source/kernel/src" -name "*.ko" -exec cp {} "$CWM_DIR/modules/" \; 2>/dev/null || true
         if [ "$(ls -1 "$CWM_DIR/modules/"*.ko 2>/dev/null | wc -l)" -gt 0 ]; then
-            echo "  ✓ SquireOS modules copied: $(ls -1 "$CWM_DIR/modules/"*.ko | wc -l) files"
+            echo "  ✓ JesterOS modules copied: $(ls -1 "$CWM_DIR/modules/"*.ko | wc -l) files"
         fi
     fi
 }
@@ -65,7 +65,7 @@ create_install_scripts() {
     cat > "$CWM_DIR/scripts/install-quillkernel.sh" << 'EOF'
 #!/sbin/sh
 # QuillKernel Installation Script for ClockworkMod
-# Installs medieval-themed kernel with SquireOS modules
+# Installs medieval-themed kernel with JesterOS modules
 
 echo "═══════════════════════════════════════════════════════════════"
 echo "     Installing QuillKernel - Medieval Kernel for Writers"
@@ -86,9 +86,9 @@ echo "→ Installing QuillKernel..."
 # Use install for atomic permission setting
 install -m 0644 -o root -g root /tmp/kernel/uImage /system/kernel
 
-# Install SquireOS modules
+# Install JesterOS modules
 if [ -d /tmp/modules ]; then
-    echo "→ Installing SquireOS modules..."
+    echo "→ Installing JesterOS modules..."
     mkdir -p /system/lib/modules
     # Install modules with proper permissions atomically
     for module in /tmp/modules/*.ko; do
@@ -99,7 +99,7 @@ fi
 # Create module loading script
 cat > /system/bin/load-squireos.sh << 'MODEOF'
 #!/system/bin/sh
-# SquireOS Module Loader
+# JesterOS Module Loader
 # Loads medieval-themed kernel modules at boot
 
 # Load modules in proper order
@@ -109,10 +109,10 @@ insmod /system/lib/modules/typewriter.ko
 insmod /system/lib/modules/wisdom.ko
 
 # Verify modules loaded
-if [ -d /proc/squireos ]; then
-    echo "✓ SquireOS modules loaded successfully"
+if [ -d /var/jesteros ]; then
+    echo "✓ JesterOS modules loaded successfully"
 else
-    echo "⚠️  SquireOS modules may not have loaded"
+    echo "⚠️  JesterOS modules may not have loaded"
 fi
 MODEOF
 
@@ -138,7 +138,7 @@ fi
 echo ""
 echo "✓ QuillKernel installation complete!"
 echo "  Medieval modules: jester, typewriter, wisdom"
-echo "  Proc interface: /proc/squireos/"
+echo "  Proc interface: /var/jesteros/"
 echo "  By quill and candlelight, reboot to enjoy!"
 echo ""
 
@@ -229,7 +229,7 @@ create_updater_script() {
 ui_print("QuillKernel Installation");
 ui_print("Medieval computing for writers");
 ui_print("");
-ui_print("Installing kernel and SquireOS modules...");
+ui_print("Installing kernel and JesterOS modules...");
 run_program("/sbin/sh", "/tmp/scripts/install-quillkernel.sh");
 ui_print("Installation complete!");
 EOF
