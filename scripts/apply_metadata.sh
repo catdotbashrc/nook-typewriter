@@ -2,11 +2,13 @@
 # Metadata Substitution System for JoKernel
 # Applies project configuration to source files
 
-set -euo pipefail
+# Source common library
+source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
+setup_error_handling
 
-# Script location
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# Get paths using common functions
+SCRIPT_DIR=$(get_script_dir)
+PROJECT_ROOT=$(get_project_root)
 
 # Configuration files
 PROJECT_CONF="${PROJECT_ROOT}/project.conf"
@@ -27,31 +29,7 @@ fi
 source "$PROJECT_CONF"
 source "$BUILD_CONF"
 
-# Colors for output (if terminal supports it)
-if [ -t 1 ]; then
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    YELLOW='\033[1;33m'
-    NC='\033[0m' # No Color
-else
-    RED=''
-    GREEN=''
-    YELLOW=''
-    NC=''
-fi
-
-# Function to print colored output
-print_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-print_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+# Colors and logging functions provided by common.sh
 
 # Generate timestamp
 BUILD_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -139,13 +117,14 @@ apply_substitutions() {
     # Copy input to temp file
     cp "$input_file" "$temp_file"
     
-    # Apply each substitution
+    # Apply each substitution (with improved security)
     for placeholder in "${!SUBSTITUTIONS[@]}"; do
         value="${SUBSTITUTIONS[$placeholder]}"
-        # Escape special characters in the replacement value  
-        escaped_value=$(printf '%s\n' "$value" | sed 's/[[\.*^$()+?{|]/\\&/g')
-        # Use word boundaries to avoid partial replacements
-        sed -i "s|${placeholder}|${escaped_value}|g" "$temp_file"
+        # Safely handle the replacement value
+        # Use awk for safer substitution that handles special characters properly
+        awk -v find="$placeholder" -v replace="$value" \
+            '{gsub(find, replace); print}' "$temp_file" > "${temp_file}.new" && \
+            mv "${temp_file}.new" "$temp_file"
     done
     
     # Move temp file to output

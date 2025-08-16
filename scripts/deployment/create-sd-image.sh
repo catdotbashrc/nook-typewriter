@@ -4,10 +4,12 @@
 # Creates bootable SD card image (.img) for Nook Simple Touch
 # ==============================================================================
 
-set -euo pipefail
+# Source common library
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
+setup_error_handling
 
 # Configuration
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR=$(get_script_dir)
 readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 readonly BUILD_DIR="${PROJECT_ROOT}/build"
 readonly OUTPUT_DIR="${PROJECT_ROOT}/releases"
@@ -21,12 +23,7 @@ readonly ROOT_SIZE_MB=400
 readonly IMAGE_NAME="nook-typewriter-$(date +%Y%m%d).img"
 readonly OUTPUT_IMAGE="${OUTPUT_DIR}/${IMAGE_NAME}"
 
-# Colors for output
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly NC='\033[0m' # No Color
+# Colors provided by common.sh
 
 # Medieval themed messages
 readonly JESTER_ASCII="
@@ -38,24 +35,8 @@ readonly JESTER_ASCII="
 "
 
 # -----------------------------------------------------------------------------
-# Helper Functions
+# Helper Functions (logging provided by common.sh)
 # -----------------------------------------------------------------------------
-
-log_info() {
-    echo -e "${GREEN}→${NC} $1"
-}
-
-log_warn() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}✗${NC} $1" >&2
-}
-
-log_success() {
-    echo -e "${GREEN}✓${NC} $1"
-}
 
 cleanup() {
     local exit_code=$?
@@ -388,7 +369,6 @@ finalize_image() {
     log_info "Finalizing image..."
     
     # Sync filesystem
-    sync
     sync
     
     # Unmount partitions
