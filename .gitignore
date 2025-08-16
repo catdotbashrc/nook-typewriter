@@ -317,6 +317,10 @@ build/
 !.gitattributes
 !Makefile
 !*.dockerfile
+
+# Keep build scripts (important for the build process)
+!build/scripts/
+!build/scripts/**
 !Dockerfile
 
 # Keep documentation
