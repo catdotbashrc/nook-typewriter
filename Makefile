@@ -118,6 +118,8 @@ rootfs:
 	@echo "$(GREEN)✓ Root filesystem prepared$(RESET)"
 
 # Bootloader extraction from ClockworkMod image
+# IMPORTANT: MLO and u-boot.bin are preserved during 'make clean'
+# These files are critical for boot and should only be removed with 'make distclean'
 bootloaders:
 	@mkdir -p $(FIRMWARE_DIR)/boot
 	@echo "$(BOLD)🔧 Checking bootloader files...$(RESET)"
@@ -216,7 +218,10 @@ clean:
 	@# Firmware artifacts
 	@rm -rf $(FIRMWARE_DIR)/kernel/*.ko
 	@rm -rf $(FIRMWARE_DIR)/rootfs/usr/local/bin/*
-	@rm -rf $(FIRMWARE_DIR)/boot/*
+	@# Clean boot directory but PRESERVE critical bootloaders
+	@find $(FIRMWARE_DIR)/boot -type f -not -name "MLO" -not -name "u-boot.bin" -delete 2>/dev/null || true
+	@# Remove any temporary partition images
+	@rm -f $(FIRMWARE_DIR)/boot/*.img 2>/dev/null || true
 	@rm -f $(RELEASES_DIR)/*.img
 	@rm -f $(RELEASES_DIR)/*.sha256
 	@# Kernel build artifacts (comprehensive)
@@ -432,5 +437,25 @@ build-status:
 		echo "Recent build log:"; \
 		tail -5 $(BUILD_LOG); \
 	fi
+
+# Show protected files status
+bootloader-status:
+	@echo "$(BOLD)🛡️  Protected Bootloader Files Status$(RESET)"
+	@echo "═══════════════════════════════════════════"
+	@if [ -f $(FIRMWARE_DIR)/boot/MLO ]; then \
+		echo "$(GREEN)✓ MLO present$(RESET)"; \
+		ls -lh $(FIRMWARE_DIR)/boot/MLO; \
+	else \
+		echo "$(RED)✗ MLO missing$(RESET)"; \
+	fi
+	@if [ -f $(FIRMWARE_DIR)/boot/u-boot.bin ]; then \
+		echo "$(GREEN)✓ u-boot.bin present$(RESET)"; \
+		ls -lh $(FIRMWARE_DIR)/boot/u-boot.bin; \
+	else \
+		echo "$(RED)✗ u-boot.bin missing$(RESET)"; \
+	fi
+	@echo ""
+	@echo "$(YELLOW)Note: These files are preserved during 'make clean'$(RESET)"
+	@echo "      Only 'make distclean' will remove them"
 
 .DEFAULT_GOAL := help
