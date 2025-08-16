@@ -151,12 +151,14 @@ parted -s "$LOOP_DEVICE" mklabel msdos
 # Create boot partition (256MB FAT32, starting at sector 63)
 # FAT32 requires minimum 256MB for proper compatibility
 echo "  Creating boot partition (256MB FAT32)..."
-parted -s "$LOOP_DEVICE" mkpart primary fat32 32256B 268435456B
+# Use sector units for precise alignment (sector 63 = 32256 bytes with 512-byte sectors)
+parted -s "$LOOP_DEVICE" unit s mkpart primary fat32 63s 524287s
 parted -s "$LOOP_DEVICE" set 1 boot on
 
 # Create root partition (rest of space, ext4)
 echo "  Creating root partition (ext4)..."
-parted -s "$LOOP_DEVICE" mkpart primary ext4 268435456B 100%
+# Start at next sector after boot partition ends
+parted -s "$LOOP_DEVICE" unit s mkpart primary ext4 524288s 100%
 
 # Re-read partition table
 partprobe "$LOOP_DEVICE" 2>/dev/null || true
