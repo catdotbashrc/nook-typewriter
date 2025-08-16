@@ -10,7 +10,7 @@ trap 'echo "Error in load-jesteros-modules.sh at line $LINENO" >&2' ERR
 
 # Configuration
 MODULE_DIR="/lib/modules/2.6.29"
-LOG_FILE="/var/log/squireos.log"
+LOG_FILE="/var/log/jesteros.log"
 PROC_ROOT="/var/jesteros"
 
 # Logging function
@@ -76,28 +76,22 @@ main() {
     mkdir -p "$(dirname "$LOG_FILE")"
     
     log_message "========================================="
-    log_message "JesterOS Module Loading Service Starting"
+    log_message "JesterOS Userspace Service Starting"
     log_message "========================================="
     
-    # Load modules in dependency order
-    log_message "Loading JesterOS kernel modules..."
+    # JesterOS is now entirely userspace - no kernel modules!
+    log_message "[INFO] JesterOS runs in userspace - no kernel modules to load"
+    log_message "[INFO] Starting userspace services instead..."
     
-    # 1. Core module first (creates /var/jesteros)
-    if load_module "squireos_core"; then
-        verify_module "$PROC_ROOT"
-        
-        # 2. Load feature modules (depend on core)
-        load_module "jester"
-        verify_module "$PROC_ROOT/jester"
-        
-        load_module "typewriter"
-        verify_module "$PROC_ROOT/typewriter"
-        
-        load_module "wisdom"
-        verify_module "$PROC_ROOT/wisdom"
+    # Start JesterOS userspace services
+    if [ -x /usr/local/bin/jesteros-userspace.sh ]; then
+        /usr/local/bin/jesteros-userspace.sh start
+        log_message "[OK] JesterOS userspace services started"
+    elif [ -x /source/scripts/services/jester-daemon.sh ]; then
+        /source/scripts/services/jester-daemon.sh &
+        log_message "[OK] Jester daemon started"
     else
-        log_message "[ERROR] Core module failed, skipping feature modules"
-        exit 1
+        log_message "[INFO] JesterOS userspace script not found (normal in minimal boot)"
     fi
     
     # Display initial jester greeting if available
@@ -121,7 +115,7 @@ main() {
     log_message "========================================="
     
     # Create success marker
-    touch /var/run/squireos.loaded
+    touch /var/run/jesteros.loaded
 }
 
 # Run main function

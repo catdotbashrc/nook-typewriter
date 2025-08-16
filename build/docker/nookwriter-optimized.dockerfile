@@ -133,6 +133,10 @@ ENV SQUIRE_MOTTO="By quill and candlelight"
 
 WORKDIR /root
 
+# Copy test scripts for runtime testing
+COPY tests/ /tests/
+RUN chmod +x /tests/*.sh 2>/dev/null || true
+
 # Add startup script that detects mode
 RUN cat > /usr/local/bin/startup.sh << 'EOF'
 #!/bin/sh

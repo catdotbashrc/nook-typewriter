@@ -31,6 +31,7 @@ RED := \033[31m
 
 .PHONY: all clean distclean kernel rootfs firmware image release help test validate deps check-tools
 .PHONY: quick-build quick-deploy sd-deploy detect-sd build-status
+.PHONY: test-pre-build test-post-build test-runtime test-legacy docker-build
 
 help:
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
@@ -50,9 +51,11 @@ help:
 	@echo "  $(GREEN)make release$(RESET)     - Create release package with checksums"
 	@echo ""
 	@echo "$(BOLD)Testing & Validation:$(RESET)"
-	@echo "  $(GREEN)make test$(RESET)        - Run all 7 tests (~30 seconds)"
+	@echo "  $(GREEN)make test$(RESET)        - Run complete test pipeline (all stages)"
+	@echo "  $(GREEN)make test-pre-build$(RESET) - Test build tools (before Docker)"
+	@echo "  $(GREEN)make test-post-build$(RESET) - Test Docker output (after build)"
+	@echo "  $(GREEN)make test-runtime$(RESET) - Test execution in container"
 	@echo "  $(GREEN)make test-quick$(RESET)  - Run show stoppers only (must pass)"
-	@echo "  $(GREEN)make test-writing$(RESET)- Run writing blocker tests"
 	@echo "  $(GREEN)make test-safety$(RESET) - Run critical safety check only"
 	@echo "  $(GREEN)make validate$(RESET)    - Validate build environment"
 	@echo "  $(GREEN)make check-tools$(RESET) - Check required tools"
@@ -81,6 +84,10 @@ firmware: check-tools kernel rootfs boot
 	@echo "  Modules: $(shell find $(FIRMWARE_DIR)/kernel -name '*.ko' 2>/dev/null | wc -l) modules"
 	@echo "  Scripts: $(shell ls $(FIRMWARE_DIR)/rootfs/usr/local/bin/*.sh 2>/dev/null | wc -l) scripts"
 	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
+
+# Docker build target for test pipeline
+docker-build: kernel
+	@echo "$(GREEN)✓ Docker build complete for testing$(RESET)"
 
 # Kernel build with Docker validation and logging
 kernel: check-tools
@@ -289,12 +296,29 @@ validate: check-tools
 	@test -f build/scripts/build_kernel.sh || (echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)" && exit 1)
 	@echo "$(GREEN)✓ Environment validated$(RESET)"
 
-# Run full test suite - The 7-Test Sweet Spot
-test:
-	@echo "$(BOLD)🧪 Running Nook Typewriter Test Suite v2.0$(RESET)"
-	@echo "   7 tests for Hobby Robustness™"
-	@echo ""
-	@cd tests && ./run-tests.sh
+# Run complete test pipeline - all three stages
+test: test-pre-build docker-build test-post-build test-runtime
+	@echo "$(GREEN)$(BOLD)✅ Complete test pipeline passed!$(RESET)"
+
+# Stage 1: Test build tools before Docker build
+test-pre-build:
+	@echo "$(BOLD)🔨 Testing build tools (pre-build stage)...$(RESET)"
+	@cd tests && TEST_STAGE=pre-build ./run-tests.sh
+
+# Stage 2: Test Docker-generated scripts after build
+test-post-build:
+	@echo "$(BOLD)📦 Testing Docker output (post-build stage)...$(RESET)"
+	@cd tests && TEST_STAGE=post-build ./run-tests.sh
+
+# Stage 3: Test runtime execution in container
+test-runtime:
+	@echo "$(BOLD)🚀 Testing runtime execution...$(RESET)"
+	@cd tests && TEST_STAGE=runtime ./run-tests.sh
+
+# Legacy test target for backward compatibility
+test-legacy:
+	@echo "$(BOLD)🧪 Running Nook Typewriter Test Suite (legacy mode)$(RESET)"
+	@cd tests && TEST_STAGE=post-build ./run-tests.sh
 
 # Run just critical safety checks
 test-safety:

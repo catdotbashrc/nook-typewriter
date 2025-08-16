@@ -73,7 +73,7 @@ main() {
     log "JesterOS boot sequence complete"
     
     # Set property for Android to know we're ready
-    setprop squireos.loaded 1 2>/dev/null || true
+    setprop jesteros.loaded 1 2>/dev/null || true
 }
 
 # Run main

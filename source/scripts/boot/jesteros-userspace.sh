@@ -16,7 +16,7 @@ log_message() {
 log_message "Starting JesterOS userspace services"
 
 JESTER_DIR="/var/jesteros"
-PROC_LINK="/proc/jesteros"
+PROC_LINK="/var/jesteros"
 
 # Create JesterOS directory structure
 create_jesteros_dirs() {

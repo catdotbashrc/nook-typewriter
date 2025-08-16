@@ -97,16 +97,14 @@ if [ -d /tmp/modules ]; then
 fi
 
 # Create module loading script
-cat > /system/bin/load-squireos.sh << 'MODEOF'
+cat > /system/bin/load-jesteros.sh << 'MODEOF'
 #!/system/bin/sh
 # JesterOS Module Loader
 # Loads medieval-themed kernel modules at boot
 
-# Load modules in proper order
-insmod /system/lib/modules/squireos_core.ko
-insmod /system/lib/modules/jester.ko
-insmod /system/lib/modules/typewriter.ko  
-insmod /system/lib/modules/wisdom.ko
+# JesterOS is now userspace only - no kernel modules!
+# Start userspace services instead
+/usr/local/bin/jesteros-userspace.sh start
 
 # Verify modules loaded
 if [ -d /var/jesteros ]; then
@@ -118,16 +116,16 @@ MODEOF
 
 # Set executable permissions atomically
 temp_script=$(mktemp)
-cp /system/bin/load-squireos.sh "$temp_script"
-install -m 0755 -o root -g root "$temp_script" /system/bin/load-squireos.sh
+cp /system/bin/load-jesteros.sh "$temp_script"
+install -m 0755 -o root -g root "$temp_script" /system/bin/load-jesteros.sh
 rm -f "$temp_script"
 
 # Update init scripts to load modules
 if [ -f /system/etc/init.d/01modules ]; then
-    echo "/system/bin/load-squireos.sh" >> /system/etc/init.d/01modules
+    echo "/system/bin/load-jesteros.sh" >> /system/etc/init.d/01modules
 else
     echo "#!/system/bin/sh" > /system/etc/init.d/01modules
-    echo "/system/bin/load-squireos.sh" >> /system/etc/init.d/01modules
+    echo "/system/bin/load-jesteros.sh" >> /system/etc/init.d/01modules
     # Set executable permissions atomically
     temp_init=$(mktemp)
     cp /system/etc/init.d/01modules "$temp_init"

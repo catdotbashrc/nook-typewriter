@@ -63,8 +63,8 @@ case "${choice:-}" in
        |~|♦|~|       
     " | fbink -S || cat
     
-    if [ -f "$HOME/.squireos/stats" ]; then
-      source "$HOME/.squireos/stats"
+    if [ -f "$HOME/.jesteros/stats" ]; then
+      source "$HOME/.jesteros/stats"
       echo "Words Written Today: ${WORDS_TODAY:-0}" | fbink -y 8 || echo "Words Written Today: ${WORDS_TODAY:-0}"
       echo "Total Words: ${WORDS_TOTAL:-0}" | fbink -y 9 || echo "Total Words: ${WORDS_TOTAL:-0}"
       echo "Writing Streak: ${STREAK_DAYS:-0} days" | fbink -y 10 || echo "Writing Streak: ${STREAK_DAYS:-0} days"

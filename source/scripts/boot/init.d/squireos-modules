@@ -1,52 +1,39 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          squireos-modules
+# Provides:          jesteros-userspace
 # Required-Start:    $local_fs
 # Required-Stop:     $local_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Load SquireOS kernel modules
-# Description:       Loads the medieval-themed SquireOS kernel modules
-#                    for the Nook writing environment
+# Short-Description: Start JesterOS userspace services
+# Description:       Starts the medieval-themed JesterOS userspace services
+#                    for the Nook writing environment (no kernel modules)
 ### END INIT INFO
 
-# Init script for SquireOS modules
+# Init script for JesterOS userspace services
 # Compatible with SysV init systems
+# NOTE: JesterOS is entirely userspace - no kernel modules!
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-NAME=squireos-modules
-DESC="SquireOS Medieval Kernel Modules"
+NAME=jesteros-userspace
+DESC="JesterOS Medieval Userspace Services"
 SCRIPTNAME=/etc/init.d/$NAME
 MODULE_DIR=/lib/modules/2.6.29
-PIDFILE=/var/run/squireos.pid
-LOADED_MARKER=/var/run/squireos.loaded
+PIDFILE=/var/run/jesteros.pid
+LOADED_MARKER=/var/run/jesteros.loaded
 
 # Load init functions if available
 [ -r /lib/lsb/init-functions ] && . /lib/lsb/init-functions
 
-# Module list in load order
-MODULES="squireos_core jester typewriter wisdom"
+# Module list in load order (DEPRECATED - JesterOS is userspace only!)
+# MODULES="jesteros_core jester typewriter wisdom"
 
 #
-# Function to load a module
+# Function to load a module (DEPRECATED - kept for compatibility)
 #
 load_module() {
-    local module=$1
-    local module_file="$MODULE_DIR/${module}.ko"
-    
-    if [ -f "$module_file" ]; then
-        echo -n "  Loading $module... "
-        if insmod "$module_file" 2>/dev/null; then
-            echo "OK"
-            return 0
-        else
-            echo "FAILED"
-            return 1
-        fi
-    else
-        echo "  Module $module not found, skipping"
-        return 2
-    fi
+    # JesterOS is now userspace only - this function does nothing
+    return 0
 }
 
 #
@@ -78,7 +65,7 @@ do_start() {
     
     # Check if already loaded
     if [ -f "$LOADED_MARKER" ]; then
-        echo "  SquireOS modules already loaded"
+        echo "  JesterOS modules already loaded"
         return 0
     fi
     
@@ -87,24 +74,24 @@ do_start() {
         load_module "$module"
     done
     
-    # Check if core module created /proc/squireos
-    if [ -d "/proc/squireos" ]; then
-        echo "  SquireOS interface ready at /proc/squireos"
+    # Check if userspace services created /var/jesteros
+    if [ -d "/var/jesteros" ]; then
+        echo "  JesterOS interface ready at /var/jesteros"
         
         # Show jester greeting
-        if [ -f "/proc/squireos/jester" ]; then
+        if [ -f "/var/jesteros/jester" ]; then
             echo ""
             echo "The Court Jester awakens:"
-            cat /proc/squireos/jester
+            cat /var/jesteros/jester
             echo ""
         fi
         
         # Mark as loaded
         touch "$LOADED_MARKER"
-        echo "SquireOS modules started successfully"
+        echo "JesterOS modules started successfully"
         return 0
     else
-        echo "Failed to create /proc/squireos interface"
+        echo "Failed to create /var/jesteros interface"
         return 1
     fi
 }
@@ -116,14 +103,14 @@ do_stop() {
     echo "Stopping $DESC..."
     
     # Unload modules in reverse order
-    for module in wisdom typewriter jester squireos_core; do
+    for module in wisdom typewriter jester jesteros_core; do
         unload_module "$module"
     done
     
     # Remove marker
     rm -f "$LOADED_MARKER"
     
-    echo "SquireOS modules stopped"
+    echo "JesterOS modules stopped"
     return 0
 }
 
@@ -146,15 +133,15 @@ do_status() {
         done
         
         # Check /proc interface
-        if [ -d "/proc/squireos" ]; then
-            echo "  /proc/squireos: AVAILABLE"
-            [ -f "/proc/squireos/motto" ] && echo "    - motto: OK"
-            [ -f "/proc/squireos/version" ] && echo "    - version: OK"
-            [ -f "/proc/squireos/jester" ] && echo "    - jester: OK"
-            [ -f "/proc/squireos/wisdom" ] && echo "    - wisdom: OK"
-            [ -d "/proc/squireos/typewriter" ] && echo "    - typewriter: OK"
+        if [ -d "/var/jesteros" ]; then
+            echo "  /var/jesteros: AVAILABLE"
+            [ -f "/var/jesteros/motto" ] && echo "    - motto: OK"
+            [ -f "/var/jesteros/version" ] && echo "    - version: OK"
+            [ -f "/var/jesteros/jester" ] && echo "    - jester: OK"
+            [ -f "/var/jesteros/wisdom" ] && echo "    - wisdom: OK"
+            [ -d "/var/jesteros/typewriter" ] && echo "    - typewriter: OK"
         else
-            echo "  /proc/squireos: NOT FOUND"
+            echo "  /var/jesteros: NOT FOUND"
         fi
         
         return 0

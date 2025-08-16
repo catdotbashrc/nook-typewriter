@@ -21,7 +21,7 @@ error_handler() {
     
     # Log to system log if available
     if command -v logger >/dev/null 2>&1; then
-        logger -t "squireos" "Error in $script_name at line $line_no (exit: $exit_code)"
+        logger -t "jesteros" "Error in $script_name at line $line_no (exit: $exit_code)"
     fi
     
     return $exit_code
@@ -184,7 +184,7 @@ log_message() {
     local message="$2"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     
-    echo "[$timestamp] [$level] $message" >> /var/log/squireos.log
+    echo "[$timestamp] [$level] $message" >> /var/log/jesteros.log
 }
 
 # Debug logging (only if debug mode)
