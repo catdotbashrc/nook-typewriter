@@ -1,0 +1,5 @@
+d802712c9255f13bea3bea87b83180b1  usr/share/keyrings/debian-archive-keyring.gpg
+475910a1c5de6f92cf76e226a45d06ce  usr/share/keyrings/debian-archive-removed-keys.gpg
+3a39527c50bc61e28a31bd9c3de8e17f  usr/share/doc/debian-archive-keyring/copyright
+a28f7a33b633a0375a44597ae46c483b  usr/share/doc/debian-archive-keyring/changelog.gz
+ca362e699d05bc55e0c10ae6757f27b3  usr/share/doc/debian-archive-keyring/README.gz

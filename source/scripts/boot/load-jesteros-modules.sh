@@ -1,6 +1,7 @@
 #!/bin/sh
-# JesterOS Module Loading Script
-# Loads medieval kernel modules at boot
+# JesterOS Module Loading Script [DEPRECATED]
+# NOTE: JesterOS now runs entirely in userspace - no kernel modules needed!
+# This script is kept for reference but does nothing
 # "By quill and candlelight, we awaken the digital scriptorium"
 
 # Safety settings for reliable module loading

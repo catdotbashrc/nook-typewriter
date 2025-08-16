@@ -50,7 +50,10 @@ help:
 	@echo "  $(GREEN)make release$(RESET)     - Create release package with checksums"
 	@echo ""
 	@echo "$(BOLD)Testing & Validation:$(RESET)"
-	@echo "  $(GREEN)make test$(RESET)        - Run all tests"
+	@echo "  $(GREEN)make test$(RESET)        - Run all 7 tests (~30 seconds)"
+	@echo "  $(GREEN)make test-quick$(RESET)  - Run show stoppers only (must pass)"
+	@echo "  $(GREEN)make test-writing$(RESET)- Run writing blocker tests"
+	@echo "  $(GREEN)make test-safety$(RESET) - Run critical safety check only"
 	@echo "  $(GREEN)make validate$(RESET)    - Validate build environment"
 	@echo "  $(GREEN)make check-tools$(RESET) - Check required tools"
 	@echo "  $(GREEN)make detect-sd$(RESET)   - Detect SD card devices"
@@ -286,25 +289,45 @@ validate: check-tools
 	@test -f build/scripts/build_kernel.sh || (echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)" && exit 1)
 	@echo "$(GREEN)✓ Environment validated$(RESET)"
 
-# Run test suite (simple!)
+# Run full test suite - The 7-Test Sweet Spot
 test:
-	@echo "$(BOLD)🧪 Running tests...$(RESET)"
+	@echo "$(BOLD)🧪 Running Nook Typewriter Test Suite v2.0$(RESET)"
+	@echo "   7 tests for Hobby Robustness™"
+	@echo ""
 	@cd tests && ./run-tests.sh
 
-# Run just safety check
+# Run just critical safety checks
 test-safety:
-	@echo "$(BOLD)🛡️ Running safety check...$(RESET)"
+	@echo "$(BOLD)🛡️ Running critical safety checks...$(RESET)"
 	@cd tests && ./01-safety-check.sh
 
-# Run old comprehensive tests (archived)
-test-old:
-	@echo "$(BOLD)📦 Running archived tests...$(RESET)"
-	@echo "$(YELLOW)Note: These are overcomplicated. Use 'make test' instead!$(RESET)"
-	@if [ -f tests/archive/run-all-tests.sh ]; then \
-		cd tests/archive && ./run-all-tests.sh; \
-	else \
-		echo "$(YELLOW)Old tests not found (good!)$(RESET)"; \
-	fi
+# Run show stoppers only (must pass before deploy)
+test-quick:
+	@echo "$(BOLD)⚡ Running show stopper tests only...$(RESET)"
+	@cd tests && bash -c './01-safety-check.sh && ./02-boot-test.sh'
+
+# Run writing blocker tests
+test-writing:
+	@echo "$(BOLD)✍️ Running writing blocker tests...$(RESET)"
+	@cd tests && bash -c './04-docker-smoke.sh && ./05-consistency-check.sh && ./06-memory-guard.sh'
+
+# Run experience tests
+test-experience:
+	@echo "$(BOLD)✨ Running writer experience tests...$(RESET)"
+	@cd tests && bash -c './03-functionality.sh && ./07-writer-experience.sh'
+
+# Run individual test categories
+test-docker:
+	@echo "$(BOLD)🐳 Running Docker smoke test...$(RESET)"
+	@cd tests && ./04-docker-smoke.sh
+
+test-consistency:
+	@echo "$(BOLD)🔍 Running consistency check...$(RESET)"
+	@cd tests && ./05-consistency-check.sh
+
+test-memory:
+	@echo "$(BOLD)💾 Running memory guard test...$(RESET)"
+	@cd tests && ./06-memory-guard.sh
 
 # Show dependencies
 deps:
@@ -343,8 +366,9 @@ detect-sd:
 	done
 
 # Auto-deploy to SD card (safe mode - excludes system and Docker drives)
-sd-deploy: firmware
+sd-deploy: firmware test-quick
 	@echo "$(BOLD)💾 Deploying to SD card$(RESET)"
+	@echo "$(GREEN)✓ Show stopper tests passed - safe to deploy$(RESET)"
 	@if [ "$(SD_DEVICE)" = "auto" ]; then \
 		echo "Auto-detecting SD card (excluding system/Docker drives)..."; \
 		SD_CARD=$$(ls /dev/sd[e-z] /dev/mmcblk[0-9] 2>/dev/null | head -1); \

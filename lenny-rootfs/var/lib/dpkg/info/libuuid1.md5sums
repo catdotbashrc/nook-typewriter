@@ -1,0 +1,4 @@
+8be92ae2a0ae2f81a4143fd703fd56fa  lib/libuuid.so.1.2
+1c1819826d816dfd167067a9ce8b3506  usr/share/lintian/overrides/libuuid1
+37e576f2d80745590db30e94b061cdf3  usr/share/doc/libuuid1/copyright
+b228561aa4796887d26e82e6f5b4ac1d  usr/share/doc/libuuid1/changelog.Debian.gz

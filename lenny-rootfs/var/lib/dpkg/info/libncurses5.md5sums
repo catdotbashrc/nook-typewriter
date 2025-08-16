@@ -1,0 +1,11 @@
+00cccebb5242ced734ce91083e112f43  usr/share/doc/libncurses5/changelog.Debian.gz
+586cfecb826012a923f1461544f029c7  usr/share/doc/libncurses5/FAQ
+4d47b29b8788638b4fe4b73ce10800b6  usr/share/doc/libncurses5/README.Debian
+a441f537b20e0260e30961a128d60fd5  usr/share/doc/libncurses5/changelog.gz
+443d1c1fc336abdd9dc344e4b08475c9  usr/share/doc/libncurses5/copyright
+aae5e7dfa0e953a72ea18a0afed45e83  usr/share/doc/libncurses5/TODO.Debian
+622e656ce3a0fb487f6a67a8dbb12ef3  usr/lib/libmenu.so.5.7
+c805df1ece3d27215b7f126cc4e28970  usr/lib/libform.so.5.7
+1130fb94ef3e8122209b28c68c75ab1c  usr/lib/libpanel.so.5.7
+5e90ff8987db9046893b8e319adaae9e  lib/libncurses.so.5.7
+6fab37d337b4639b909d8dc400132dab  lib/libtic.so.5.7

@@ -1,0 +1,6 @@
+44fa08475841a2ba7f501076eeaae35d  usr/share/doc/hostname/changelog.gz
+17d97c6653617926ae9e0063f02a6016  usr/share/doc/hostname/copyright
+2eb23f230b3e9bad0051b3db85b0a6f3  usr/share/man/fr/man1/hostname.1.gz
+ebb7d617301e42c4278a05597417b9a4  usr/share/man/man1/hostname.1.gz
+8abcd8c916bd062fc168c4db388458df  bin/hostname
+8abcd8c916bd062fc168c4db388458df  bin/dnsdomainname

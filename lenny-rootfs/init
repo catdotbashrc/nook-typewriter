@@ -1,0 +1,42 @@
+#!/bin/sh
+# JesterOS Init - Debian Lenny Edition
+
+# Mount essential filesystems
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || mount -t tmpfs tmpfs /dev
+
+clear
+echo ""
+echo "================================"
+echo "  JesterOS with Debian Lenny"
+echo "  Period-Correct 2009 Stack!"
+echo "================================"
+echo ""
+
+# Show versions
+echo "Kernel: $(uname -r)"
+echo "Debian: 5.0 Lenny (2009)"
+echo ""
+
+# Load JesterOS modules if present
+if [ -d /lib/modules/2.6.29 ]; then
+    echo "Loading JokerOS modules..."
+    for mod in /lib/modules/2.6.29/*.ko; do
+        if [ -f "$mod" ]; then
+            modname=$(basename "$mod" .ko)
+            insmod "$mod" 2>/dev/null && echo "  + $modname"
+        fi
+    done
+fi
+
+# Show jester if available
+if [ -f /var/jesteros/jester ]; then
+    echo ""
+    cat /var/jesteros/jester
+fi
+
+# Start a shell
+echo ""
+echo "Starting shell..."
+exec /bin/sh

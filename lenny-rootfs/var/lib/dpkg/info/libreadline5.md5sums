@@ -1,0 +1,9 @@
+2f25abbab308a5910d73ed45d63c583d  lib/libreadline.so.5.2
+777921b060e448ef7edb9ae1d87d685c  lib/libhistory.so.5.2
+b659dcbf23572a0f6a5464739a201d6f  usr/share/doc/libreadline5/copyright
+0bb4ff5a1ee6f767d0d1b7ded925a8a3  usr/share/doc/libreadline5/USAGE
+587fa73058e332ae6e39ef9ad7428e62  usr/share/doc/libreadline5/examples/Inputrc
+59f094d7df7f66606df0403e414e44bd  usr/share/doc/libreadline5/changelog.gz
+faae5be5f1517ae7bd3bc4d35be45f5e  usr/share/doc/libreadline5/README.Debian
+ae6a2fd3124d817dcc9b078d84e677ff  usr/share/doc/libreadline5/changelog.Debian.gz
+244319c9dd88c980910aacd76477b8d9  usr/share/doc/libreadline5/inputrc.arrows

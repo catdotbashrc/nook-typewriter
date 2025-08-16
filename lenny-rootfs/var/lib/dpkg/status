@@ -1,0 +1,1457 @@
+Package: libtext-wrapi18n-perl
+Status: install ok installed
+Priority: required
+Section: perl
+Installed-Size: 28
+Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
+Architecture: all
+Version: 0.06-6
+Depends: libtext-charwidth-perl
+Description: internationalized substitute of Text::Wrap
+ This module is a substitution for Text::Wrap, supporting
+ multibyte characters such as UTF-8, EUC-JP, and GB2312, fullwidth
+ characters such as east Asian characters, combining characters
+ such as diacritical marks and Thai, and languages which don't
+ use whitespaces between words such as Chinese and Japanese.
+ .
+ It provides wrap().
+Homepage: http://search.cpan.org/search?module=Text::WrapI18N
+
+Package: debconf
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 1508
+Maintainer: Debconf Developers <debconf-devel@lists.alioth.debian.org>
+Architecture: all
+Version: 1.5.24
+Replaces: debconf-tiny
+Provides: debconf-2.0
+Depends: debconf-i18n | debconf-english
+Pre-Depends: perl-base (>= 5.6.1-4)
+Recommends: apt-utils (>= 0.5.1)
+Suggests: debconf-doc, debconf-utils, whiptail | dialog | gnome-utils, libterm-readline-gnu-perl, libgnome2-perl, libqt-perl, libnet-ldap-perl, perl
+Conflicts: apt (<< 0.3.12.1), cdebconf (<< 0.96), debconf-tiny, debconf-utils (<< 1.3.22), dialog (<< 0.9b-20020814-1), menu (<= 2.1.3-1), whiptail (<< 0.51.4-11), whiptail-utf8 (<= 0.50.17-13)
+Conffiles:
+ /etc/apt/apt.conf.d/70debconf 7e9d09d5801a42b4926b736b8eeabb73
+ /etc/bash_completion.d/debconf 8fa1862734fbe54d7178aaaa419f5a11
+ /etc/debconf.conf 8c0619be413824f1fc7698cee0f23811
+Description: Debian configuration management system
+ Debconf is a configuration management system for debian packages. Packages
+ use Debconf to ask questions when they are installed.
+
+Package: mktemp
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 60
+Maintainer: Clint Adams <schizo@debian.org>
+Architecture: armel
+Version: 1.5-9
+Pre-Depends: libc6 (>= 2.7-1)
+Description: tool for creating temporary files
+ This package provides a utility designed to make temporary
+ file handling in shell scripts simple and secure.
+
+Package: coreutils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 9996
+Maintainer: Michael Stone <mstone@debian.org>
+Architecture: armel
+Version: 6.10-6
+Replaces: debianutils (<= 2.3.1), dpkg (<< 1.13.2), fileutils, shellutils, stat, textutils
+Provides: fileutils, shellutils, textutils
+Pre-Depends: libacl1 (>= 2.2.11-1), libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libselinux1 (>= 2.0.59)
+Conflicts: stat
+Description: The GNU core utilities
+ This package contains the essential basic system utilities.
+ .
+ Specifically, this package includes:
+ basename cat chgrp chmod chown chroot cksum comm cp csplit cut date dd df dir
+ dircolors dirname du echo env expand expr factor false fmt fold groups head
+ hostid id install join link ln logname ls md5sum mkdir mkfifo mknod mv nice nl
+ nohup od paste pathchk pinky pr printenv printf ptx pwd readlink rm rmdir
+ sha1sum seq shred sleep sort split stat stty sum sync tac tail tee test touch
+ tr true tsort tty uname unexpand uniq unlink users vdir wc who whoami yes
+
+Package: debianutils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 272
+Maintainer: Clint Adams <schizo@debian.org>
+Architecture: armel
+Version: 2.30
+Pre-Depends: libc6 (>= 2.7-1)
+Description: Miscellaneous utilities specific to Debian
+ This package provides a number of small utilities which are used
+ primarily by the installation scripts of Debian packages, although
+ you may use them directly.
+ .
+ The specific utilities included are: installkernel mkboot run-parts
+ savelog sensible-browser sensible-editor sensible-pager tempfile
+ which.
+
+Package: makedev
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 148
+Maintainer: Bdale Garbee <bdale@gag.com>
+Architecture: all
+Version: 2.3.1-88
+Depends: base-passwd (>= 3.0.4)
+Conflicts: udev (<= 0.024-7)
+Description: creates device files in /dev
+ The MAKEDEV executable is used to create device files, often in /dev.
+ .
+ Device files are special files through which applications can interact
+ with hardware.
+
+Package: login
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 3000
+Maintainer: Shadow package maintainers <pkg-shadow-devel@lists.alioth.debian.org>
+Architecture: armel
+Source: shadow
+Version: 1:4.1.1-6+lenny1
+Replaces: manpages-de (<< 0.5-3), manpages-es-extra (<< 0.8a-15), manpages-fi (<< 0.2-4), manpages-fr (<< 1.64.0-1), manpages-hu (<< 20010119-5), manpages-it (<< 0.3.4-2), manpages-ja (<< 0.5.0.0.20050915-1), manpages-ko (<< 20050219-2), manpages-tr, manpages-zh
+Pre-Depends: libc6 (>= 2.7-1), libpam0g (>= 0.99.7.1), libpam-runtime, libpam-modules
+Conflicts: amavisd-new (<< 2.3.3-8), backupninja (<< 0.9.3-5), echolot (<< 2.1.8-4), gnunet (<< 0.7.0c-2), python-4suite (<< 0.99cvs20060405-1)
+Conffiles:
+ /etc/securetty 8ba22b9a65f6c1a80f4a7542291213db
+ /etc/pam.d/login f02692688a212c02609b23c14d59cc49
+ /etc/pam.d/su 7309fb874571fe5447321b43448a50b3
+ /etc/login.defs d3c11ad6937a820ba94844de4843017e
+Description: system login tools
+ These tools are required to be able to login and use your system. The
+ login program invokes your user shell and enables command execution. The
+ newgrp program is used to change your effective group ID (useful for
+ workgroup type situations). The su program allows changing your effective
+ user ID (useful being able to execute commands as another user).
+Homepage: http://pkg-shadow.alioth.debian.org/
+
+Package: gpgv
+Status: install ok installed
+Priority: important
+Section: utils
+Installed-Size: 332
+Maintainer: Debian GnuPG-Maintainers <pkg-gnupg-maint@lists.alioth.debian.org>
+Architecture: armel
+Source: gnupg
+Version: 1.4.9-3+lenny1
+Replaces: gnupg (<< 1.4.5-2)
+Depends: libc6 (>= 2.7-1), zlib1g (>= 1:1.1.4)
+Suggests: gnupg
+Description: GNU privacy guard - signature verification tool
+ GnuPG is GNU's tool for secure communication and data storage.
+ .
+ gpgv is a stripped-down version of gnupg which is only able to check
+ signatures.  It is smaller than the full-blown gnupg and uses a
+ different (and simpler) way to check that the public keys used to
+ make the signature are trustworthy.
+Homepage: http://www.gnupg.org
+
+Package: lzma
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 160
+Maintainer: Mohammed Adnène Trojette <adn+deb@diwi.org>
+Architecture: armel
+Version: 4.43-14
+Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libstdc++6 (>= 4.3)
+Description: Compression method of 7z format in 7-Zip program
+ LZMA is a compression algorithm, based on the famous Lempel Ziv
+ compression method.
+ .
+ The main characteristics of the algorithm are very good compression,
+ fast decompression, use of lot of RAM for compression and low usage of
+ RAM for decompression.
+ .
+ LZMA provides high compression ratio and very fast decompression, so it
+ is very suitable for embedded applications. For example, it can be used
+ for ROM (firmware) compression.
+ .
+ This package provides a gzip-like interface for the lzma program.
+Homepage: http://www.7-zip.org/sdk.htm
+
+Package: libuuid1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 112
+Maintainer: Theodore Y. Ts'o <tytso@mit.edu>
+Architecture: armel
+Source: e2fsprogs
+Version: 1.41.3-1
+Replaces: e2fsprogs (<< 1.34-1)
+Depends: passwd, libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Recommends: uuid-runtime
+Description: universally unique id library
+ libuuid generates and parses 128-bit universally unique id's (UUID's).
+ See RFC 4122 for more information.
+
+Package: lsb-base
+Status: install ok installed
+Priority: required
+Section: misc
+Installed-Size: 72
+Maintainer: Chris Lawrence <lawrencc@debian.org>
+Architecture: all
+Source: lsb
+Version: 3.2-20
+Replaces: lsb (<< 2.0-6), lsb-core (<< 2.0-6)
+Depends: sed, ncurses-bin
+Conflicts: lsb (<< 2.0-6), lsb-core (<< 2.0-6)
+Description: Linux Standard Base 3.2 init script functionality
+ The Linux Standard Base (http://www.linuxbase.org/) is a standard
+ core system that third-party applications written for Linux can
+ depend upon.
+ .
+ This package only includes the init-functions shell library, which
+ may be used by other packages' initialization scripts for console
+ logging and other purposes.
+Homepage: http://www.linux-foundation.org/en/LSB
+
+Package: procps
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 764
+Maintainer: Craig Small <csmall@debian.org>
+Architecture: armel
+Version: 1:3.2.7-11
+Replaces: bsdutils (<< 2.9x-1), watch
+Provides: watch
+Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libncurses5 (>= 5.6+20071006-3), lsb-base (>= 3.0-10)
+Recommends: psmisc
+Conflicts: libproc-dev (<< 1:1.2.6-2), pgrep (<< 3.3-5), procps-nonfree, w-bassman (<< 1.0-3), watch
+Conffiles:
+ /etc/init.d/procps 8506d5e4f40af573f756c8c6b83dd200
+ /etc/sysctl.conf 501f2ac8f8c6be1bbcb06aee4f231f2e
+Description: /proc file system utilities
+ These are utilities to browse the /proc filesystem, which is not a real file
+ system but a way for the kernel to provide information about the status of
+ entries in its process table. (e.g. running, stopped or "zombie")
+ Both command line and full screen utilities are provided. Ncurses is needed
+ for the full screen utilities.  More information can be found at procps
+ website http://procps.sf.net/
+ .
+ This package includes the following utilities: top, uptime, tload,
+ free, vmstat, watch, skill, pmap, pgrep, slabtop and pwdx.
+
+Package: ncurses-base
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 484
+Maintainer: Daniel Baumann <daniel@debian.org>
+Architecture: all
+Source: ncurses
+Version: 5.7+20081213-1
+Replaces: ncurses-term
+Provides: ncurses-runtime
+Depends: libncurses5
+Conflicts: ncurses, ncurses-runtime
+Conffiles:
+ /etc/terminfo/README 9d086188afcd9479ae96ff55dd6c1573
+Description: basic terminal type definitions
+ This package contains terminfo data files to support the most common types of
+ terminal, including ansi, dumb, linux, rxvt, screen, sun, vt100, vt102, vt220,
+ vt52, and xterm.
+Homepage: ftp://invisible-island.net/ncurses/
+
+Package: libpam0g
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 228
+Maintainer: Steve Langasek <vorlon@debian.org>
+Architecture: armel
+Source: pam
+Version: 1.0.1-5+lenny1
+Replaces: libpam0g-util
+Depends: libc6 (>= 2.7-1), debconf (>= 0.5) | debconf-2.0, libpam-runtime
+Suggests: libpam-doc
+Conflicts: libpam, libpam0 (<= 0.56-2)
+Description: Pluggable Authentication Modules library
+ Contains the C shared library for Linux-PAM, a suite of shared
+ libraries that enable the local system administrator to choose how
+ applications authenticate users.  In other words, without rewriting
+ or recompiling a PAM-aware application, it is possible to switch
+ between the authentication mechanism(s) it uses.  One may entirely
+ upgrade the local authentication system without touching the
+ applications themselves.
+Homepage: http://pam.sourceforge.net/
+
+Package: libusb-0.1-4
+Status: install ok installed
+Priority: important
+Section: libs
+Installed-Size: 92
+Maintainer: Aurelien Jarno <aurel32@debian.org>
+Architecture: armel
+Source: libusb
+Version: 2:0.1.12-13
+Replaces: libusb0
+Depends: libc6 (>= 2.7-1)
+Conflicts: libccid (<< 0.9.2-3), libusb0
+Description: userspace USB programming library
+ Library for programming USB applications without the knowledge
+ of Linux kernel internals.
+Homepage: http://www.linux-usb.org/
+
+Package: bsdutils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 164
+Maintainer: LaMont Jones <lamont@debian.org>
+Architecture: armel
+Source: util-linux (2.13.1.1-1)
+Version: 1:2.13.1.1-1
+Depends: libc6 (>= 2.7-1)
+Recommends: bsdmainutils
+Description: Basic utilities from 4.4BSD-Lite
+ This package contains the bare minimum number of BSD utilities needed
+ to boot a Debian system.  You should probably also install
+ bsdmainutils to get the remaining standard BSD utilities.
+ .
+ Included are: cal, col, colcrt, colrm, column, logger, renice,
+ script, scriptreplay, ul, wall
+
+Package: ncurses-bin
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 480
+Maintainer: Daniel Baumann <daniel@debian.org>
+Architecture: armel
+Source: ncurses
+Version: 5.7+20081213-1
+Provides: tput
+Pre-Depends: libc6 (>= 2.7-1), libncurses5 (>= 5.6+20071006-3)
+Conflicts: ncurses, tput
+Description: terminal-related programs and man pages
+ This package contains the programs used for manipulating the terminfo
+ database and individual terminfo entries, as well as some programs for
+ resetting terminals and such.
+Homepage: ftp://invisible-island.net/ncurses/
+
+Package: perl-base
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: perl
+Installed-Size: 4292
+Maintainer: Brendan O'Dea <bod@debian.org>
+Architecture: armel
+Source: perl
+Version: 5.10.0-19lenny5
+Replaces: libclass-multimethods-perl (<< 1.70-4), libperl5.8 (<< 5.8.0-20), libscalar-list-utils-perl, libxsloader-perl, perl (<= 5.10.0-9), perl-modules (<< 5.10.0-12)
+Provides: libscalar-list-utils-perl, libxsloader-perl, perl5-base, perlapi-5.10.0
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), dpkg (>= 1.14.20)
+Suggests: perl
+Conflicts: autoconf2.13 (<< 2.13-45), findimagedupes (<< 2.11-2), icheck (<< 0.9.7-6.1), libcflow-perl (<< 1:0.68-11.1), libclass-methodmaker-perl (<< 2.10-1), libclearsilver-perl (<< 0.10.4-1.1), libcrypt-openssl-bignum-perl (<< 0.04-1), libcrypt-openssl-dsa-perl (<< 0.13-3), libcrypt-openssl-random-perl (<< 0.04-1), libcrypt-openssl-rsa-perl (<< 0.25-1), libhamlib2-perl (<< 1.2.6.2-6), libqt-perl (<< 3.008-3), libscalar-list-utils-perl (<< 1:1.18-1), libsufary-perl (<< 2.1.1-8), libsys-cpu-perl (<< 0.40-2.1), libterm-size-perl (<< 0.2-4), libvideo-ivtv-perl (<< 0.13-6), libxsloader-perl (<< 0.08-1), megahal (<< 9.1.1a-5), razor (<< 1:2.84-6)
+Description: minimal Perl system
+ Perl is a scripting language used in many system scripts and utilities.
+ .
+ This package provides a Perl interpreter and the small subset of the
+ standard run-time library required to perform basic tasks. For a full
+ Perl installation, install "perl" (and its dependencies, "perl-modules"
+ and "perl-doc").
+
+Package: sysv-rc
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 260
+Maintainer: Debian sysvinit maintainers <pkg-sysvinit-devel@lists.alioth.debian.org>
+Architecture: all
+Source: sysvinit
+Version: 2.86.ds1-61
+Replaces: file-rc, sysvinit (<< 2.85-1)
+Recommends: lsb-base (>= 3.0-6)
+Suggests: sysv-rc-conf, bum
+Conflicts: file-rc
+Description: System-V-like runlevel change mechanism
+ This package provides support for the System-V like system
+ for booting, shutting down and changing runlevels,
+ configured through symbolic links in /etc/rc?.d/.
+
+Package: apt
+Status: install ok installed
+Priority: important
+Section: admin
+Installed-Size: 5040
+Maintainer: APT Development Team <deity@lists.debian.org>
+Architecture: armel
+Version: 0.7.20.2+lenny2
+Replaces: libapt-pkg-dev (<< 0.3.7), libapt-pkg-doc (<< 0.3.7)
+Provides: libapt-pkg-libc6.7-6-4.6
+Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libstdc++6 (>= 4.3), debian-archive-keyring
+Suggests: aptitude | synaptic | gnome-apt | wajig, dpkg-dev, apt-doc, bzip2, lzma, python-apt
+Conffiles:
+ /etc/cron.daily/apt 391511e1366294546d1e539a051787ef
+ /etc/apt/apt.conf.d/01autoremove 5871ab6ca11689c4d7e7beac5eb9ffdc
+ /etc/logrotate.d/apt 172476f0940b1793f6190ed60031871a
+Description: Advanced front-end for dpkg
+ This is Debian's next generation front-end for the dpkg package manager.
+ It provides the apt-get utility and APT dselect method that provides a
+ simpler, safer way to install and upgrade packages.
+ .
+ APT features complete installation ordering, multiple source capability
+ and several other unique features, see the Users Guide in apt-doc.
+
+Package: libsepol1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 276
+Maintainer: Manoj Srivastava <srivasta@debian.org>
+Architecture: armel
+Source: libsepol
+Version: 2.0.30-2
+Depends: libc6 (>= 2.7-1)
+Description: Security Enhanced Linux policy library for changing policy binaries
+ Security-enhanced Linux is a patch of the Linux kernel and a number
+ of utilities with enhanced security functionality designed to add
+ mandatory access controls to Linux.  The Security-enhanced Linux
+ kernel contains new architectural components originally developed to
+ improve the security of the Flask operating system. These
+ architectural components provide general support for the enforcement
+ of many kinds of mandatory access control policies, including those
+ based on the concepts of Type Enforcement®, Role-based Access
+ Control, and Multi-level Security.
+ .
+ libsepol provides an API for the manipulation of SELinux binary policies.
+ It is used by checkpolicy (the policy compiler) and similar tools, as well
+ as by programs like load_policy that need to perform specific transformations
+ on binary policies such as customizing policy boolean settings.
+
+Package: libpam-modules
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 852
+Maintainer: Steve Langasek <vorlon@debian.org>
+Architecture: armel
+Source: pam
+Version: 1.0.1-5+lenny1
+Replaces: libpam-umask, libpam0g-util
+Provides: libpam-mkhomedir, libpam-motd, libpam-umask
+Pre-Depends: libc6 (>= 2.7-1), libdb4.6, libpam0g (>= 0.99.7.1), libselinux1 (>= 2.0.59), debconf (>= 0.5) | debconf-2.0
+Conflicts: libpam-mkhomedir, libpam-motd, libpam-umask, libpam0g-modules (= 0.66-1), suidmanager (<< 0.50)
+Conffiles:
+ /etc/security/access.conf 13ec4d189f0ed9acf3433977a53d446b
+ /etc/security/namespace.conf c600fa5899cfb3198a01dfba2bf281f3
+ /etc/security/limits.conf 51ff3682f563db58be94b9d323cd82fa
+ /etc/security/time.conf c23fcbb29dda6c1499e6a5e5ade0265e
+ /etc/security/sepermit.conf d41c74654734a5c069a37bfc02f0a6d4
+ /etc/security/pam_env.conf ed3f430e418ad366ddb23307a8755249
+ /etc/security/namespace.init c8d87e9bcc05ef2725cbf7c69f40ef97
+ /etc/security/group.conf 5a6bd21801df034da8d64b407470e8f6
+Description: Pluggable Authentication Modules for PAM
+ This package completes the set of modules for PAM. It includes the
+  pam_unix_*.so module as well as some specialty modules.
+Homepage: http://pam.sourceforge.net/
+
+Package: tzdata
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 6016
+Maintainer: GNU Libc Maintainers <debian-glibc@lists.debian.org>
+Architecture: all
+Version: 2011k-0lenny1
+Replaces: libc0.1, libc0.3, libc6, libc6.1
+Provides: tzdata-lenny
+Depends: debconf (>= 0.5) | debconf-2.0
+Description: time zone and daylight-saving time data
+ This package contains data required for the implementation of
+ standard local time for many representative locations around the
+ globe. It is updated periodically to reflect changes made by
+ political bodies to time zone boundaries, UTC offsets, and
+ daylight-saving rules.
+
+Package: tar
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 2248
+Maintainer: Bdale Garbee <bdale@gag.com>
+Architecture: armel
+Version: 1.20-1+lenny1
+Replaces: cpio
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Suggests: bzip2, ncompress
+Conflicts: cpio (<= 2.4.2-38)
+Conffiles:
+ /etc/rmt 3c58b7cd13da1085eff0acc6a00f43c7
+Description: GNU version of the tar archiving utility
+ Tar is a program for packaging a set of files as a single archive in tar
+ format.  The function it performs is conceptually similar to cpio, and to
+ things like PKZIP in the DOS world.  It is heavily used by the Debian package
+ management system, and is useful for performing system backups and exchanging
+ sets of files with others.
+
+Package: zlib1g
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 164
+Maintainer: Mark Brown <broonie@debian.org>
+Architecture: armel
+Source: zlib
+Version: 1:1.2.3.3.dfsg-12
+Provides: libz1
+Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Conflicts: zlib1 (<= 1:1.0.4-7)
+Description: compression library - runtime
+ zlib is a library implementing the deflate compression method found
+ in gzip and PKZIP.  This package includes the shared library.
+
+Package: libgcc1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 76
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: armel
+Source: gcc-4.3 (4.3.2-1.1)
+Version: 1:4.3.2-1.1
+Depends: gcc-4.3-base (= 4.3.2-1.1), libc6 (>= 2.7-1)
+Description: GCC support library
+ Shared version of the support library, a library of internal subroutines
+ that GCC uses to overcome shortcomings of particular machines, or
+ special needs for some languages.
+
+Package: base-files
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 432
+Maintainer: Santiago Vila <sanvila@debian.org>
+Architecture: armel
+Version: 5lenny11
+Replaces: base, miscutils
+Provides: base
+Depends: base-passwd (>= 2.0.3.4)
+Pre-Depends: awk
+Conffiles:
+ /etc/debian_version c4ff65c7036234f265c769375373d5c5
+ /etc/host.conf 4eb63731c9f5e30903ac4fc07a7fe3d6
+ /etc/issue edb0ea17af38ba3b17ef5b4432f5d77e
+ /etc/issue.net 07a99351557dacab4d4d15c8de0fcf6c
+Description: Debian base system miscellaneous files
+ This package contains the basic filesystem hierarchy of a Debian system, and
+ several important miscellaneous files, such as /etc/debian_version,
+ /etc/host.conf, /etc/issue, /etc/motd, /etc/profile, /etc/nsswitch.conf,
+ and others, and the text of several common licenses in use on Debian systems.
+
+Package: mount
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 296
+Maintainer: LaMont Jones <lamont@debian.org>
+Architecture: armel
+Source: util-linux
+Version: 2.13.1.1-1
+Pre-Depends: libblkid1 (>= 1.37-1), libc6 (>= 2.7-1), libselinux1 (>= 2.0.59), libuuid1
+Suggests: nfs-common (>= 1:1.1.0-13)
+Description: Tools for mounting and manipulating filesystems
+ This package provides the mount(8), umount(8), swapon(8),
+ swapoff(8), and losetup(8) commands.
+
+Package: libtext-iconv-perl
+Status: install ok installed
+Priority: required
+Section: perl
+Installed-Size: 100
+Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
+Architecture: armel
+Source: libtext-iconv-perl (1.7-1)
+Version: 1.7-1+b1
+Depends: libc6 (>= 2.7-1), perl-base (>= 5.10.0-9), perlapi-5.10.0
+Description: converts between character sets in Perl
+ The iconv() family of functions from XPG4 define an API for converting
+ between character sets (e.g. UTF-8 to Latin1, EBCDIC to ASCII). They
+ are provided by libc6.
+ .
+ This package allows access to them from Perl via the Text::Iconv
+ package.
+Homepage: http://search.cpan.org/search?module=Text::Iconv
+
+Package: libreadline5
+Status: install ok installed
+Priority: important
+Section: libs
+Installed-Size: 320
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: armel
+Source: readline5
+Version: 5.2-3.1
+Depends: readline-common, libc6 (>= 2.7-1), libncurses5 (>= 5.6+20071006-3)
+Description: GNU readline and history libraries, run-time libraries
+ The GNU readline library aids in the consistency of user interface
+ across discrete programs that need to provide a command line
+ interface.
+ .
+ The GNU history library provides a consistent user interface for
+ recalling lines of previously typed input.
+
+Package: libncurses5
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 568
+Maintainer: Daniel Baumann <daniel@debian.org>
+Architecture: armel
+Source: ncurses
+Version: 5.7+20081213-1
+Depends: libc6 (>= 2.7-1)
+Recommends: libgpm2
+Description: shared libraries for terminal handling
+ This package contains the shared libraries necessary to run programs
+ compiled with ncurses.
+Homepage: ftp://invisible-island.net/ncurses/
+
+Package: libdevmapper1.02.1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 164
+Maintainer: Debian LVM Team <pkg-lvm-maintainers@lists.alioth.debian.org>
+Architecture: armel
+Source: devmapper
+Version: 2:1.02.27-4
+Provides: libdevmapper
+Depends: libc6 (>= 2.7-1), libselinux1 (>= 2.0.59)
+Description: The Linux Kernel Device Mapper userspace library
+ The Linux Kernel Device Mapper is the LVM (Linux Logical Volume Management)
+ Team's implementation of a minimalistic kernel-space driver that handles
+ volume management, while keeping knowledge of the underlying device layout
+ in user-space.  This makes it useful for not only LVM, but EVMS, software
+ raid, and other drivers that create "virtual" block devices.
+ .
+ This package contains the (user-space) shared library for accessing the
+ device-mapper; it allows usage of the device-mapper through a clean,
+ consistent interface (as opposed to through kernel ioctls).
+
+Package: libattr1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 64
+Maintainer: Nathan Scott <nathans@debian.org>
+Architecture: armel
+Source: attr
+Version: 1:2.4.43-2
+Depends: libc6 (>= 2.7-1)
+Conflicts: attr (<< 2.0.0)
+Description: Extended attribute shared library
+ Contains the runtime environment required by programs that make use
+ of extended attributes.
+Homepage: http://oss.sgi.com/projects/xfs/
+
+Package: sed
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 928
+Maintainer: Clint Adams <schizo@debian.org>
+Architecture: armel
+Version: 4.1.5-6
+Replaces: ssed (<< 3.59)
+Pre-Depends: libc6 (>= 2.7-1)
+Description: The GNU sed stream editor
+ sed reads the specified files or the standard input if no
+ files are specified, makes editing changes according to a
+ list of commands, and writes the results to the standard
+ output.
+
+Package: e2fslibs
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 280
+Maintainer: Theodore Y. Ts'o <tytso@mit.edu>
+Architecture: armel
+Source: e2fsprogs
+Version: 1.41.3-1
+Replaces: e2fsprogs (<< 1.34-1)
+Provides: libe2p2, libext2fs2
+Depends: libc6 (>= 2.7-1), libcomerr2 (>= 1.01), libgcc1 (>= 1:4.3)
+Description: ext2 filesystem libraries
+ The ext2fs and e2p libraries are used by programs that directly access
+ EXT2 filesystems from usermode programs.   The EXT2 filesystem is very often
+ used as the default filesystem on Linux systems.   Various system programs
+ that use libext2fs include e2fsck, mke2fs, tune2fs, etc.  Programs that use
+ libe2p include dumpe2fs, chattr, and lsattr.
+
+Package: base-passwd
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 184
+Maintainer: Colin Watson <cjwatson@debian.org>
+Architecture: armel
+Version: 3.5.20
+Replaces: base
+Depends: libc6 (>= 2.7-1)
+Description: Debian base system master password and group files
+ These are the canonical master copies of the user database files
+ (/etc/passwd and /etc/group), containing the Debian-allocated user and
+ group IDs. The update-passwd tool is provided to keep the system databases
+ synchronized with these master files.
+
+Package: libcomerr2
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 96
+Maintainer: Theodore Y. Ts'o <tytso@mit.edu>
+Architecture: armel
+Source: e2fsprogs
+Version: 1.41.3-1
+Replaces: e2fsprogs (<< 1.34-1)
+Provides: libcomerr-kth-compat
+Depends: libc6 (>= 2.7-1)
+Description: common error description library
+ libcomerr is an attempt to present a common error-handling mechanism to
+ manipulate the most common form of error code in a fashion that does not
+ have the problems identified with mechanisms commonly in use.
+
+Package: mawk
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 232
+Maintainer: James Troup <james@nocrew.org>
+Architecture: armel
+Version: 1.3.3-11.1
+Provides: awk
+Pre-Depends: libc6 (>= 2.7-1)
+Description: a pattern scanning and text processing language
+ Mawk is an interpreter for the AWK Programming Language. The AWK
+ language is useful for manipulation of data files, text retrieval and
+ processing, and for prototyping and experimenting with algorithms. Mawk
+ is a new awk meaning it implements the AWK language as defined in Aho,
+ Kernighan and Weinberger, The AWK Programming Language, Addison-Wesley
+ Publishing, 1988. (Hereafter referred to as the AWK book.) Mawk conforms
+ to the POSIX 1003.2 (draft 11.3) definition of the AWK language
+ which contains a few features not described in the AWK book, and mawk
+ provides a small number of extensions.
+ .
+ Mawk is smaller and much faster than gawk. It has some compile-time
+ limits such as NF = 32767 and sprintf buffer = 1020.
+
+Package: gnupg
+Status: install ok installed
+Priority: important
+Section: utils
+Installed-Size: 4860
+Maintainer: Debian GnuPG-Maintainers <pkg-gnupg-maint@lists.alioth.debian.org>
+Architecture: armel
+Version: 1.4.9-3+lenny1
+Depends: libbz2-1.0, libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libreadline5 (>= 5.2), libusb-0.1-4 (>= 2:0.1.12), zlib1g (>= 1:1.1.4), gpgv
+Recommends: libldap-2.4-2 (>= 2.4.7)
+Suggests: gnupg-doc, xloadimage | imagemagick | eog, libpcsclite1
+Conflicts: seahorse (<< 2.22.2-2)
+Description: GNU privacy guard - a free PGP replacement
+ GnuPG is GNU's tool for secure communication and data storage.
+ It can be used to encrypt data and to create digital signatures.
+ It includes an advanced key management facility and is compliant
+ with the proposed OpenPGP Internet standard as described in RFC2440.
+ .
+ GnuPG does not use any patented algorithms so it cannot be compatible
+ with PGP2 because it uses IDEA (which is patented worldwide).
+Homepage: http://www.gnupg.org
+
+Package: libdb4.6
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 1164
+Maintainer: Debian Berkeley DB Maintainers <pkg-db-devel@lists.alioth.debian.org>
+Architecture: armel
+Source: db4.6
+Version: 4.6.21-11
+Depends: libc6 (>= 2.7-1)
+Conflicts: libdb2 (<< 2:2.7.7-3)
+Description: Berkeley v4.6 Database Libraries [runtime]
+ This is the runtime package for programs that use the v4.6 Berkeley
+ database library.
+Homepage: http://www.oracle.com/technology/software/products/berkeley-db/index.html
+
+Package: debconf-i18n
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 1100
+Maintainer: Debconf Developers <debconf-devel@lists.alioth.debian.org>
+Architecture: all
+Source: debconf
+Version: 1.5.24
+Replaces: debconf (<< 1.3.0), debconf-utils (<< 1.3.22)
+Depends: debconf, liblocale-gettext-perl, libtext-iconv-perl, libtext-wrapi18n-perl, libtext-charwidth-perl
+Conflicts: debconf-english, debconf-utils (<< 1.3.22)
+Description: full internationalization support for debconf
+ This package provides full internationalization for debconf, including
+ translations into all available languages, support for using translated
+ debconf templates, and support for proper display of multibyte character
+ sets.
+
+Package: grep
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 1184
+Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
+Architecture: armel
+Version: 2.5.3~dfsg-6
+Provides: rgrep
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Conflicts: rgrep
+Description: GNU grep, egrep and fgrep
+ 'grep' is a utility to search for text in files; it can be used from the
+ command line or in scripts.  Even if you don't want to use it, other packages
+ on your system probably will.
+ .
+ The GNU family of grep utilities may be the "fastest grep in the west".
+ GNU grep is based on a fast lazy-state deterministic matcher (about
+ twice as fast as stock Unix egrep) hybridized with a Boyer-Moore-Gosper
+ search for a fixed string that eliminates impossible text from being
+ considered by the full regexp matcher without necessarily having to
+ look at every character. The result is typically many times faster
+ than Unix grep or egrep. (Regular expressions containing backreferencing
+ will run more slowly, however.)
+Homepage: http://www.gnu.org/software/grep/
+
+Package: gcc-4.2-base
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 140
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: armel
+Source: gcc-4.2
+Version: 4.2.4-6
+Description: The GNU Compiler Collection (base package)
+ This package contains files common to all languages and libraries
+ contained in the GNU Compiler Collection (GCC).
+
+Package: passwd
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 2396
+Maintainer: Shadow package maintainers <pkg-shadow-devel@lists.alioth.debian.org>
+Architecture: armel
+Source: shadow
+Version: 1:4.1.1-6+lenny1
+Replaces: manpages-de (<< 0.4-9), manpages-es (<< 1.55-4), manpages-es-extra (<< 0.8a-15), manpages-fi (<< 0.2-4), manpages-fr (<< 1.64.0-1), manpages-hu (<< 20010119-5), manpages-it (<< 0.3.4-3), manpages-ja (<< 0.5.0.0.20050915-1), manpages-ko (<< 20050219-2), manpages-ru (<< 0.98-3), manpages-tr, manpages-zh
+Depends: libc6 (>= 2.7-1), libpam0g (>= 0.99.7.1), libselinux1 (>= 2.0.59), libpam-modules, debianutils (>= 2.15.2)
+Conffiles:
+ /etc/default/useradd cc9f9a7713ab62a32cd38363d958f396
+ /etc/pam.d/chsh a6e9b589e90009334ffd030d819290a6
+ /etc/pam.d/passwd eaf2ad85b5ccd06cceb19a3e75f40c63
+ /etc/pam.d/chfn 4d466e00a348ba426130664d795e8afa
+Description: change and administer password and group data
+ This package includes passwd, chsh, chfn, and many other programs to
+ maintain password and group data.
+ .
+ Shadow passwords are supported.  See /usr/share/doc/passwd/README.Debian
+Homepage: http://pkg-shadow.alioth.debian.org/
+
+Package: hostname
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 84
+Maintainer: Daniel Baumann <daniel@debian.org>
+Architecture: armel
+Version: 2.95
+Pre-Depends: libc6 (>= 2.7-1)
+Description: utility to set/show the host name or domain name
+ The hostname command can be used to either set or display the current host or
+ domain name of the system. This name is used by many of the networking programs
+ to identify the machine. The domain name is also used by NIS/YP.
+
+Package: libacl1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 76
+Maintainer: Nathan Scott <nathans@debian.org>
+Architecture: armel
+Source: acl
+Version: 2.2.47-2
+Depends: libattr1 (>= 2.4.41-1), libc6 (>= 2.7-1)
+Conflicts: acl (<< 2.0.0), libacl1-kerberos4kth
+Description: Access control list shared library
+ This package contains the libacl.so dynamic library containing
+ the POSIX 1003.1e draft standard 17 functions for manipulating
+ access control lists.
+Homepage: http://oss.sgi.com/projects/xfs/
+
+Package: libpam-runtime
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 952
+Maintainer: Steve Langasek <vorlon@debian.org>
+Architecture: all
+Source: pam
+Version: 1.0.1-5+lenny1
+Replaces: libpam0g-dev, libpam0g-util
+Conflicts: libpam0g (<< 0.66-0), libpam0g-util
+Conffiles:
+ /etc/pam.d/other 31aa7f2181889ffb00b87df4126d1701
+ /etc/pam.conf 87fc76f18e98ee7d3848f6b81b3391e5
+Description: Runtime support for the PAM library
+ Contains configuration files and  directories required for
+ authentication  to work on Debian systems.  This package is required
+ on almost all installations.
+Homepage: http://pam.sourceforge.net/
+
+Package: sysvinit
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 276
+Maintainer: Debian sysvinit maintainers <pkg-sysvinit-devel@lists.alioth.debian.org>
+Architecture: armel
+Version: 2.86.ds1-61
+Depends: libc6 (>= 2.7-1), libselinux1 (>= 2.0.59), libsepol1 (>= 2.0.25)
+Pre-Depends: initscripts, sysv-rc (>= 2.86.ds1-1.2) | file-rc (>> 0.7.0), sysvinit-utils
+Description: System-V-like init utilities
+ This package contains programs required for booting
+ a Debian system and doing basic process management.
+ .
+ The most important program in the package is /sbin/init.
+ It is the first process started on boot and continues
+ to run as process number 1 until the system halts. All
+ other processes are descended from it.
+
+Package: libslang2
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 1116
+Maintainer: Alastair McKinstry <mckinstry@debian.org>
+Architecture: armel
+Source: slang2
+Version: 2.1.3-3
+Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Recommends: libpng12-0
+Description: The S-Lang programming library - runtime version
+ S-Lang is a C programmer's library that includes routines for the rapid
+ development of sophisticated, user friendly, multi-platform applications.
+ .
+ This package contains only the shared library libslang.so.* and copyright
+ information. It is only necessary for programs that use this library (such
+ as jed and slrn). If you plan on doing development with S-Lang, you will
+ need the companion -dev package as well.
+
+Package: initscripts
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 392
+Maintainer: Debian sysvinit maintainers <pkg-sysvinit-devel@lists.alioth.debian.org>
+Architecture: armel
+Source: sysvinit
+Version: 2.86.ds1-61
+Replaces: libc0.1, libc0.3, libc6, libc6.1, sysvinit (<< 2.85-12)
+Depends: libc6 (>= 2.7-1), e2fsprogs (>= 1.32+1.33-WIP-2003.04.14-1), debianutils (>= 2.13.1), lsb-base (>= 3.0-6), sysvinit-utils (>= 2.86.ds1-39)
+Recommends: psmisc
+Conflicts: insserv (<< 1.09.0-12), libdevmapper1.02.1 (<< 2:1.02.24-1), sysv-rc (<< 2.86.ds1-1.2), sysvinit (<< 2.86.ds1-12), udev (<< 0.080-1), usplash (<< 0.5.8-2)
+Conffiles:
+ /etc/init.d/bootlogd 8929bbe54d2e0bfc01002cdfc8d4a12d
+ /etc/init.d/stop-bootlogd 601570469b070bd50596c362bbe24c69
+ /etc/init.d/stop-bootlogd-single 3e911c125a472fd0ea0b72348ccd6fae
+ /etc/init.d/bootmisc.sh 778c98dc5155a9d34bd3c36ef734f91a
+ /etc/init.d/checkfs.sh 73141996e0b5f75a651f36a54fd8a195
+ /etc/init.d/checkroot.sh 4a0ca4837e0d255dbe9ac4a6ad47e8b2
+ /etc/init.d/halt 6ae1b3b1b8198567a5e32116077f12a2
+ /etc/init.d/hostname.sh 1de2d410112a3ea21962879ba38ae46c
+ /etc/init.d/killprocs f67bf1eb3237795e2ebce779c482c32f
+ /etc/init.d/mountall.sh 7b379aa8e2d5eed3831b70cac72c1c8c
+ /etc/init.d/mountall-bootclean.sh d4994c72205f718f3b369d4dc69e0b0e
+ /etc/init.d/mountnfs.sh 08d30a08518f65de3dd466027d02ec5e
+ /etc/init.d/mountnfs-bootclean.sh 6aa9a6a5bf53a33bc9d12bfb5e9f3c96
+ /etc/init.d/mountoverflowtmp 99ae6af7d686bfbf48dec741172bab03
+ /etc/init.d/mountdevsubfs.sh 23cf796a34b927758704eb0c12569ac0
+ /etc/init.d/mountkernfs.sh 392dab751172d2e938c516dadb654c60
+ /etc/init.d/mtab.sh b949c22869c7b5673b7b6d90d9362f38
+ /etc/init.d/rc.local 86a81414c8a1230912e7204acd529ade
+ /etc/init.d/reboot 1b9db1ef7bfd79b128ef85d5065721a6
+ /etc/init.d/rmnologin e2a6046f67394c24302f7272654dfc7e
+ /etc/init.d/sendsigs 80f76e4cc5a0b2860507a5ffb7e107b1
+ /etc/init.d/single dc13cb373c5c098a8fb95424701373e3
+ /etc/init.d/umountfs cd41e4d500876fd9ba651f5f02f19405
+ /etc/init.d/umountnfs.sh 196fca8d7eb58b6ae8b8e28ac5cbe617
+ /etc/init.d/umountroot 66ddb222052697f78d9942ffa35c7505
+ /etc/init.d/urandom ce40619da442f275ab8928d71c594fe0
+ /etc/default/bootlogd 70a108da715299a6e33470eb450669fb
+ /etc/default/devpts fc857c5ac5fb84d80720ed4d1c624f6e
+ /etc/default/halt 18d9844cf8ca8608e2a559a4555e593a
+ /etc/default/tmpfs d959a98cfb571cd7fdfb36bbb3d0a5c8
+ /etc/network/if-up.d/mountnfs c5b579c8803456c9982b5fecaab01e0b
+Description: Scripts for initializing and shutting down the system
+ The scripts in this package initialize a standard Debian
+ GNU/Linux system at boot time and finalize it at halt or
+ reboot time.
+
+Package: libblkid1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 128
+Maintainer: Theodore Y. Ts'o <tytso@mit.edu>
+Architecture: armel
+Source: e2fsprogs
+Version: 1.41.3-1
+Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libuuid1 (>= 1.05)
+Description: block device id library
+ The blkid library which allows system programs like fsck and
+ mount to quickly and easily find block devices by filesystem UUID and
+ LABEL.  This allows system administrators to avoid specifying
+ filesystems by hard-coded device names, but via a logical naming
+ system instead.
+
+Package: libss2
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 104
+Maintainer: Theodore Y. Ts'o <tytso@mit.edu>
+Architecture: armel
+Source: e2fsprogs
+Version: 1.41.3-1
+Replaces: e2fsprogs (<< 1.34-1)
+Depends: libcomerr2 (>= 1.01), libc6 (>= 2.7-1)
+Description: command-line interface parsing library
+ This package includes a tool that parses a command table to generate
+ a simple command-line interface parser, the include files needed to
+ compile and use it, and the static libs.
+ .
+ It was originally inspired by the Multics SubSystem library.
+
+Package: findutils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 1516
+Maintainer: Andreas Metzler <ametzler@debian.org>
+Architecture: armel
+Version: 4.4.0-2
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Suggests: mlocate | locate | slocate
+Description: utilities for finding files--find, xargs
+ GNU findutils provides utilities to find files meeting specified
+ criteria and perform various actions on the files which are found.
+ This package contains 'find' and 'xargs'; however, 'locate' has
+ been split off into a separate package.
+Homepage: http://savannah.gnu.org/projects/findutils/
+
+Package: e2fsprogs
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 2032
+Maintainer: Theodore Y. Ts'o <tytso@mit.edu>
+Architecture: armel
+Version: 1.41.3-1
+Replaces: hurd (<= 20040301-1), libblkid1 (<< 1.38+1.39-WIP-2005.12.10-2), libuuid1 (<< 1.38+1.39-WIP-2005.12.10-2)
+Pre-Depends: e2fslibs (>= 1.41.1), libblkid1 (>= 1.40), libc6 (>= 2.7-1), libcomerr2 (>= 1.34), libgcc1 (>= 1:4.3), libss2 (>= 1.34), libuuid1 (>= 1.15)
+Suggests: gpart, parted, e2fsck-static
+Conflicts: dump (<< 0.4b4-4), initscripts (<< 2.85-4), quota (<< 1.55-8.1), sysvinit (<< 2.85-4)
+Conffiles:
+ /etc/mke2fs.conf 8e566c323a76392b107c8fe2e11cbd3b
+Description: ext2/ext3/ext4 file system utilities
+ The ext2, ext3 and ext4 file systems are successors of the original ext
+ ("extended") file system. They are the main file system types used for
+ hard disks on Debian and other Linux systems.
+ .
+ This package contains programs for creating, checking, and maintaining
+ ext-based file systems, and the generic fsck wrapper.
+
+Package: debian-archive-keyring
+Status: install ok installed
+Priority: important
+Section: misc
+Installed-Size: 64
+Maintainer: Debian Release Team <packages@release.debian.org>
+Architecture: all
+Version: 2010.08.28~lenny1
+Depends: gnupg
+Description: GnuPG archive keys of the Debian archive
+ The Debian project digitally signs its Release files. This package
+ contains the archive keys used for that.
+
+Package: gzip
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 288
+Maintainer: Bdale Garbee <bdale@gag.com>
+Architecture: armel
+Version: 1.3.12-6+lenny1
+Depends: debianutils (>= 1.6)
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Suggests: less
+Description: The GNU compression utility
+ This is the standard GNU file compression utility, which is also the default
+ compression tool for Debian.  It typically operates on files with names
+ ending in '.gz'.
+ .
+ This package can also decompress '.Z' files created with 'compress'.
+
+Package: dpkg
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 7244
+Origin: debian
+Maintainer: Dpkg Developers <debian-dpkg@lists.debian.org>
+Bugs: debbugs://bugs.debian.org
+Architecture: armel
+Version: 1.14.31
+Replaces: manpages-de (<= 0.4-3), manpages-pl (<= 20051117-1)
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), coreutils (>= 5.93-1), lzma
+Suggests: apt
+Conflicts: apt (<< 0.7.7), aptitude (<< 0.4.7-1), dpkg-dev (<< 1.14.16), dpkg-iasearch (<< 0.11), sysvinit (<< 2.82-1)
+Conffiles:
+ /etc/logrotate.d/dpkg 501f8c90b83c7ea180868ca82e1e82d1
+ /etc/dpkg/dpkg.cfg f4413ffb515f8f753624ae3bb365b81b
+ /etc/dpkg/origins/debian 731423fa8ba067262f8ef37882d1e742
+ /etc/alternatives/README 69c4ba7f08363e998e0f2e244a04f881
+Description: Debian package management system
+ This package provides the low-level infrastructure for handling the
+ installation and removal of Debian software packages.
+ .
+ For Debian package development tools, install dpkg-dev.
+Homepage: http://wiki.debian.org/Teams/Dpkg
+
+Package: liblocale-gettext-perl
+Status: install ok installed
+Priority: required
+Section: perl
+Installed-Size: 104
+Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
+Architecture: armel
+Version: 1.05-4
+Depends: libc6 (>= 2.7-1)
+Pre-Depends: perl-base (>= 5.10.0-9), perlapi-5.10.0
+Description: Using libc functions for internationalization in Perl
+ The gettext module permits access from perl to the gettext() family of
+ functions for retrieving message strings from databases constructed
+ to internationalize software.
+ .
+ It provides gettext(), dgettext(), dcgettext(), textdomain(),
+ bindtextdomain(), bind_textdomain_codeset(), ngettext(), dcngettext()
+ and dngettext().
+Homepage: http://search.cpan.org/dist/Locale-gettext/
+
+Package: diff
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 744
+Maintainer: Santiago Vila <sanvila@debian.org>
+Architecture: armel
+Source: diffutils
+Version: 2.8.1-12
+Pre-Depends: libc6 (>= 2.5), libgcc1 (>= 1:4.1.1-12)
+Suggests: diff-doc
+Description: File comparison utilities
+ The diff package provides the diff, diff3, sdiff, and cmp programs.
+ .
+ `diff' shows differences between two files, or each corresponding file
+ in two directories.  `cmp' shows the offsets and line numbers where
+ two files differ.  `cmp' can also show all the characters that
+ differ between the two files, side by side.  `diff3' shows differences
+ among three files.  `sdiff' merges two files interactively.
+ .
+ The set of differences produced by `diff' can be used to distribute
+ updates to text files (such as program source code) to other people.
+ This method is especially useful when the differences are small compared
+ to the complete files.  Given `diff' output, the `patch' program can
+ update, or "patch", a copy of the file.
+
+Package: libbz2-1.0
+Status: install ok installed
+Priority: important
+Section: libs
+Installed-Size: 132
+Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
+Architecture: armel
+Source: bzip2
+Version: 1.0.5-1+lenny1
+Depends: libc6 (>= 2.7-1)
+Description: high-quality block-sorting file compressor library - runtime
+ This package contains libbzip2 which is used by the bzip2 compressor.
+ .
+ bzip2 is a freely available, patent free, high-quality data compressor.
+ It typically compresses files to within 10% to 15% of the best available
+ techniques, whilst being around twice as fast at compression and six
+ times faster at decompression.
+ .
+ bzip2 compresses files using the Burrows-Wheeler block-sorting text
+ compression algorithm, and Huffman coding. Compression is generally
+ considerably better than that achieved by more conventional
+ LZ77/LZ78-based compressors, and approaches the performance of the PPM
+ family of statistical compressors.
+ .
+ The archive file format of bzip2 (.bz2) is incompatible with that of its
+ predecessor, bzip (.bz).
+Homepage: http://www.bzip.org/
+
+Package: gcc-4.3-base
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 160
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: armel
+Source: gcc-4.3
+Version: 4.3.2-1.1
+Replaces: cpp-4.3 (<< 4.3.2)
+Description: The GNU Compiler Collection (base package)
+ This package contains files common to all languages and libraries
+ contained in the GNU Compiler Collection (GCC).
+
+Package: sysvinit-utils
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: admin
+Installed-Size: 172
+Maintainer: Debian sysvinit maintainers <pkg-sysvinit-devel@lists.alioth.debian.org>
+Architecture: armel
+Source: sysvinit
+Version: 2.86.ds1-61
+Replaces: last, sysvinit (<= 2.86.ds1-22)
+Depends: libc6 (>= 2.7-1), libselinux1 (>= 2.0.59), libsepol1 (>= 2.0.25)
+Suggests: sash
+Conflicts: last
+Description: System-V-like utilities
+ This package contains the important System-V-like utilities.
+ .
+ Specifically, this package includes:
+ killall5, last, lastb, mesg, pidof, sulogin
+
+Package: libselinux1
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 188
+Maintainer: Manoj Srivastava <srivasta@debian.org>
+Architecture: armel
+Source: libselinux
+Version: 2.0.65-5
+Depends: libc6 (>= 2.7-1)
+Description: SELinux shared libraries
+ This package provides the shared libraries for Security-enhanced
+ Linux. Security-enhanced Linux is a patch of the Linux kernel and a
+ number of utilities with enhanced security functionality designed to
+ add mandatory access controls to Linux.  The Security-enhanced Linux
+ kernel contains new architectural components originally developed to
+ improve the security of the Flask operating system. These
+ architectural components provide general support for the enforcement
+ of many kinds of mandatory access control policies, including those
+ based on the concepts of Type Enforcement, Role-based Access
+ Control, and Multi-level Security.
+ .
+ libselinux1 provides an API for SELinux applications to get and set
+ process and file security contexts and to obtain security policy
+ decisions.  Required for any applications that use the SELinux API.
+
+Package: libc6
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 11096
+Maintainer: GNU Libc Maintainers <debian-glibc@lists.debian.org>
+Architecture: armel
+Source: glibc
+Version: 2.7-18lenny7
+Provides: glibc-2.7-1
+Depends: libgcc1
+Suggests: locales, glibc-doc
+Conflicts: libterm-readline-gnu-perl (<< 1.15-2), tzdata (<< 2007k-1), tzdata-etch
+Conffiles:
+ /etc/gai.conf bdd4cc328b946a52cc1424ef3dfa9321
+ /etc/bindresvport.blacklist db84c47f31f8d5a334a4053d8368e902
+ /etc/init.d/glibc.sh ce55541f2b38719f6eba57abe9f23603
+ /etc/ld.so.conf.d/libc.conf d4d833fd095fb7b90e1bb4a547f16de6
+ /etc/ld.so.conf.d/arm-linux-gnueabi.conf 8a91f734be05849526e29b33b9ef402b
+Description: GNU C Library: Shared libraries
+ Contains the standard libraries that are used by nearly all programs on
+ the system. This package includes shared versions of the standard C library
+ and the standard math library, as well as many others.
+
+Package: bash
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: shells
+Installed-Size: 1204
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: armel
+Version: 3.2-4
+Replaces: bash-completion (<< 20060301-0), bash-doc (<= 2.05-1)
+Depends: base-files (>= 2.1.12), debianutils (>= 2.15)
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libncurses5 (>= 5.6+20071006-3)
+Recommends: bash-completion (>= 20060301-0)
+Suggests: bash-doc
+Conflicts: bash-completion (<< 20060301-0)
+Conffiles:
+ /etc/skel/.bash_logout 22bfb8c1dd94b5f3813a2b25da67463f
+ /etc/skel/.profile ecb6d3479ac3823f1da7f314d871989b
+ /etc/skel/.bashrc eed8ae914410b3f768d345824117fd0b
+ /etc/bash.bashrc 194fbab82d44b57b961a860ae0a2d47e
+Description: The GNU Bourne Again SHell
+ Bash is an sh-compatible command language interpreter that executes
+ commands read from the standard input or from a file.  Bash also
+ incorporates useful features from the Korn and C shells (ksh and csh).
+ .
+ Bash is ultimately intended to be a conformant implementation of the
+ IEEE POSIX Shell and Tools specification (IEEE Working Group 1003.2).
+ .
+ The Programmable Completion Code, by Ian Macdonald, is now found in
+ the bash-completion package.
+
+Package: util-linux
+Essential: yes
+Status: install ok installed
+Priority: required
+Section: utils
+Installed-Size: 1640
+Maintainer: LaMont Jones <lamont@debian.org>
+Architecture: armel
+Version: 2.13.1.1-1
+Replaces: fdisk, linux32, miscutils, schedutils, setterm, sparc-utils
+Provides: linux32, schedutils
+Depends: lsb-base (>= 3.0-6), tzdata (>= 2006c-2)
+Pre-Depends: libc6 (>= 2.7-1), libgcc1 (>= 1:4.3), libncurses5 (>= 5.6+20071006-3), libselinux1 (>= 2.0.59), libslang2 (>= 2.0.7-1), libuuid1, zlib1g (>= 1:1.1.4)
+Suggests: dosfstools, kbd | console-tools, util-linux-locales
+Conflicts: console-tools (<< 1:0.2.3-21), fdisk, kbd (<< 1.05-3), linux32, schedutils, setterm
+Conffiles:
+ /etc/init.d/hwclock.sh b56b63f3746082677487829b5c65f881
+ /etc/init.d/hwclockfirst.sh 4c30746cd89fe5981a585a82649faaf8
+ /etc/init.d/hwclock.sh newconffile
+Description: Miscellaneous system utilities
+ This package contains a number of important utilities, most of which
+ are oriented towards maintenance of your system.  Some of the more
+ important utilities included in this package allow you to partition
+ your hard disk, view kernel messages, and create new filesystems.
+
+Package: libstdc++6
+Status: install ok installed
+Priority: required
+Section: libs
+Installed-Size: 856
+Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+Architecture: armel
+Source: gcc-4.3
+Version: 4.3.2-1.1
+Depends: gcc-4.3-base (= 4.3.2-1.1), libc6 (>= 2.7-1), libgcc1 (>= 1:4.3)
+Conflicts: scim (<< 1.4.2-1)
+Description: The GNU Standard C++ Library v3
+ This package contains an additional runtime library for C++ programs
+ built with the GNU compiler.
+ .
+ libstdc++-v3 is a complete rewrite from the previous libstdc++-v2, which
+ was included up to g++-2.95. The first version of libstdc++-v3 appeared
+ in g++-3.0.
+
+Package: busybox
+Status: install ok installed
+Priority: optional
+Section: utils
+Installed-Size: 564
+Maintainer: Debian Install System Team <debian-boot@lists.debian.org>
+Architecture: armel
+Version: 1:1.10.2-2
+Replaces: busybox-static
+Depends: libc6 (>= 2.7-1)
+Conflicts: busybox-static
+Description: Tiny utilities for small and embedded systems
+ BusyBox combines tiny versions of many common UNIX utilities into a single
+ small executable. It provides minimalist replacements for the most common
+ utilities you would usually find on your desktop system (i.e., ls, cp, mv,
+ mount, tar, etc.). The utilities in BusyBox generally have fewer options than
+ their full-featured GNU cousins; however, the options that are included
+ provide the expected functionality and behave very much like their GNU
+ counterparts.
+ .
+ This package installs the BusyBox binary but does not install symlinks
+ for any of the supported utilities. You can use /bin/busybox --install
+ to install BusyBox to the current directory (you do not want to do this
+ in / on your Debian system!).
+
+Package: libtext-charwidth-perl
+Status: install ok installed
+Priority: required
+Section: perl
+Installed-Size: 92
+Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
+Architecture: armel
+Source: libtext-charwidth-perl (0.04-5)
+Version: 0.04-5+b1
+Depends: libc6 (>= 2.7-1), perl-base (>= 5.10.0-9), perlapi-5.10.0
+Description: get display widths of characters on the terminal
+ This module permits perl software to get the display widths of characters
+ and strings on the terminal, using wcwidth() and wcswidth() from libc.
+ .
+ It provides mbwidth(), mbswidth(), and mblen().
+Homepage: http://search.cpan.org/search?module=Text::CharWidth
+
+Package: readline-common
+Status: install ok installed
+Priority: standard
+Section: utils
+Installed-Size: 136
+Maintainer: Matthias Klose <doko@debian.org>
+Architecture: all
+Source: readline5
+Version: 5.2-3.1
+Replaces: libreadline-common, libreadline4 (<< 4.3-16), libreadline5 (<< 5.0-11)
+Conflicts: libreadline-common, libreadline5 (<< 5.0-11)
+Description: GNU readline and history libraries, common files
+ The GNU readline library aids in the consistency of user interface
+ across discrete programs that need to provide a command line
+ interface.
+ .
+ The GNU history library provides a consistent user interface for
+ recalling lines of previously typed input.
+

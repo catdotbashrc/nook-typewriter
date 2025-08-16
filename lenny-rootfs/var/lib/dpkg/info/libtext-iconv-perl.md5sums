@@ -1,0 +1,7 @@
+e680a86761e65b55846108257c92ea46  usr/share/doc/libtext-iconv-perl/changelog.Debian.gz
+4528b247b77f07eceb5d134324a4be95  usr/share/doc/libtext-iconv-perl/copyright
+962b7e339bee78889fa93a2ac581462c  usr/share/man/man3/Text::Iconv.3pm.gz
+f4d8c677b4c3d0b1973b4138de847f4f  usr/lib/perl5/auto/Text/Iconv/Iconv.so
+d41d8cd98f00b204e9800998ecf8427e  usr/lib/perl5/auto/Text/Iconv/Iconv.bs
+dc17ece97e97a8dc0f2442bdd1adb484  usr/lib/perl5/auto/Text/Iconv/autosplit.ix
+677dc712acab4dd91078973526536661  usr/lib/perl5/Text/Iconv.pm
