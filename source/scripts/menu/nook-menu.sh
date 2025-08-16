@@ -196,6 +196,22 @@ shutdown_system() {
     fi
 }
 
+# Validate user input for safety
+validate_menu_choice() {
+    local input="${1:-}"
+    # Only allow expected menu options
+    if [[ ! "$input" =~ ^[zdrsjqZDRSJQ]$ ]]; then
+        return 1
+    fi
+    return 0
+}
+
+# Validate choice before processing
+if ! validate_menu_choice "$choice"; then
+    # Invalid input - restart menu safely
+    exec "$0"
+fi
+
 # Process user choice
 case "${choice,,}" in
     z)

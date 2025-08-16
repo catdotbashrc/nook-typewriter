@@ -2,6 +2,10 @@
 # JesterOS Writing Tracker
 # Monitors actual writing activity and updates statistics
 
+# Safety settings for reliable tracking
+set -eu
+trap 'echo "Error in jesteros-tracker.sh at line $LINENO" >&2' ERR
+
 JESTER_DIR="/var/jesteros"
 STATS_FILE="$JESTER_DIR/typewriter/stats"
 STATS_DATA="$JESTER_DIR/.stats_data"
