@@ -1,0 +1,71 @@
+name: Script Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/test-scripts.yml'
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'scripts/**'
+
+jobs:
+  test:
+    name: Run Script Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up environment
+      run: |
+        echo "Setting up test environment..."
+        # Ensure scripts are executable
+        chmod +x scripts/test/*.sh
+        chmod +x scripts/*.sh
+        chmod +x scripts/lib/*.sh
+        chmod +x scripts/deployment/*.sh
+    
+    - name: Check script syntax
+      run: |
+        echo "Checking shell script syntax..."
+        for script in scripts/*.sh scripts/**/*.sh; do
+          if [[ -f "$script" ]]; then
+            echo "Checking: $script"
+            bash -n "$script"
+          fi
+        done
+    
+    - name: Run shellcheck (if available)
+      continue-on-error: true
+      run: |
+        if command -v shellcheck &> /dev/null; then
+          echo "Running shellcheck..."
+          shellcheck scripts/*.sh scripts/**/*.sh || true
+        else
+          echo "Shellcheck not available, skipping..."
+        fi
+    
+    - name: Run unit tests
+      run: |
+        echo "Running unit tests..."
+        cd scripts/test
+        bash run_all_tests.sh
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          scripts/test/*.log
+          /tmp/nook-test.*
+        retention-days: 7
+    
+    - name: Clean up
+      if: always()
+      run: |
+        rm -rf /tmp/nook-test.*
