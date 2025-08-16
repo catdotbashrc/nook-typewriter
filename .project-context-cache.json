@@ -1,0 +1,128 @@
+{
+  "timestamp": "2025-01-15T14:50:00Z",
+  "project": {
+    "name": "JoKernel - Nook Typewriter",
+    "version": "1.0.0",
+    "description": "Transform Barnes & Noble Nook Simple Touch into distraction-free writing device",
+    "philosophy": "Writers over features, RAM saved is words written"
+  },
+  "hardware": {
+    "device": "Barnes & Noble Nook Simple Touch",
+    "cpu": "TI OMAP3621 @ 800MHz ARM Cortex-A8",
+    "ram": "256MB (160MB reserved for writing)",
+    "display": "6\" E-Ink 800x600 16 grayscale",
+    "storage": "SD card based"
+  },
+  "architecture": {
+    "layers": [
+      "Android Base (hardware drivers)",
+      "Linux Chroot (Debian in /data/debian/)",
+      "JesterOS (userspace services)",
+      "Writing Environment (Vim minimal)"
+    ],
+    "kernel": {
+      "version": "2.6.29-jester",
+      "base": "Linux 2.6.29",
+      "config": "omap3621_gossamer_evt1c_defconfig"
+    },
+    "memory_budget": {
+      "os_reserved": "95MB",
+      "vim_reserved": "10MB",
+      "writing_space": "160MB"
+    }
+  },
+  "build_system": {
+    "primary": "Make",
+    "docker": {
+      "images": [
+        "quillkernel-builder (kernel)",
+        "nook-writer (optimized environment)",
+        "nook-mvp-rootfs (minimal boot)"
+      ],
+      "toolchain": "arm-linux-androideabi-4.9 (NDK r10e)"
+    },
+    "targets": [
+      "kernel",
+      "rootfs",
+      "firmware",
+      "image",
+      "release"
+    ]
+  },
+  "structure": {
+    "root": "/home/jyeary/projects/personal/nook",
+    "directories": {
+      "source": {
+        "kernel": "Kernel source and modules",
+        "configs": "System configurations",
+        "scripts": "Boot, menu, services scripts",
+        "ui": "UI components and themes"
+      },
+      "build": {
+        "docker": "Docker build files",
+        "scripts": "Build automation scripts"
+      },
+      "firmware": "Output firmware files",
+      "docs": "Documentation (12 categories)",
+      "tests": "Test suites and validation"
+    }
+  },
+  "key_features": {
+    "jesteros": {
+      "type": "userspace",
+      "interface": "/var/jesteros/",
+      "services": [
+        "jester (ASCII art mood)",
+        "typewriter/stats (writing metrics)",
+        "wisdom (writing quotes)"
+      ]
+    },
+    "safety": {
+      "scripts": "set -euo pipefail, input validation",
+      "memory": "<96MB OS usage enforced",
+      "testing": "90%+ coverage target"
+    }
+  },
+  "commands": {
+    "build": {
+      "kernel": "./build_kernel.sh",
+      "full": "make firmware",
+      "quick": "make quick-build",
+      "deploy": "make sd-deploy"
+    },
+    "test": {
+      "all": "make test",
+      "jesteros": "./test-jesteros-userspace.sh",
+      "improvements": "./tests/test-improvements.sh"
+    },
+    "docker": {
+      "build_writer": "docker build -t nook-writer --build-arg BUILD_MODE=writer -f nookwriter-optimized.dockerfile .",
+      "build_minimal": "docker build -t nook-mvp-rootfs -f minimal-boot.dockerfile .",
+      "test_local": "docker run -it --rm nook-writer vim /tmp/test.txt"
+    }
+  },
+  "development_rules": [
+    "Does this help writers write?",
+    "What RAM does this steal from writing?",
+    "Will this add distractions?",
+    "Can writers understand error messages?"
+  ],
+  "cached_at": "2025-01-15T14:50:00Z",
+  "cache_version": "1.1",
+  "refresh_source": "--cache --refresh",
+  "quality_metrics": {
+    "total_files": 35826,
+    "shell_scripts": 238,
+    "test_scripts": 52,
+    "documentation_files": 57,
+    "unsafe_c_functions": 2986,
+    "scripts_with_safety": "89%",
+    "unquoted_variables": 179
+  },
+  "recent_updates": {
+    "documentation_reorganization": "64 files into 12 categories",
+    "naming_standardization": "lowercase-hyphenated",
+    "cleanup_performed": "Reduced from 64 to 57 docs",
+    "baselines_generated": ["baseline.json", "baseline-deep.json"]
+  }
+}

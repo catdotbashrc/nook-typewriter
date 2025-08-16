@@ -1,0 +1,188 @@
+" Writer-Optimized Vim Configuration for Nook E-Ink
+" Minimal plugins: Goyo, Pencil, Litecorrect
+" Optimized for prose writing with ~5MB RAM usage
+
+" === CORE SETTINGS ===
+set nocompatible
+set encoding=utf-8
+set fileencoding=utf-8
+set ttyfast
+set lazyredraw              " E-Ink friendly - reduce refreshes
+set updatetime=180000       " Auto-save every 3 minutes
+
+" === E-INK DISPLAY OPTIMIZATION ===
+set background=light
+set t_Co=2                  " Monochrome for E-Ink
+syntax off                  " No syntax highlighting (saves RAM)
+
+" === MINIMAL PLUGIN LOADING ===
+" Only load essential writing plugins
+set runtimepath^=~/.vim/pack/plugins/start
+
+" === WRITING ENVIRONMENT ===
+set wrap
+set linebreak
+set textwidth=0            " No hard wrapping
+set wrapmargin=0
+set formatoptions=l        " Don't auto-format
+set spell spelllang=en_us
+set spellsuggest=best,10
+set complete-=i            " Don't scan includes (faster)
+set complete-=t            " Don't scan tags
+
+" === INTERFACE (Minimal for E-Ink) ===
+set number
+set numberwidth=4
+set ruler
+set laststatus=2           " Always show status
+set noshowmode            " Goyo handles this
+set showcmd
+set shortmess+=I          " No intro
+set belloff=all          " No bells
+
+" === EDITOR BEHAVIOR ===
+set backspace=indent,eol,start
+set autoindent
+set expandtab
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set hidden
+set autoread              " Reload changed files
+set noswapfile
+set nobackup
+set nowritebackup
+set noundofile           " Save RAM
+
+" === SEARCH ===
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+
+" === PENCIL CONFIGURATION ===
+let g:pencil#wrapModeDefault = 'soft'   " Soft line wrap
+let g:pencil#autoformat = 0             " No auto-format
+let g:pencil#conceallevel = 0           " No concealing
+let g:pencil#cursorwrap = 1             " Move through wrapped lines naturally
+
+" === GOYO CONFIGURATION ===
+let g:goyo_width = 72                   " Comfortable reading width
+let g:goyo_height = '90%'               " Use most of screen
+let g:goyo_margin_top = 2
+let g:goyo_margin_bottom = 2
+let g:goyo_linenr = 1                   " Show line numbers in Goyo
+
+" Goyo callbacks for E-Ink optimization
+function! s:goyo_enter()
+  set noshowcmd
+  set scrolloff=999                     " Center cursor
+  highlight StatusLine ctermfg=white ctermbg=black
+  highlight StatusLineNC ctermfg=white ctermbg=black
+endfunction
+
+function! s:goyo_leave()
+  set showcmd
+  set scrolloff=5
+endfunction
+
+autocmd! User GoyoEnter nested call <SID>goyo_enter()
+autocmd! User GoyoLeave nested call <SID>goyo_leave()
+
+" === LITECORRECT CONFIGURATION ===
+" Only load for text files to save memory
+augroup litecorrect
+  autocmd!
+  autocmd FileType markdown,text,mail call litecorrect#init()
+augroup END
+
+" === AUTO-ENABLE PENCIL ===
+augroup pencil
+  autocmd!
+  autocmd FileType markdown,text,mail call pencil#init()
+augroup END
+
+" === SIMPLE KEY MAPPINGS ===
+let mapleader = " "
+
+" F-key mappings for easy access
+nnoremap <F2> :e ~/notes/<C-R>=strftime("%Y%m%d%H%M%S")<CR>.txt<CR>
+nnoremap <F3> :w<CR>
+inoremap <F3> <Esc>:w<CR>a
+nnoremap <F4> :q<CR>
+nnoremap <F5> :Goyo<CR>
+nnoremap <F6> :call ShowWordCount()<CR>
+nnoremap <F7> :set spell!<CR>
+nnoremap <F8> :PencilToggle<CR>
+
+" Writer-friendly shortcuts
+nnoremap <C-s> :w<CR>
+inoremap <C-s> <Esc>:w<CR>a
+nnoremap <C-q> :q<CR>
+nnoremap <Esc> :nohlsearch<CR>
+
+" Quick navigation
+nnoremap <Leader>n :e ~/notes/<CR>
+nnoremap <Leader>d :e ~/drafts/draft.txt<CR>
+nnoremap <Leader>g :Goyo<CR>
+nnoremap <Leader>p :PencilToggle<CR>
+
+" === WRITING ANALYSIS COMMANDS ===
+" Weasel words (vague language)
+command! Weasel :call matchadd('Error', '\c\<\(many\|various\|very\|fairly\|several\|extremely\|exceedingly\|quite\|remarkably\|few\|surprisingly\|mostly\|largely\|huge\|tiny\|excellent\|interestingly\|significantly\|substantially\|clearly\|vast\|relatively\|completely\|really\|just\|perhaps\|maybe\)\>')
+
+" Passive voice detection
+command! Passive :call matchadd('Error', '\c\(was\|were\|been\|is\|are\|be\|being\)\s\+\w\+ed\>')
+
+" Find duplicate words
+command! Dups /\v<(\w+)\s+\1>
+
+" Clear highlights
+command! Clear :call clearmatches()
+
+" === MINIMAL STATUS LINE ===
+set statusline=%f                          " Filename
+set statusline+=\ %m                       " Modified flag
+set statusline+=\ %r                       " Readonly flag
+set statusline+=%=                         " Right align
+set statusline+=\ %l/%L                    " Line number / total
+set statusline+=\ [%p%%]                   " Percentage
+set statusline+=\ W:%{WordCount()}         " Word count
+
+" === WORD COUNT FUNCTION ===
+function! WordCount()
+  if &filetype == 'markdown' || &filetype == 'text'
+    let l:count = system('wc -w ' . expand('%') . ' 2>/dev/null | cut -d" " -f1')
+    return substitute(l:count, '\n', '', '')
+  endif
+  return '0'
+endfunction
+
+function! ShowWordCount()
+  echo "Words: " . WordCount() . " | Characters: " . line2byte(line('$')+1)
+endfunction
+
+" === AUTO COMMANDS ===
+" Auto-save
+autocmd CursorHold,CursorHoldI * silent! update
+autocmd BufLeave,FocusLost * silent! wall
+
+" Start in insert mode for new files
+autocmd BufNewFile *.txt,*.md startinsert
+
+" Auto-enable Goyo for text files
+autocmd VimEnter *.txt,*.md Goyo
+
+" === E-INK COLOR ADJUSTMENTS ===
+highlight Normal ctermbg=white ctermfg=black
+highlight LineNr ctermfg=gray ctermbg=white
+highlight CursorLine cterm=bold
+highlight SpellBad cterm=underline ctermfg=black
+highlight SpellCap cterm=underline ctermfg=black
+highlight SpellRare cterm=underline ctermfg=gray
+highlight SpellLocal cterm=underline ctermfg=gray
+highlight Search cterm=reverse
+highlight IncSearch cterm=reverse
+
+" === STARTUP MESSAGE ===
+echo "Writing mode ready. F5=Focus F6=WordCount F7=Spell"
