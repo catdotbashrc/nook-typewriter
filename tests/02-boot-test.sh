@@ -1,0 +1,65 @@
+#!/bin/bash
+# Boot test - Check if basic boot components exist
+# If these pass, the device should at least boot
+
+set -euo pipefail
+
+echo "🥾 BOOT TEST - Will it boot?"
+echo "============================"
+echo ""
+
+BOOTABLE=true
+
+# Check boot scripts
+echo -n "✓ Boot scripts exist... "
+BOOT_COUNT=$(ls ../source/scripts/boot/*.sh 2>/dev/null | wc -l || echo "0")
+if [ "$BOOT_COUNT" -gt 0 ]; then
+    echo "YES ($BOOT_COUNT scripts)"
+else
+    echo "NO - No boot scripts!"
+    BOOTABLE=false
+fi
+
+# Check JesterOS service
+echo -n "✓ JesterOS service... "
+if [ -f "../source/scripts/boot/jesteros-userspace.sh" ] || 
+   [ -f "../source/scripts/services/jester-daemon.sh" ]; then
+    echo "YES"
+else
+    echo "MISSING (but not critical)"
+fi
+
+# Check menu system
+echo -n "✓ Menu system... "
+if [ -f "../source/scripts/menu/nook-menu.sh" ]; then
+    echo "YES"
+else
+    echo "MISSING (will boot but no menu)"
+fi
+
+# Check common library
+echo -n "✓ Common functions... "
+if [ -f "../source/scripts/lib/common.sh" ]; then
+    echo "YES"
+else
+    echo "MISSING (scripts may fail)"
+fi
+
+# Check for boot configuration
+echo -n "✓ Boot config... "
+if [ -f "../boot/uEnv.txt" ]; then
+    echo "YES"
+else
+    echo "MISSING (using defaults)"
+fi
+
+echo ""
+if [ "$BOOTABLE" = true ]; then
+    echo "✅ SHOULD BOOT"
+    echo "The device should boot to at least a shell"
+    exit 0
+else
+    echo "⚠️  MIGHT NOT BOOT"
+    echo "Fix critical issues before deploying"
+    exit 1
+fi
