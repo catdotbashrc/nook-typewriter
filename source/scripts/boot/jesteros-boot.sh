@@ -36,7 +36,7 @@ display() {
     local y_pos="${1:-0}"
     shift
     local text="$*"
-    if [[ "${SQUIREOS_COMMON_LOADED:-0}" == "1" ]] && has_eink; then
+    if [[ "${JESTEROS_COMMON_LOADED:-0}" == "1" ]] && has_eink; then
         fbink -y "$y_pos" "$text" 2>/dev/null || boot_log "WARN" "Failed to display text at y=$y_pos"
     else
         echo "$text"

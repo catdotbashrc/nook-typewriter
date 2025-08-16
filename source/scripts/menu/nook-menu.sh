@@ -34,7 +34,7 @@ readonly SYNC_SCRIPT="/usr/local/bin/sync-notes.sh"
 # Display error message on E-Ink
 display_error() {
     local message="$1"
-    if [[ "${SQUIREOS_COMMON_LOADED:-0}" == "1" ]]; then
+    if [[ "${JESTEROS_COMMON_LOADED:-0}" == "1" ]]; then
         display_text "ERROR: $message" 1
         e_sleep "${LONG_DELAY:-3}"
     else

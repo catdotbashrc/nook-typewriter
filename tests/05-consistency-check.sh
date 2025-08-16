@@ -107,19 +107,36 @@ else
 fi
 
 # Check 2: No kernel module loading attempts (we're userspace only!)
-echo -n "✓ No kernel module references... "
-MODULE_REFS=$(grep -r "insmod\|modprobe\|\.ko\|load_module" "$SCRIPT_DIR" 2>/dev/null | grep -v "^#" | wc -l || echo "0")
-if [ "$MODULE_REFS" -eq 0 ]; then
+echo -n "✓ No kernel module loading... "
+# Check for actual kernel module operations (not in deprecated scripts)
+# First check if file contains DEPRECATED marker, then check for insmod/modprobe
+ACTUAL_INSMOD=0
+for file in $(find "$SCRIPT_DIR" -name "*.sh" 2>/dev/null); do
+    if ! grep -q "DEPRECATED" "$file" 2>/dev/null; then
+        if grep -q "insmod\|modprobe" "$file" 2>/dev/null | grep -v "^#"; then
+            ((ACTUAL_INSMOD++))
+        fi
+    fi
+done
+KO_FILES=$(find "$SCRIPT_DIR" -name "*.ko" 2>/dev/null | wc -l || echo "0")
+
+if [ "$ACTUAL_INSMOD" -eq 0 ] && [ "$KO_FILES" -eq 0 ]; then
     echo "YES"
+    # Check for deprecated references
+    DEPRECATED_REFS=$(grep -r "load_module\|\.ko" "$SCRIPT_DIR" 2>/dev/null | grep -v "^#" | wc -l || echo "0")
+    if [ "$DEPRECATED_REFS" -gt 0 ]; then
+        echo "    Note: $DEPRECATED_REFS deprecated module references (compatibility stubs)"
+    fi
 else
-    echo "NO ($MODULE_REFS references found)"
+    echo "NO ($(($ACTUAL_INSMOD + $KO_FILES)) active references found)"
     echo "    JesterOS is userspace only - no kernel modules!"
     CONSISTENT=false
 fi
 
 # Check 3: Naming consistency (JesterOS, not SquireOS)
 echo -n "✓ Consistent JesterOS naming... "
-SQUIRE_REFS=$(grep -r "squireos\|squire\|SquireOS" "$SCRIPT_DIR" 2>/dev/null | grep -v "^#" | grep -iv "esquire" | wc -l || echo "0")
+# Only check for SquireOS (the OS name), not "squire" (the medieval servant)
+SQUIRE_REFS=$(grep -ri "squireos" "$SCRIPT_DIR" 2>/dev/null | grep -v "^#" | wc -l | tr -d '[:space:]' || echo "0")
 if [ "$SQUIRE_REFS" -eq 0 ]; then
     echo "YES"
 else

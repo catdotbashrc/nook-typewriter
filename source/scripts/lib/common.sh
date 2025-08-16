@@ -40,7 +40,7 @@ readonly MEDIUM_DELAY=0.8
 readonly LONG_DELAY=2
 
 # Paths
-readonly SQUIREOS_PROC="/var/jesteros"
+readonly JESTEROS_PROC="/var/jesteros"
 readonly JESTER_DIR="/var/lib/jester"
 readonly NOTES_DIR="/root/notes"
 readonly DRAFTS_DIR="/root/drafts"
@@ -195,8 +195,8 @@ debug_log() {
 }
 
 # === Export Common Variables ===
-export SQUIREOS_VERSION="1.0.0"
-export SQUIREOS_COMMON_LOADED=1
+export JESTEROS_VERSION="1.0.0"
+export JESTEROS_COMMON_LOADED=1
 
 # Indicate successful loading
 debug_log "Common library loaded successfully"
