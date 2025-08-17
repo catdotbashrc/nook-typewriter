@@ -9,9 +9,9 @@ IMAGE_NAME := nook-typewriter-$(VERSION).img
 
 # Directory configuration with validation
 KERNEL_DIR := source/kernel
-JESTEROS_DIR := source/kernel/jesteros
-SCRIPTS_DIR := source/scripts
-CONFIGS_DIR := source/configs
+JESTEROS_DIR := source/kernel/jesteros  
+SCRIPTS_DIR := runtime
+CONFIGS_DIR := runtime/configs
 FIRMWARE_DIR := firmware
 RELEASES_DIR := releases
 
@@ -92,6 +92,7 @@ docker-build: kernel
 # Kernel build with Docker validation and logging
 kernel: check-tools
 	@echo "$(BOLD)🔨 Building kernel (JesterOS services in userspace)...$(RESET)"
+	@echo "  Using kernel source: catdotbashrc/nst-kernel (reliable mirror)"
 	@echo "[$(TIMESTAMP)] Starting kernel build" >> $(BUILD_LOG)
 	@if [ ! -f build/scripts/build_kernel.sh ]; then \
 		echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)"; \
@@ -106,26 +107,43 @@ kernel: check-tools
 	@echo "[$(TIMESTAMP)] Kernel build successful" >> $(BUILD_LOG)
 	@echo "$(GREEN)✓ Kernel build successful$(RESET)"
 
-# Root filesystem with medieval scripts
+# Root filesystem with JesterOS 4-layer architecture
 rootfs:
-	@echo "$(BOLD)📦 Building root filesystem...$(RESET)"
+	@echo "$(BOLD)📦 Building root filesystem with JesterOS services...$(RESET)"
 	@mkdir -p $(FIRMWARE_DIR)/rootfs/usr/local/bin
 	@mkdir -p $(FIRMWARE_DIR)/rootfs/etc/jesteros
-	@# Copy scripts with validation
-	@for dir in boot menu services lib; do \
-		if [ -d $(SCRIPTS_DIR)/$$dir ]; then \
-			echo "  Installing $$dir scripts..."; \
-			cp -v $(SCRIPTS_DIR)/$$dir/*.sh $(FIRMWARE_DIR)/rootfs/usr/local/bin/ 2>/dev/null || true; \
-		fi; \
+	@mkdir -p $(FIRMWARE_DIR)/rootfs/var/jesteros
+	@mkdir -p $(FIRMWARE_DIR)/rootfs/var/run/jesteros
+	@mkdir -p $(FIRMWARE_DIR)/rootfs/var/lib/jester
+	@# Copy 4-layer architecture scripts
+	@echo "  Installing JesterOS 4-layer scripts..."
+	@find $(SCRIPTS_DIR) -name "*.sh" -type f | while read script; do \
+		relative_path=$$(echo "$$script" | sed 's|$(SCRIPTS_DIR)/||'); \
+		echo "    Installing: $$relative_path"; \
+		cp "$$script" $(FIRMWARE_DIR)/rootfs/usr/local/bin/; \
 	done
+	@# Copy JesterOS init scripts
+	@if [ -d $(SCRIPTS_DIR)/init ]; then \
+		echo "  Installing init scripts..."; \
+		cp $(SCRIPTS_DIR)/init/*.sh $(FIRMWARE_DIR)/rootfs/usr/local/bin/ 2>/dev/null || true; \
+	fi
 	@# Copy configurations
 	@if [ -d $(CONFIGS_DIR) ]; then \
-		cp -r $(CONFIGS_DIR)/ascii $(FIRMWARE_DIR)/rootfs/etc/jesteros/ 2>/dev/null || true; \
+		echo "  Installing configurations..."; \
+		mkdir -p $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/jester; \
+		cp runtime/1-ui/themes/jester/*.txt $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/jester/ 2>/dev/null || true; \
+		cp runtime/1-ui/themes/ascii-art-library.txt $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/ 2>/dev/null || true; \
 		cp -r $(CONFIGS_DIR)/vim $(FIRMWARE_DIR)/rootfs/etc/vim/ 2>/dev/null || true; \
+		cp -r $(CONFIGS_DIR)/system $(FIRMWARE_DIR)/rootfs/etc/jesteros/ 2>/dev/null || true; \
 	fi
 	@# Set permissions
 	@chmod +x $(FIRMWARE_DIR)/rootfs/usr/local/bin/*.sh 2>/dev/null || true
-	@echo "$(GREEN)✓ Root filesystem prepared$(RESET)"
+	@# Create JesterOS service symlinks for /var/jesteros interface
+	@echo "  Setting up JesterOS userspace interface..."
+	@ln -sf /usr/local/bin/daemon.sh $(FIRMWARE_DIR)/rootfs/var/jesteros/jester 2>/dev/null || true
+	@mkdir -p $(FIRMWARE_DIR)/rootfs/var/jesteros/typewriter
+	@echo "0" > $(FIRMWARE_DIR)/rootfs/var/jesteros/typewriter/stats
+	@echo "$(GREEN)✓ Root filesystem prepared with JesterOS services$(RESET)"
 
 # Bootloader extraction from ClockworkMod image
 # IMPORTANT: MLO and u-boot.bin are preserved during 'make clean'
@@ -291,10 +309,14 @@ check-tools:
 # Validate build environment
 validate: check-tools
 	@echo "$(BOLD)✅ Validating build environment...$(RESET)"
-	@test -d $(KERNEL_DIR) || (echo "$(RED)Error: Kernel directory not found$(RESET)" && exit 1)
-	@test -d $(SCRIPTS_DIR) || (echo "$(RED)Error: Scripts directory not found$(RESET)" && exit 1)
+	@test -d $(KERNEL_DIR) || (echo "$(RED)Error: Kernel directory not found$(RESET)" && echo "  Run: git submodule init && git submodule update" && exit 1)
+	@test -d $(SCRIPTS_DIR) || (echo "$(RED)Error: Scripts directory not found$(RESET)" && echo "  Expected: $(SCRIPTS_DIR)" && exit 1)
 	@test -f build/scripts/build_kernel.sh || (echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)" && exit 1)
+	@test -f $(SCRIPTS_DIR)/3-system/common/common.sh || (echo "$(RED)Error: Common library not found$(RESET)" && echo "  Expected: $(SCRIPTS_DIR)/3-system/common/common.sh" && exit 1)
 	@echo "$(GREEN)✓ Environment validated$(RESET)"
+	@echo "  - Kernel source: Available ($(shell find $(KERNEL_DIR) -name "*.c" | wc -l) files)"
+	@echo "  - Runtime scripts: Available ($(shell find $(SCRIPTS_DIR) -name "*.sh" | wc -l) scripts)"
+	@echo "  - JesterOS services: Available (4-layer architecture)"
 
 # Run complete test pipeline - all three stages
 test: test-pre-build docker-build test-post-build test-runtime

@@ -1,13 +1,2 @@
-     .·:·.·:·.
-    /  o   o  \
-   |  >  ᵕ  <  |
-    \  ___  /
-     |~|~|~|
-    /|  ♦  |\
-   d |     | b
-      |   |
-     /|   |\
-    (_)   (_)
-
-  SquireOS v1.0
-"At your service!"
+# MOVED: This file has been consolidated to runtime/1-ui/themes/jester/jester-logo.txt
+# Use: runtime/1-ui/themes/jester/jester-logo.txt
