@@ -13,10 +13,13 @@
 #   0 - Normal exit
 #   1 - Display error
 #   2 - Missing dependencies
+
+set -euo pipefail
+trap 'echo "Error in nook-menu.sh at line $LINENO"' ERR
 #
 
 # Source common functions and safety settings
-COMMON_PATH="${COMMON_PATH:-/runtime/scripts/lib/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/runtime/3-system/common/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
 else
