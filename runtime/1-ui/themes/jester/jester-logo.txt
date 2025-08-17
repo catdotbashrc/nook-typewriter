@@ -9,5 +9,5 @@
      /|   |\
     (_)   (_)
 
-  SquireOS v1.0
+  JesterOS v1.0
 "At your service!"

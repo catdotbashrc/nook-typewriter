@@ -1,0 +1,28 @@
+I: Bus=0019 Vendor=0001 Product=0001 Version=0003
+N: Name="TWL4030 Keypad"
+P: Phys=twl4030_keypad/input0
+S: Sysfs=/devices/platform/i2c_omap.1/i2c-adapter/i2c-1/1-004a/twl4030_keypad/input/input0
+U: Uniq=
+H: Handlers=kbd event0 
+B: EV=3
+B: KEY=10800000 0 0 0 0 0 0 0 40000800 0 0 0 1
+
+I: Bus=0019 Vendor=0001 Product=0001 Version=0100
+N: Name="gpio-keys"
+P: Phys=gpio-keys/input0
+S: Sysfs=/devices/platform/gpio-keys/input/input1
+U: Uniq=
+H: Handlers=kbd event1 
+B: EV=3
+B: KEY=100040 0 0 0
+
+I: Bus=0018 Vendor=0000 Product=0000 Version=0000
+N: Name="zForce Touchscreen"
+P: Phys=
+S: Sysfs=/devices/virtual/input/input2
+U: Uniq=
+H: Handlers=event2 
+B: EV=b
+B: KEY=400 0 0 0 0 0 0 0 0 0 0
+B: ABS=600000 3
+

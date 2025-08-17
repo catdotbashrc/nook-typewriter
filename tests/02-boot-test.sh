@@ -12,7 +12,7 @@ BOOTABLE=true
 
 # Check boot scripts
 echo -n "✓ Boot scripts exist... "
-BOOT_COUNT=$(ls ../source/scripts/boot/*.sh 2>/dev/null | wc -l || echo "0")
+BOOT_COUNT=$(ls ../runtime/init/*.sh 2>/dev/null | wc -l || echo "0")
 if [ "$BOOT_COUNT" -gt 0 ]; then
     echo "YES ($BOOT_COUNT scripts)"
 else
@@ -22,8 +22,8 @@ fi
 
 # Check JesterOS service
 echo -n "✓ JesterOS service... "
-if [ -f "../source/scripts/boot/jesteros-userspace.sh" ] || 
-   [ -f "../source/scripts/services/jester-daemon.sh" ]; then
+if [ -f "../runtime/init/jesteros-boot.sh" ] || 
+   [ -f "../runtime/2-application/jesteros/daemon.sh" ]; then
     echo "YES"
 else
     echo "MISSING (but not critical)"
@@ -31,7 +31,7 @@ fi
 
 # Check menu system
 echo -n "✓ Menu system... "
-if [ -f "../source/scripts/menu/nook-menu.sh" ]; then
+if [ -f "../runtime/1-ui/menu/nook-menu.sh" ]; then
     echo "YES"
 else
     echo "MISSING (will boot but no menu)"
@@ -39,7 +39,7 @@ fi
 
 # Check common library
 echo -n "✓ Common functions... "
-if [ -f "../source/scripts/lib/common.sh" ]; then
+if [ -f "../runtime/3-system/common/common.sh" ]; then
     echo "YES"
 else
     echo "MISSING (scripts may fail)"

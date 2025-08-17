@@ -67,7 +67,7 @@ Thumbs.db
 firmware/
 releases/
 *.img
-*.tar.gz
+# *.tar.gz  # Commented out for testing - need lenny-rootfs.tar.gz
 *.zip
 *.iso
 *.bin
@@ -122,7 +122,8 @@ ndk/
 toolchain/
 sdcard/
 *.sdcard
-lenny-rootfs.tar.gz
+# Commented out for testing
+# lenny-rootfs.tar.gz  # Need this for authentic testing
 lenny-rootfs/
 nook-mvp-rootfs.tar.gz
 

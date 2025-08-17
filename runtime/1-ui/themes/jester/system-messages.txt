@@ -1,4 +1,4 @@
-# SquireOS System Message ASCII Art Collection
+# JesterOS System Message ASCII Art Collection
 # E-Ink optimized for various system states and messages
 
 ## SAVING/WRITING MESSAGES

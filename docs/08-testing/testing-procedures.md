@@ -74,7 +74,7 @@ echo "     Script Standards Validation"
 echo "═══════════════════════════════════════════"
 
 # Find all shell scripts
-scripts=$(find source/scripts -name "*.sh" -type f)
+scripts=$(find runtime/3-system/scripts -name "*.sh" -type f)
 
 for script in $scripts; do
     echo "Testing: $script"
@@ -130,7 +130,7 @@ docker build -t test-nook-mvp -f minimal-boot.dockerfile . || exit 1
 
 # Test kernel build environment
 echo "Building kernel environment..."
-cd source/kernel
+cd build
 docker build -t test-quillkernel-builder . || exit 1
 cd ../..
 
@@ -152,16 +152,16 @@ echo "Docker build tests completed successfully!"
 ### Kernel Module Validation
 ```bash
 #!/bin/bash
-# Run existing module tests
-./source/kernel/test/test_modules.sh
+# JesterOS is now userspace-only - no kernel modules
+# Services run from runtime/2-application/jesteros/
 
 # Additional module validation
 test_module_loading() {
     echo "Testing SquireOS module loading..."
     
-    # Test module compilation
-    cd source/kernel/src
-    make ARCH=arm CROSS_COMPILE=arm-linux-androideabi- modules || {
+    # JesterOS runs in userspace - no module compilation needed
+    # Test userspace services instead
+    cd runtime/2-application/jesteros || {
         echo "✗ Module compilation failed"
         return 1
     }
@@ -305,7 +305,7 @@ test_menu_system() {
     echo "Testing menu system..."
     
     # Test menu script syntax
-    bash -n source/scripts/menu/nook-menu.sh || {
+    bash -n runtime/1-ui/menu/menu.sh || {
         echo "✗ Menu script syntax error"
         return 1
     }
@@ -313,7 +313,7 @@ test_menu_system() {
     echo "✓ Menu script syntax valid"
     
     # Test menu functions
-    timeout 5 bash source/scripts/menu/nook-menu.sh << 'EOF' || true
+    timeout 5 bash runtime/1-ui/menu/menu.sh << 'EOF' || true
 4
 exit
 EOF
@@ -430,8 +430,8 @@ test_display_abstraction() {
     echo "Testing display abstraction layer..."
     
     # Source common library
-    if [[ -f source/scripts/lib/common.sh ]]; then
-        source source/scripts/lib/common.sh
+    if [[ -f runtime/3-system/common/common.sh ]]; then
+        source runtime/3-system/common/common.sh
         
         # Test display functions
         if declare -f display_text >/dev/null 2>&1; then
@@ -550,10 +550,10 @@ test_container_memory() {
 test_module_memory_impact() {
     echo "Testing module memory impact..."
     
-    # Estimate module memory usage
-    if [[ -f source/kernel/src/drivers/squireos_core.ko ]]; then
-        size=$(stat -c%s source/kernel/src/drivers/squireos_core.ko)
-        echo "✓ squireos_core.ko size: $((size / 1024))KB"
+    # Estimate JesterOS service memory usage
+    if [[ -f runtime/2-application/jesteros/daemon.sh ]]; then
+        size=$(stat -c%s runtime/2-application/jesteros/daemon.sh)
+        echo "✓ JesterOS daemon size: $((size / 1024))KB"
         
         if [[ $size -lt 102400 ]]; then  # 100KB limit
             echo "✓ Module size within limits"
@@ -658,7 +658,7 @@ test_path_validation() {
     echo "Testing path validation security..."
     
     # Source common library
-    source source/scripts/lib/common.sh
+    source runtime/3-system/common/common.sh
     
     # Test valid paths
     if validate_path "/root/notes/test.txt"; then
@@ -691,7 +691,7 @@ test_input_sanitization() {
     echo "Testing input sanitization..."
     
     # Source common library
-    source source/scripts/lib/common.sh
+    source runtime/3-system/common/common.sh
     
     # Test menu choice validation
     local valid_choices=("1" "2" "3" "4" "5")
@@ -721,8 +721,8 @@ test_privilege_escalation() {
     
     # Test that scripts don't require unnecessary privileges
     local scripts=(
-        "source/scripts/menu/nook-menu.sh"
-        "source/scripts/boot/boot-jester.sh"
+        "runtime/1-ui/menu/menu.sh"
+        "runtime/3-system/boot/boot.sh"
     )
     
     for script in "${scripts[@]}"; do
@@ -798,8 +798,8 @@ main() {
     # Docker build tests
     run_test_category "Docker Builds" "tests/test_docker_builds.sh" || ((failed_tests++))
     
-    # Module tests  
-    run_test_category "Kernel Modules" "source/kernel/test/test_modules.sh" || ((failed_tests++))
+    # JesterOS userspace tests  
+    run_test_category "JesterOS Services" "tests/test-jesteros-userspace.sh" || ((failed_tests++))
     
     # Security tests
     run_test_category "Security" "tests/test_security_validation.sh" || ((failed_tests++))
@@ -1157,7 +1157,7 @@ docker stats --no-stream nook-* || echo "No containers running"
 ./tests/unit/menu/test-menu-error-handling.sh
 
 # Code security review
-find source/scripts -name "*.sh" -exec shellcheck {} \;
+find runtime -name "*.sh" -exec shellcheck {} \;
 ```
 
 **3. Build Validation**
@@ -1463,7 +1463,7 @@ docker run --rm -m 256m ubuntu:20.04 free -m
 find tests/ -name "*.sh" -exec chmod +x {} \;
 
 # Fix build permissions  
-sudo chown -R $USER:$USER source/kernel/
+sudo chown -R $USER:$USER build/
 ```
 
 ---

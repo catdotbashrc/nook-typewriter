@@ -17,11 +17,11 @@ case "$TEST_STAGE" in
         echo "Testing pre-build scripts in: $SCRIPT_DIR"
         ;;
     post-build)
-        SCRIPT_DIR="../source/scripts"
+        SCRIPT_DIR="../runtime"
         echo "Testing post-build scripts in: $SCRIPT_DIR"
         ;;
     runtime)
-        SCRIPT_DIR="/source/scripts"
+        SCRIPT_DIR="/runtime"
         echo "Testing runtime scripts in: $SCRIPT_DIR"
         ;;
     *)

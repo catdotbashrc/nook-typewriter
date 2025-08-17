@@ -18,7 +18,7 @@ boot_log() {
 boot_log "INFO" "Starting JesterOS boot sequence"
 
 # Source common functions and safety settings
-COMMON_PATH="${COMMON_PATH:-/runtime/scripts/lib/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/runtime/3-system/common/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
     # Override e_sleep if needed for boot sequence
@@ -245,6 +245,21 @@ e_sleep "$BOOT_PHASE_DELAY"
 
 # Clear for menu
 clear_screen
+
+# Start JesterOS services first
+boot_log "INFO" "Initializing JesterOS services..."
+SERVICE_INIT="/runtime/init/jesteros-service-init.sh"
+if [ -x "$SERVICE_INIT" ]; then
+    if "$SERVICE_INIT" init; then
+        boot_log "INFO" "JesterOS services initialized successfully"
+    else
+        boot_log "ERROR" "Failed to initialize JesterOS services"
+        echo "ERROR: Service initialization failed!" >&2
+        # Continue anyway - services might still be partially functional
+    fi
+else
+    boot_log "WARN" "Service initialization script not found: $SERVICE_INIT"
+fi
 
 # If this is the actual boot script, start the menu
 # Otherwise just exit (for testing)

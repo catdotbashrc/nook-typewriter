@@ -1,53 +1,31 @@
-# 🎭 JoKernel - Nook Typewriter Project
-### Transform Your E-Reader into a Distraction-Free Writing Machine
+# JesterOS - Distraction-Free Writing for Nook SimpleTouch
 
-## 📚 Complete Documentation
-**[→ View Documentation Hub](docs/00-indexes/README.md)** - Organized documentation system with 60+ guides in 12 categories using standardized naming conventions
+> "By quill and candlelight, we code for those who write" 🕯️📜
 
-## 📋 Table of Contents
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Development Setup](#development-setup)
-- [Build System](#build-system)
-- [JesterOS Services](#jesteros-services)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [Troubleshooting](#troubleshooting)
-- [Documentation](#documentation)
+Transform your $20 used Nook SimpleTouch into a $400 distraction-free writing device with JesterOS - a whimsical, writer-focused Linux environment.
 
-## 🎯 Project Overview
+## 🎭 What is JesterOS?
 
-JoKernel transforms a $20 used Barnes & Noble Nook Simple Touch e-reader into a $400 distraction-free writing device. By combining a custom Linux kernel with jester-themed interface elements, this project creates the ultimate digital typewriter for focused writing.
+JesterOS is a custom Linux environment designed specifically for the Nook SimpleTouch e-reader, turning it into a dedicated writing device. Every decision prioritizes **writers over features**.
 
-### Project Philosophy
-> "Every feature is a potential distraction. RAM saved is words written."
+### Key Features
+- **Distraction-Free Writing**: Vim-based environment with zero distractions
+- **E-Ink Optimized**: Designed for the unique constraints and benefits of E-Ink
+- **Medieval Whimsy**: A court jester companion that tracks your writing progress
+- **Ultra-Light**: Entire system uses <8MB RAM, leaving 100MB+ for your writing
+- **No Internet**: Intentionally offline to maintain focus
 
-This project prioritizes **writers over features**, maintaining a sacred 160MB of RAM exclusively for the writing experience while running the entire OS in less than 96MB.
+## 📋 System Requirements
 
-## ✨ Key Features
+### Hardware
+- Nook SimpleTouch (1st gen B&N e-reader)
+- 4GB+ SD card
+- USB cable for initial setup
 
-### Core Functionality
-- **Distraction-Free Writing** - No internet, no notifications, just words
-- **Jester-Themed Interface** - ASCII art jester companion with dynamic moods
-- **Writing Statistics** - Track words, keystrokes, and writing achievements
-- **Ultra-Minimal Footprint** - <30MB compressed rootfs, <96MB runtime
-- **E-Ink Optimized** - Interface designed for E-Ink's unique characteristics
-
-### Technical Achievements
-- **JesterOS Userspace** - Lightweight userspace services via `/var/jesteros/` interface
-- **Docker-Based Build** - Consistent cross-compilation environment
-- **Comprehensive Testing** - 90%+ test coverage with safety validations
-- **Script Safety** - Input validation, error handling, path protection
-- **Memory Efficiency** - Aggressive optimization for 256MB constraint
-
-### Target Hardware
-- **Device**: Barnes & Noble Nook Simple Touch
-- **CPU**: TI OMAP3621 @ 800MHz (ARM Cortex-A8)
-- **RAM**: 256MB (160MB reserved for writing)
+### Build Requirements
+- Docker (for cross-compilation)
+- 10GB free disk space
+- Linux or WSL2 environment
 - **Display**: 6" E-Ink (800x600, 16-level grayscale)
 - **Storage**: 2GB internal + SD card slot
 

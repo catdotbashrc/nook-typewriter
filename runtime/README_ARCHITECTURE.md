@@ -18,7 +18,7 @@ runtime/
 
 Originally planned as 5 layers with kernel modules, we simplified to 4 layers because:
 - JesterOS runs entirely in **userspace** (no kernel modules)
-- Uses `/var/jesteros/` instead of `/proc/squireos/`
+- Uses `/var/jesteros/` instead of `/proc/jesteros/`
 - Avoids kernel compilation complexity
 - Aligns with "writers over features" philosophy
 

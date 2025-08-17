@@ -1,5 +1,5 @@
 # Medieval Writing Elements ASCII Art Collection
-# Candles, Quills, Parchment, and More for SquireOS
+# Candles, Quills, Parchment, and More for JesterOS
 
 ## CANDLES
 
@@ -143,7 +143,7 @@ Frame 1:     Frame 2:     Frame 3:
       ____  ____
      /    \/    \
     |            |
-    |  SquireOS  |
+    |  JesterOS  |
     |   Manual   |
     |            |
      \__________/
@@ -264,7 +264,7 @@ Frame 1:        Frame 2:         Frame 3:
 ```
     ,               ,
    /|              /|
-  / |  SquireOS   / |
+  / |  JesterOS   / |
  |  |  ========  |  |
  |  |  v1.0.0    |  |
 [____]          [____]

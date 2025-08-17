@@ -49,12 +49,12 @@ menuconfig JESTEROS
 
 ### Architecture Evolution
 1. **Legacy Kernel Approach** (Deprecated):
-   - Kernel modules in `source/kernel/src/drivers/jokeros/`
+   - Kernel modules in `build/kernel/src/drivers/jokeros/`
    - Required cross-compilation with Android NDK
    - Created `/proc/jokeros/` interface
    
 2. **Current Userspace Approach**:
-   - Shell scripts in `source/scripts/boot/`
+   - Shell scripts in `runtime/2-application/jesteros/`
    - No kernel compilation needed
    - Creates `/var/jesteros/` interface
 
@@ -173,11 +173,12 @@ Pre-commit hooks ensure code quality on the dev branch:
 
 ### JesterOS modules not loading
 ```bash
-# Check if modules built
-ls source/kernel/src/drivers/jesteros/*.ko
+# JesterOS is now userspace-only
+# Check services instead:
+ls runtime/2-application/jesteros/*.sh
 
-# Check kernel config
-grep JESTEROS source/kernel/src/.config
+# Services running check
+ps aux | grep jesteros
 
 # Check module dependencies
 modinfo jesteros_core.ko
@@ -188,14 +189,14 @@ modinfo jesteros_core.ko
 # Run with verbose output
 bash -x tests/pre-flight.sh
 
-# Check specific module
-grep -r "JESTEROS" source/kernel/src/
+# Check JesterOS references
+grep -r "jesteros" runtime/
 ```
 
 ### Build failures
 ```bash
 # Clean build
-rm -rf source/kernel/src/.config
+rm -rf build/kernel/src/.config
 ./build_kernel.sh
 
 # Check Docker image
@@ -206,20 +207,20 @@ docker images | grep jokernel-unified
 
 ### Configuration Files
 - `.kernel.env` - Build environment configuration
-- `source/kernel/src/drivers/jesteros/jesteros_config.h` - Kernel constants
-- `source/kernel/src/drivers/Kconfig.jesteros` - Kernel config menu
-- `scripts/version-control.sh` - Version management
+- `runtime/2-application/jesteros/` - JesterOS userspace services
+- `runtime/3-system/common/common.sh` - Common library
+- `tools/version-control.sh` - Version management
 
 ### Build Scripts
 - `build_kernel.sh` - Main kernel build script
 - `tests/pre-flight.sh` - Pre-deployment validation
 - `tests/kernel-safety.sh` - Kernel module safety checks
 
-### Module Source
-- `source/kernel/src/drivers/jesteros/jesteros_core.c` - Core module
-- `source/kernel/src/drivers/jesteros/jester.c` - ASCII art
-- `source/kernel/src/drivers/jesteros/typewriter.c` - Writing tracker
-- `source/kernel/src/drivers/jesteros/wisdom.c` - Quote system
+### JesterOS Userspace Services
+- `runtime/2-application/jesteros/daemon.sh` - Core daemon
+- `runtime/2-application/jesteros/jester.sh` - ASCII art
+- `runtime/2-application/jesteros/typewriter.sh` - Writing tracker
+- `runtime/2-application/jesteros/wisdom.sh` - Quote system
 
 ## Historical Notes
 

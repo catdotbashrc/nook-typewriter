@@ -3,7 +3,7 @@
 # Lives in userspace, no kernel rebuild needed!
 
 # Source common functions and safety settings
-COMMON_PATH="${COMMON_PATH:-/runtime/scrip../../3-system/common/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/runtime/3-system/common/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
 else
@@ -14,7 +14,7 @@ fi
 
 # Use common constants or define locally
 JESTER_DIR="${JESTER_DIR:-/var/lib/jester}"
-JESTER_PROC="/proc/jester"
+JESTER_PROC="/var/jesteros/jester"
 JESTER_STATE="$JESTER_DIR/state"
 JESTER_WISDOM="$JESTER_DIR/wisdom"
 ACHIEVEMENT_FILE="$JESTER_DIR/achievements"
@@ -148,10 +148,10 @@ check_achievements() {
     done
 }
 
-# Create pseudo-proc entries (using regular files)
+# Create userspace entries 
 create_proc_entries() {
-    # Symlink to make it feel like /proc
-    [ ! -L "$JESTER_PROC" ] && ln -sf "$JESTER_DIR" "$JESTER_PROC" 2>/dev/null
+    # Create /var/jesteros interface directory
+    mkdir -p "$(dirname "$JESTER_PROC")"
     
     # Update entries
     update_jester_state

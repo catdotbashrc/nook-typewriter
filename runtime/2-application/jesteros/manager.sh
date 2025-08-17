@@ -7,7 +7,20 @@ set -e
 
 # Source the service functions
 SCRIPT_DIR=$(dirname "$0")
-. "$SCRIPT_DIR/../../3-system/common/service-functions.sh"
+SERVICE_FUNCTIONS="$SCRIPT_DIR/../../3-system/common/service-functions.sh"
+
+# Try multiple paths for service functions
+if [ -f "$SERVICE_FUNCTIONS" ]; then
+    . "$SERVICE_FUNCTIONS"
+elif [ -f "/runtime/3-system/common/service-functions.sh" ]; then
+    . "/runtime/3-system/common/service-functions.sh"
+else
+    echo "Error: Cannot find service-functions.sh" >&2
+    echo "Searched:" >&2
+    echo "  - $SERVICE_FUNCTIONS" >&2
+    echo "  - /runtime/3-system/common/service-functions.sh" >&2
+    exit 1
+fi
 
 # Display usage
 usage() {

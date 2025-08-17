@@ -23,7 +23,7 @@ boot_log() {
 boot_log "INFO" "Starting JesterOS boot sequence"
 
 # Source common functions and safety settings
-COMMON_PATH="${COMMON_PATH:-/runtime/scripts/lib/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/runtime/3-system/common/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
 else

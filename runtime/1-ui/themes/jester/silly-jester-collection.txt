@@ -1,4 +1,4 @@
-# 🎭 The Ridiculous Jester Collection for SquireOS 🎭
+# 🎭 The Ridiculous Jester Collection for JesterOS 🎭
 # E-Ink Optimized ASCII Art - Maximum Silliness Edition!
 
 ## The Derpy Court Jester (Main Boot Logo)
@@ -20,7 +20,7 @@ d |    |_____|    | b
  (_)   |     |   (_)
        (_)   (_)
 
-    SquireOS v1.0
+    JesterOS v1.0
   "I dropped the quill!"
 ```
 

@@ -1,4 +1,4 @@
-# Chibi Jester ASCII Art Variations for SquireOS
+# Chibi Jester ASCII Art Variations for JesterOS
 
 ## Main Boot Splash (Centered, E-Ink Optimized)
 ```
@@ -13,7 +13,7 @@
          /|   |\
         (_)   (_)
 
-      SquireOS v1.0
+      JesterOS v1.0
     "At your service!"
 ```
 
