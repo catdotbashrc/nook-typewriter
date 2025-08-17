@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="800" viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- JesterOS Splash Screen - Intricate Vector Design -->
+  
+  <!-- Background gradient for depth -->
+  <defs>
+    <!-- Radial gradient for vignette effect -->
+    <radialGradient id="bgGradient" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#f0f0f0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d0d0d0;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Pattern for jester hat -->
+    <pattern id="diamondPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <polygon points="10,0 20,10 10,20 0,10" fill="#606060" />
+      <polygon points="10,2 18,10 10,18 2,10" fill="#909090" />
+    </pattern>
+    
+    <!-- Drop shadow filter -->
+    <filter id="dropshadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="2" dy="3" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Text glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="600" height="800" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative border frame -->
+  <g id="border" stroke="#404040" stroke-width="3" fill="none">
+    <!-- Outer frame -->
+    <rect x="20" y="20" width="560" height="760" rx="10" ry="10"/>
+    
+    <!-- Inner decorative corners -->
+    <path d="M 40,40 L 80,40 L 40,80 Z" fill="#606060"/>
+    <path d="M 560,40 L 520,40 L 560,80 Z" fill="#606060"/>
+    <path d="M 40,760 L 80,760 L 40,720 Z" fill="#606060"/>
+    <path d="M 560,760 L 520,760 L 560,720 Z" fill="#606060"/>
+  </g>
+  
+  <!-- Main Jester Face - Whimsical Character -->
+  <g id="jester" transform="translate(300,320)" filter="url(#dropshadow)">
+    
+    <!-- Angular Three-Pointed Jester Hat -->
+    <g id="hat">
+      <!-- Main hat with sharp angular points -->
+      <path d="M 0,-140 L -15,-100 L -60,-120 L -100,-100 L -95,-80 L -70,-85 L -30,-70 L 0,-60 
+               L 30,-70 L 70,-85 L 95,-80 L 100,-100 L 60,-120 L 15,-100 Z" 
+            fill="url(#diamondPattern)" stroke="#303030" stroke-width="2"/>
+      
+      <!-- Hat peaks/points -->
+      <path d="M -100,-100 L -110,-95 L -105,-85" fill="#606060" stroke="#303030" stroke-width="2"/>
+      <path d="M 0,-140 L -5,-145 L 5,-145 Z" fill="#606060" stroke="#303030" stroke-width="2"/>
+      <path d="M 100,-100 L 110,-95 L 105,-85" fill="#606060" stroke="#303030" stroke-width="2"/>
+      
+      <!-- Jingle bells on angular stems -->
+      <line x1="-100" y1="-100" x2="-105" y2="-75" stroke="#303030" stroke-width="2"/>
+      <circle cx="-105" cy="-70" r="10" fill="#808080" stroke="#303030" stroke-width="2"/>
+      <circle cx="-105" cy="-70" r="4" fill="#505050"/>
+      
+      <line x1="0" y1="-140" x2="0" y2="-115" stroke="#303030" stroke-width="2"/>
+      <circle cx="0" cy="-110" r="10" fill="#808080" stroke="#303030" stroke-width="2"/>
+      <circle cx="0" cy="-110" r="4" fill="#505050"/>
+      
+      <line x1="100" y1="-100" x2="105" y2="-75" stroke="#303030" stroke-width="2"/>
+      <circle cx="105" cy="-70" r="10" fill="#808080" stroke="#303030" stroke-width="2"/>
+      <circle cx="105" cy="-70" r="4" fill="#505050"/>
+    </g>
+    
+    <!-- More human-shaped head with chin -->
+    <path d="M -50,-40 Q -55,-20 -55,0 Q -55,20 -50,35 Q -45,50 -35,60 Q -20,70 0,72 Q 20,70 35,60 Q 45,50 50,35 Q 55,20 55,0 Q 55,-20 50,-40 Q 40,-55 20,-60 Q 0,-62 -20,-60 Q -40,-55 -50,-40 Z"
+          fill="#e8e8e8" stroke="#303030" stroke-width="2"/>
+    
+    <!-- Silly crossed eyes for whimsy -->
+    <g id="eyes">
+      <!-- Left eye - looking right -->
+      <ellipse cx="-20" cy="-15" rx="18" ry="22" fill="white" stroke="#303030" stroke-width="2"/>
+      <ellipse cx="-15" cy="-12" r="12" fill="#505050"/>
+      <circle cx="-12" cy="-10" r="6" fill="#202020"/>
+      <circle cx="-10" cy="-12" r="3" fill="white"/>
+      
+      <!-- Right eye - looking left -->
+      <ellipse cx="20" cy="-15" rx="18" ry="22" fill="white" stroke="#303030" stroke-width="2"/>
+      <ellipse cx="15" cy="-12" r="12" fill="#505050"/>
+      <circle cx="12" cy="-10" r="6" fill="#202020"/>
+      <circle cx="10" cy="-12" r="3" fill="white"/>
+      
+      <!-- Quirky eyebrows -->
+      <path d="M -38,-35 Q -20,-42 -5,-33" stroke="#303030" stroke-width="3" fill="none"/>
+      <path d="M 5,-33 Q 20,-42 38,-35" stroke="#303030" stroke-width="3" fill="none"/>
+    </g>
+    
+    <!-- Bulbous nose for silliness -->
+    <ellipse cx="0" cy="5" rx="12" ry="15" fill="#d8d8d8" stroke="#303030" stroke-width="2"/>
+    <ellipse cx="-4" cy="5" rx="3" ry="5" fill="#303030" opacity="0.3"/>
+    <ellipse cx="4" cy="5" rx="3" ry="5" fill="#303030" opacity="0.3"/>
+    
+    <!-- Wide silly grin -->
+    <path d="M -35,25 Q -30,40 -15,42 Q 0,45 15,42 Q 30,40 35,25" 
+          stroke="#303030" stroke-width="3" fill="none" stroke-linecap="round"/>
+    
+    <!-- Tongue sticking out -->
+    <ellipse cx="5" cy="38" rx="8" ry="12" fill="#c0c0c0" stroke="#303030" stroke-width="2"/>
+    
+    <!-- Rosy cheeks -->
+    <circle cx="-40" cy="15" r="10" fill="#c0c0c0" opacity="0.4"/>
+    <circle cx="40" cy="15" r="10" fill="#c0c0c0" opacity="0.4"/>
+    
+    <!-- Elaborate ruffled collar -->
+    <g id="collar" transform="translate(0,75)">
+      <path d="M -70,0 Q -75,8 -70,15 Q -65,8 -60,15 Q -55,8 -50,15 Q -45,8 -40,15 Q -35,8 -30,15 Q -25,8 -20,15 Q -15,8 -10,15 Q -5,8 0,15 Q 5,8 10,15 Q 15,8 20,15 Q 25,8 30,15 Q 35,8 40,15 Q 45,8 50,15 Q 55,8 60,15 Q 65,8 70,15 Q 75,8 70,0"
+            fill="#a0a0a0" stroke="#303030" stroke-width="2"/>
+    </g>
+    
+    <!-- Silly arms/hands gesturing -->
+    <g id="arms">
+      <!-- Left arm waving -->
+      <path d="M -55,70 Q -70,60 -80,55 Q -85,50 -82,45" 
+            stroke="#303030" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="-82" cy="45" r="8" fill="#e8e8e8" stroke="#303030" stroke-width="2"/>
+      
+      <!-- Right arm pointing -->
+      <path d="M 55,70 Q 70,65 85,65" 
+            stroke="#303030" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="85" cy="65" r="8" fill="#e8e8e8" stroke="#303030" stroke-width="2"/>
+    </g>
+  </g>
+  
+  <!-- JesterOS Logo Text -->
+  <g id="logo-text" transform="translate(300,520)">
+    <!-- Main title with Gothic/Old English style -->
+    <!-- Using serif with decorative strokes to simulate Gothic -->
+    <g id="gothic-title">
+      <!-- J -->
+      <path d="M 170,0 L 170,-45 Q 170,-50 165,-50 L 160,-50 Q 155,-50 155,-45 L 155,-5 Q 155,10 145,10 Q 135,10 135,0"
+            fill="#202020" stroke="#202020" stroke-width="1"/>
+      <path d="M 155,-50 L 155,-55 L 170,-55 L 170,-50" fill="#202020"/>
+      
+      <!-- e -->
+      <path d="M 180,0 Q 180,-10 190,-10 L 200,-10 Q 205,-10 205,-5 Q 205,0 200,0 L 185,0 Q 180,0 180,-5 Q 180,-10 185,-10"
+            fill="#202020"/>
+      
+      <!-- s -->
+      <path d="M 210,0 Q 210,-5 215,-5 L 220,-5 Q 225,-5 225,-2 Q 225,0 220,0 Q 215,0 215,-3 Q 215,-5 220,-5"
+            fill="#202020"/>
+      
+      <!-- t -->
+      <path d="M 230,-15 L 230,0 M 225,-10 L 235,-10" 
+            stroke="#202020" stroke-width="3" fill="none"/>
+      <path d="M 228,-15 L 232,-15 L 232,-18 L 228,-18 Z" fill="#202020"/>
+      
+      <!-- e -->
+      <path d="M 245,0 Q 245,-10 255,-10 L 265,-10 Q 270,-10 270,-5 Q 270,0 265,0 L 250,0 Q 245,0 245,-5 Q 245,-10 250,-10"
+            fill="#202020"/>
+      
+      <!-- r -->
+      <path d="M 275,0 L 275,-10 Q 275,-15 280,-15 Q 285,-15 285,-10" 
+            stroke="#202020" stroke-width="3" fill="none"/>
+      
+      <!-- Simplified for readability - using stylized text -->
+      <text x="0" y="0" font-family="serif" font-size="72" font-weight="900" 
+            text-anchor="middle" fill="#202020" filter="url(#glow)" 
+            style="letter-spacing: 3px; font-variant: small-caps;">JesterOS</text>
+      
+      <!-- Decorative flourishes -->
+      <path d="M -180,-10 Q -170,-15 -160,-10" stroke="#202020" stroke-width="2" fill="none"/>
+      <path d="M 160,-10 Q 170,-15 180,-10" stroke="#202020" stroke-width="2" fill="none"/>
+    </g>
+    
+    <!-- Subtitle in Gothic style -->
+    <text x="0" y="45" font-family="serif" font-size="20" font-weight="bold"
+          text-anchor="middle" fill="#404040" style="letter-spacing: 2px;">Distraction-Free Writing System</text>
+    
+    <!-- Version in medieval style -->
+    <text x="0" y="70" font-family="serif" font-size="16" font-style="italic"
+          text-anchor="middle" fill="#606060">Anno Domini MMXXV · Nook Edition</text>
+  </g>
+  
+  <!-- Decorative flourishes -->
+  <g id="flourishes" stroke="#505050" stroke-width="2" fill="none">
+    <!-- Left flourish -->
+    <path d="M 50,650 Q 30,670 50,690 Q 70,670 90,690"/>
+    <circle cx="50" cy="690" r="3" fill="#505050"/>
+    <circle cx="90" cy="690" r="3" fill="#505050"/>
+    
+    <!-- Right flourish -->
+    <path d="M 550,650 Q 570,670 550,690 Q 530,670 510,690"/>
+    <circle cx="550" cy="690" r="3" fill="#505050"/>
+    <circle cx="510" cy="690" r="3" fill="#505050"/>
+  </g>
+  
+  <!-- Medieval quote banner -->
+  <g id="banner" transform="translate(300,700)">
+    <!-- Banner shape with more Gothic detail -->
+    <path d="M -160,0 L -160,35 L -150,30 L -140,35 L -130,30 L -120,35 L -120,0 Z
+             M 160,0 L 160,35 L 150,30 L 140,35 L 130,30 L 120,35 L 120,0 Z" 
+          fill="#808080" stroke="#303030" stroke-width="1"/>
+    <rect x="-120" y="0" width="240" height="35" fill="#808080" stroke="#303030" stroke-width="1"/>
+    
+    <!-- Gothic crosses on banner ends -->
+    <path d="M -140,10 L -140,25 M -147,17 L -133,17" stroke="#f0f0f0" stroke-width="2"/>
+    <path d="M 140,10 L 140,25 M 133,17 L 147,17" stroke="#f0f0f0" stroke-width="2"/>
+    
+    <!-- Quote text in Gothic style -->
+    <text x="0" y="22" font-family="serif" font-size="14" font-weight="bold" font-style="italic"
+          text-anchor="middle" fill="#f0f0f0" style="letter-spacing: 1px;">
+      "By Quill & Code, Thy Words Take Flight"
+    </text>
+  </g>
+  
+  <!-- Corner decorations with intricate patterns -->
+  <g id="corner-patterns">
+    <!-- Top-left -->
+    <g transform="translate(60,60)">
+      <circle cx="0" cy="0" r="20" fill="none" stroke="#606060" stroke-width="1"/>
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#707070" stroke-width="1"/>
+      <circle cx="0" cy="0" r="10" fill="none" stroke="#808080" stroke-width="1"/>
+      <circle cx="0" cy="0" r="5" fill="#909090"/>
+    </g>
+    
+    <!-- Top-right -->
+    <g transform="translate(540,60)">
+      <circle cx="0" cy="0" r="20" fill="none" stroke="#606060" stroke-width="1"/>
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#707070" stroke-width="1"/>
+      <circle cx="0" cy="0" r="10" fill="none" stroke="#808080" stroke-width="1"/>
+      <circle cx="0" cy="0" r="5" fill="#909090"/>
+    </g>
+    
+    <!-- Bottom-left -->
+    <g transform="translate(60,740)">
+      <circle cx="0" cy="0" r="20" fill="none" stroke="#606060" stroke-width="1"/>
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#707070" stroke-width="1"/>
+      <circle cx="0" cy="0" r="10" fill="none" stroke="#808080" stroke-width="1"/>
+      <circle cx="0" cy="0" r="5" fill="#909090"/>
+    </g>
+    
+    <!-- Bottom-right -->
+    <g transform="translate(540,740)">
+      <circle cx="0" cy="0" r="20" fill="none" stroke="#606060" stroke-width="1"/>
+      <circle cx="0" cy="0" r="15" fill="none" stroke="#707070" stroke-width="1"/>
+      <circle cx="0" cy="0" r="10" fill="none" stroke="#808080" stroke-width="1"/>
+      <circle cx="0" cy="0" r="5" fill="#909090"/>
+    </g>
+  </g>
+  
+  <!-- Fine detail grid pattern overlay (subtle) -->
+  <g id="grid-overlay" opacity="0.1">
+    <defs>
+      <pattern id="grid" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="10" stroke="#000000" stroke-width="0.5"/>
+        <line x1="0" y1="0" x2="10" y2="0" stroke="#000000" stroke-width="0.5"/>
+      </pattern>
+    </defs>
+    <rect width="600" height="800" fill="url(#grid)"/>
+  </g>
+</svg>

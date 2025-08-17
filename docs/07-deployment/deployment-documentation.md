@@ -4,7 +4,7 @@
 
 ## Overview
 
-The deployment package provides everything needed to install JesterOS on a Barnes & Noble Nook Simple Touch, transforming it into a medieval-themed digital typewriter. JesterOS now runs as lightweight userspace services, making deployment simpler and safer.
+The deployment package provides everything needed to install JesterOS on a Barnes & Noble Nook Simple Touch, transforming it into a medieval-themed digital typewriter. JesterOS now runs as lightweight userspace services with our resilient **4-partition recovery architecture**, making deployment simpler, safer, and virtually indestructible.
 
 ---
 
@@ -14,8 +14,16 @@ The deployment package provides everything needed to install JesterOS on a Barne
 deployment_package/
 ├── README.md                    # Package documentation
 ├── install.sh                   # Automated installer script
+├── create-sdcard.sh            # 4-partition SD card creator
 ├── boot/
-│   └── uImage                   # Linux kernel 2.6.29
+│   ├── MLO                     # First stage bootloader
+│   ├── u-boot.bin              # Second stage bootloader
+│   ├── uImage                  # Linux kernel 2.6.29
+│   └── boot.scr                # Boot script with recovery
+├── images/
+│   ├── jesteros-system.tar.gz  # Main system image
+│   ├── jesteros-recovery.tar.gz # Recovery system
+│   └── checksums.md5           # Integrity verification
 ├── usr/
 │   └── local/
 │       └── bin/
@@ -84,23 +92,43 @@ sudo update-rc.d jesteros defaults
 sudo /etc/init.d/jesteros start
 ```
 
-### Method 3: SD Card Deployment
+### Method 3: 4-Partition SD Card Deployment (Recommended)
 
-**For development and testing**:
+**For production deployment with recovery**:
 
-1. **Prepare SD card** with deployment package:
+1. **Create 4-partition SD card**:
 ```bash
-# Copy to SD card
-cp -r deployment_package/* /media/sdcard/nook-deploy/
+# Run automated script
+sudo ./create-sdcard.sh /dev/sdX
+
+# This creates:
+# - Partition 1: BOOT (512MB) - Bootloader & recovery flags
+# - Partition 2: SYSTEM (1.5GB) - JesterOS (read-only)
+# - Partition 3: RECOVERY (1.5GB) - Factory image & tools
+# - Partition 4: WRITING (remaining) - User documents
 ```
 
-2. **Boot Nook** from SD card
-
-3. **Install from SD**:
+2. **Deploy JesterOS**:
 ```bash
-cd /mnt/sdcard/nook-deploy
-./install.sh
+# Extract to system partition
+sudo tar -xzf images/jesteros-system.tar.gz -C /mnt/system/
+
+# Install recovery image
+sudo tar -xzf images/jesteros-recovery.tar.gz -C /mnt/recovery/
+
+# Copy boot files (ORDER MATTERS!)
+sudo cp boot/MLO /mnt/boot/MLO && sync
+sudo cp boot/u-boot.bin /mnt/boot/u-boot.bin && sync
+sudo cp boot/uImage /mnt/boot/uImage && sync
+sudo cp boot/boot.scr /mnt/boot/boot.scr && sync
 ```
+
+3. **Boot Nook** from SD card
+
+4. **Recovery Options**:
+   - **Normal boot**: Powers on to JesterOS
+   - **Recovery mode**: Hold Power+Home during boot
+   - **Auto-recovery**: Triggers after 3 failed boots
 
 ### Method 4: NookManager Integration
 
@@ -220,21 +248,43 @@ cat /var/jesteros/wisdom  # Should show different quote
 
 ## 🔄 Updates and Upgrades
 
-### Updating JesterOS
+### Safe A/B Update System
+
+The 4-partition layout enables risk-free updates:
 
 ```bash
-# Stop service
-sudo /etc/init.d/jesteros stop
+# Method 1: Update via Recovery Partition
+# Download update to recovery partition
+wget -O /recovery/images/jesteros-v1.1.tar.gz https://...
+
+# Verify checksum
+md5sum -c /recovery/images/checksums.md5
+
+# Test update in recovery partition first
+touch /boot/TEST_UPDATE
+reboot  # Boots from recovery partition
+
+# If successful, swap partitions
+dd if=/dev/mmcblk0p3 of=/dev/mmcblk0p2 bs=4M status=progress
+```
+
+### Traditional Update (In-Place)
+
+```bash
+# Mount system partition read-write
+mount -o remount,rw /
 
 # Backup current version
-sudo cp -r /usr/local/bin/jesteros-*.sh /usr/local/bin/backup/
+cp -r /usr/local/bin/jesteros-*.sh /recovery/backup/
 
-# Copy new scripts
-sudo cp new-version/jesteros-*.sh /usr/local/bin/
-sudo chmod +x /usr/local/bin/jesteros-*.sh
+# Apply updates
+tar -xzf jesteros-update.tar.gz -C /
 
-# Restart service
-sudo /etc/init.d/jesteros start
+# Remount read-only
+mount -o remount,ro /
+
+# Restart services
+/etc/init.d/jesteros restart
 ```
 
 ### Version Management
@@ -298,11 +348,18 @@ tail -f /var/log/jesteros.log
 
 ## 📊 Performance Impact
 
-### Resource Usage
+### Resource Usage (4-Partition Setup)
 - **Memory**: ~500KB RAM (userspace scripts)
 - **CPU**: <1% average usage
-- **Disk**: ~50KB for scripts, <1MB for data
-- **Boot time**: +2 seconds for JesterOS startup
+- **Disk Usage**:
+  - BOOT: 10MB used of 512MB
+  - SYSTEM: 450MB used of 1.5GB
+  - RECOVERY: 450MB used of 1.5GB
+  - WRITING: User data (unlimited)
+- **Boot time**: 
+  - Normal boot: 15-18 seconds
+  - Recovery boot: 12-15 seconds
+  - JesterOS startup: +2 seconds
 
 ### Optimization Tips
 - Adjust update interval for less CPU usage
@@ -332,7 +389,7 @@ chmod 755 /var/jesteros
 
 ## 📦 Creating Deployment Packages
 
-### Package Builder Script
+### Package Builder Script (4-Partition)
 
 ```bash
 #!/bin/bash
@@ -341,30 +398,84 @@ chmod 755 /var/jesteros
 VERSION="1.0.0"
 PACKAGE_NAME="jesteros-nook-${VERSION}"
 
-echo "Building JesterOS deployment package v${VERSION}"
+echo "Building JesterOS deployment package v${VERSION} with recovery"
 
 # Create structure
-mkdir -p ${PACKAGE_NAME}/{usr/local/bin,etc/init.d,var/jesteros/typewriter,boot}
+mkdir -p ${PACKAGE_NAME}/{usr/local/bin,etc/init.d,var/jesteros/typewriter}
+mkdir -p ${PACKAGE_NAME}/{boot,images,recovery,tools}
 
-# Copy files
+# Copy system files
 cp source/scripts/boot/jesteros-*.sh ${PACKAGE_NAME}/usr/local/bin/
 cp source/configs/system/jesteros.init ${PACKAGE_NAME}/etc/init.d/jesteros
-cp firmware/boot/uImage ${PACKAGE_NAME}/boot/ 2>/dev/null || true
 
-# Create installer
-cat > ${PACKAGE_NAME}/install.sh << 'EOF'
+# Copy boot files (critical order!)
+cp firmware/boot/MLO ${PACKAGE_NAME}/boot/
+cp firmware/boot/u-boot.bin ${PACKAGE_NAME}/boot/
+cp firmware/boot/uImage ${PACKAGE_NAME}/boot/
+cp scripts/boot.scr ${PACKAGE_NAME}/boot/
+
+# Create system and recovery images
+tar -czf ${PACKAGE_NAME}/images/jesteros-system.tar.gz -C build/rootfs/ .
+tar -czf ${PACKAGE_NAME}/images/jesteros-recovery.tar.gz -C build/recovery/ .
+
+# Generate checksums
+(cd ${PACKAGE_NAME}/images && md5sum *.tar.gz > checksums.md5)
+
+# Create SD card preparation script
+cat > ${PACKAGE_NAME}/create-sdcard.sh << 'EOF'
 #!/bin/bash
-set -e
-echo "Installing JesterOS userspace..."
-cp -r usr/local/bin/* /usr/local/bin/
-cp -r etc/init.d/* /etc/init.d/
-mkdir -p /var/jesteros/typewriter
-chmod +x /usr/local/bin/jesteros-*.sh
-chmod +x /etc/init.d/jesteros
-update-rc.d jesteros defaults 2>/dev/null || true
-echo "JesterOS installed successfully!"
-echo "Start with: /etc/init.d/jesteros start"
+set -euo pipefail
+
+DEVICE="${1:-}"
+[ -z "$DEVICE" ] && echo "Usage: $0 /dev/sdX" && exit 1
+
+echo "Creating 4-partition JesterOS SD card on $DEVICE"
+echo "WARNING: This will ERASE all data!"
+read -p "Continue? (yes/no): " confirm
+[ "$confirm" != "yes" ] && exit 1
+
+# Create partitions with sector 63 alignment
+sudo fdisk $DEVICE << FDISK_EOF
+o
+n
+p
+1
+63
++512M
+t
+c
+a
+1
+n
+p
+2
+
++1536M
+n
+p
+3
+
++1536M
+n
+e
+
+
+n
+
+
+w
+FDISK_EOF
+
+# Format partitions
+sudo mkfs.vfat -F 16 -n BOOT ${DEVICE}1
+sudo mkfs.ext4 -L JESTEROS ${DEVICE}2
+sudo mkfs.ext4 -L RECOVERY ${DEVICE}3
+sudo mkfs.ext4 -L WRITING ${DEVICE}5
+
+echo "SD card prepared! Now run deploy.sh to install JesterOS."
 EOF
+
+chmod +x ${PACKAGE_NAME}/create-sdcard.sh
 
 chmod +x ${PACKAGE_NAME}/install.sh
 
@@ -377,10 +488,12 @@ echo "Package created: ${PACKAGE_NAME}.tar.gz"
 
 ## 🔗 Related Documentation
 
-- [JesterOS Userspace Deployment](deployment/DEPLOY_JESTEROS_USERSPACE.md)
-- [Boot Guide](BOOT_GUIDE_CONSOLIDATED.md)
-- [Migration from Kernel Modules](MIGRATION_TO_USERSPACE.md)
-- [Testing Procedures](TESTING_PROCEDURES.md)
+- [4-Partition Strategy](../storage/PARTITION_STRATEGY.md)
+- [SD Card Boot Guide](../01-getting-started/sd-card-boot-guide.md)
+- [Build Guide](../02-build/jesteros-build-guide.md)
+- [Hardware Reference](../hardware/)
+- [Recovery Procedures](../storage/PARTITION_STRATEGY.md#emergency-recovery-procedures)
+- [Testing Procedures](../08-testing/testing-procedures.md)
 
 ---
 
