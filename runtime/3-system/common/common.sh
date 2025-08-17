@@ -6,6 +6,13 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# === Source Consolidated Functions ===
+# Phase 2: Load centralized functions to eliminate duplication
+CONSOLIDATED_FUNCTIONS="${CONSOLIDATED_FUNCTIONS:-/runtime/3-system/common/consolidated-functions.sh}"
+if [ -f "$CONSOLIDATED_FUNCTIONS" ]; then
+    source "$CONSOLIDATED_FUNCTIONS"
+fi
+
 # === Error Handling ===
 # Enhanced error handler with context
 error_handler() {
@@ -54,25 +61,8 @@ var_exists() {
     [[ -n "${!var_name:-}" ]]
 }
 
-# Validate menu choice
-validate_menu_choice() {
-    local choice="${1:-}"
-    local max="${2:-9}"
-    
-    if [[ -z "$choice" ]]; then
-        return 1
-    fi
-    
-    if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
-        return 1
-    fi
-    
-    if (( choice < 1 || choice > max )); then
-        return 1
-    fi
-    
-    return 0
-}
+# CONSOLIDATION: validate_menu_choice() moved to consolidated-functions.sh
+# New signature: validate_menu_choice choice [min] [max] - more flexible than before
 
 # E-Ink aware sleep
 e_sleep() {
@@ -81,36 +71,12 @@ e_sleep() {
 }
 
 # === Display Abstraction ===
+# CONSOLIDATION: Display functions moved to consolidated-functions.sh to eliminate duplication
+# Functions available: display_text(), clear_display(), display_error(), display_status()
 
-# Check if we have E-Ink display
+# Check if we have E-Ink display (kept here as it's used by other functions)
 has_eink() {
     command -v fbink >/dev/null 2>&1
-}
-
-# Display text with E-Ink support
-display_text() {
-    local text="$1"
-    local refresh="${2:-0}"  # 0=no refresh, 1=refresh
-    
-    if has_eink; then
-        if [[ "$refresh" == "1" ]]; then
-            echo "$text" | fbink -c -
-        else
-            echo "$text" | fbink -
-        fi
-    else
-        # Fallback for Docker/testing
-        echo "$text"
-    fi
-}
-
-# Clear display
-clear_display() {
-    if has_eink; then
-        fbink -c >/dev/null 2>&1 || true
-    else
-        clear
-    fi
 }
 
 # Display banner with proper formatting
