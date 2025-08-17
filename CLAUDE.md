@@ -15,19 +15,23 @@ This transforms a $20 used e-reader into a $400 distraction-free writing device.
 
 ```yaml
 Hardware Limits:
-  CPU: 800 MHz ARM (slower than 2008 iPhone)
-  RAM: 256MB total (160MB for writing after OS)
-  Display: 6" E-Ink (800x600, 16 grayscale)
+  CPU: 800 MHz ARM Cortex-A8 (OMAP3621 GOSSAMER)
+  RAM: 233MB total (35MB available after Android base system)
+  Display: 6" E-Ink Pearl (600x1600, 16 grayscale)
   Storage: SD card based
   Power: <100mA USB output
 ```
 
-### Memory Budget - DO NOT VIOLATE
+### Memory Budget - CRITICAL REALITY (Updated from ADB device analysis)
 ```
-Reserved for OS:     95MB (Debian base)
-Reserved for Vim:    10MB (editor + plugins)
-SACRED Writing Space: 160MB (DO NOT TOUCH)
+Android Base System:  188MB (measured from real device over 6+ hours)
+JesterOS Userspace:    10MB (ASCII art, stats, wisdom - ABSOLUTE MAXIMUM)
+Vim + Minimal Config:   8MB (no syntax highlighting, minimal history)
+Available for Writing: 27MB (REALISTIC MAXIMUM - this constraint is a FEATURE!)
 ```
+
+**REALITY CHECK**: ADB analysis of real Nook device (192.168.12.111:5555) shows only 35MB total available.
+**PHILOSOPHY**: This constraint ENHANCES writing focus - forces true minimalism and distraction-free experience!
 
 ## High-Level Architecture
 
@@ -324,6 +328,26 @@ All shell scripts now implement:
 ❌ Features requiring constant refresh
 ❌ Scripts without proper error handling
 ❌ Removing safety validations
+
+### Development Workflow Rules
+
+**ALWAYS prefer updating existing files over creating new ones:**
+- ✅ Edit existing scripts to add functionality
+- ✅ Update existing documentation files
+- ✅ Enhance existing configurations
+- ✅ Extend existing test suites
+- ❌ Create new files when existing ones can be updated
+- ❌ Duplicate functionality in separate files
+- ❌ Create new documentation when existing docs can be enhanced
+
+**File Creation Guidelines:**
+- Only create new files when functionality is genuinely distinct
+- Consolidate similar functions into existing modules
+- Update existing README/docs rather than creating new ones
+- Extend existing test files rather than creating parallel tests
+
+**Memory Constraint Reasoning:**
+With only 35MB available RAM, every file matters. Fewer files = less memory overhead, simpler maintenance, and better focus on core writing functionality.
 
 ## Key Implementation Details
 
