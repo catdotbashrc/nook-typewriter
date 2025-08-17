@@ -14,6 +14,13 @@ echo "════════════════════════�
 # Ensure we're in the right directory
 cd "$SCRIPT_DIR"
 
+# Setup kernel source (uses local copy or downloads from catdotbashrc/nst-kernel)
+if [ -f "$SCRIPT_DIR/setup-kernel-source.sh" ]; then
+    echo "→ Setting up kernel source..."
+    "$SCRIPT_DIR/setup-kernel-source.sh" || exit 1
+    echo ""
+fi
+
 # Check if XDA-proven Docker image exists, build if needed
 if ! docker images | grep -q "jokernel-unified"; then
     echo "→ Building XDA-proven Docker environment..."

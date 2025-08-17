@@ -28,6 +28,11 @@ RUN apt-get update && apt-get install -y \
 # Alternative to CodeSourcery that community has verified works
 # SHA256 checksum for Android NDK r12b to prevent supply chain attacks
 ENV NDK_SHA256="eafae2d614e5475a3bcfd7c5f201db5b963cc1290ee3e8ae791ff0c66757781e"
+
+# Kernel source configuration - using catdotbashrc/nst-kernel as primary source
+# This provides a more reliable mirror than felixhaedicke/nst-kernel
+ENV KERNEL_REPO="https://github.com/catdotbashrc/nst-kernel.git"
+ENV KERNEL_BRANCH="master"
 RUN mkdir -p /opt && \
     cd /opt && \
     wget -q https://dl.google.com/android/repository/android-ndk-r12b-linux-x86_64.zip && \

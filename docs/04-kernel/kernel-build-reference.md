@@ -15,29 +15,30 @@
 ./build_kernel.sh
 
 # Build only uImage (faster rebuild)
-docker run --rm -v "$(pwd)/source/kernel:/kernel" -w /kernel/src \
+# Note: Kernel source is downloaded during build, not stored in repo
+docker run --rm -v "$(pwd)/build/kernel:/kernel" -w /kernel/src \
   quillkernel-unified make ARCH=arm CROSS_COMPILE=arm-linux-androideabi- uImage
 
 # Clean build (remove artifacts)
-docker run --rm -v "$(pwd)/source/kernel:/kernel" -w /kernel/src \
+docker run --rm -v "$(pwd)/build/kernel:/kernel" -w /kernel/src \
   quillkernel-unified make ARCH=arm CROSS_COMPILE=arm-linux-androideabi- clean
 
 # Configure kernel only
-docker run --rm -v "$(pwd)/source/kernel:/kernel" -w /kernel/src \
+docker run --rm -v "$(pwd)/build/kernel:/kernel" -w /kernel/src \
   quillkernel-unified make ARCH=arm omap3621_gossamer_evt1c_defconfig
 ```
 
 ### Configuration Commands
 ```bash
 # Interactive kernel configuration
-docker run -it --rm -v "$(pwd)/source/kernel:/kernel" -w /kernel/src \
+docker run -it --rm -v "$(pwd)/build/kernel:/kernel" -w /kernel/src \
   quillkernel-unified make ARCH=arm CROSS_COMPILE=arm-linux-androideabi- menuconfig
 
 # Apply NST default configuration  
-cd source/kernel/src && make ARCH=arm omap3621_gossamer_evt1c_defconfig
+cd build/kernel/src && make ARCH=arm omap3621_gossamer_evt1c_defconfig
 
-# Add SquireOS configuration
-echo -e '\nCONFIG_SQUIREOS=m\nCONFIG_SQUIREOS_JESTER=y\nCONFIG_SQUIREOS_TYPEWRITER=y\nCONFIG_SQUIREOS_WISDOM=y' >> .config
+# JesterOS is now userspace-only, no kernel config needed
+# Services run from runtime/2-application/jesteros/
 ```
 
 ### Validation Commands
@@ -46,8 +47,8 @@ echo -e '\nCONFIG_SQUIREOS=m\nCONFIG_SQUIREOS_JESTER=y\nCONFIG_SQUIREOS_TYPEWRIT
 file firmware/boot/uImage
 ls -lh firmware/boot/uImage
 
-# Verify kernel configuration
-grep -i squireos source/kernel/src/.config
+# Note: JesterOS now runs in userspace
+# No kernel modules needed - services at runtime/2-application/jesteros/
 
 # Test build environment
 docker run --rm quillkernel-unified arm-linux-androideabi-gcc --version
@@ -78,7 +79,8 @@ Entry Point: 0x80008000
 
 ### Build Artifacts
 ```
-source/kernel/src/
+# Kernel build directory (temporary during build)
+build/kernel/src/
 ├── arch/arm/boot/
 │   ├── uImage          # Final bootable image
 │   ├── zImage          # Compressed kernel image  
@@ -106,13 +108,12 @@ CONFIG_MMC_OMAP_HS=y                   # SD card support
 CONFIG_USB_MUSB_HDRC=y                 # USB OTG
 ```
 
-### SquireOS Module Configuration
+### JesterOS Userspace Configuration
 ```bash
-# Medieval-themed modules (manually added)
-CONFIG_SQUIREOS=m                      # Core SquireOS module
-CONFIG_SQUIREOS_JESTER=y               # ASCII art mood system
-CONFIG_SQUIREOS_TYPEWRITER=y           # Writing statistics
-CONFIG_SQUIREOS_WISDOM=y               # Inspirational quotes
+# JesterOS now runs entirely in userspace
+# No kernel modules needed
+# Services located at: runtime/2-application/jesteros/
+# Including: jester.sh, typewriter.sh, wisdom.sh
 ```
 
 ### Memory Configuration
@@ -154,21 +155,21 @@ docker run --rm quillkernel-unified which arm-linux-androideabi-gcc
 **Issue**: `Can't use 'defined(@array)' at kernel/timeconst.pl line 373`
 ```bash
 # Solution: Already fixed in current source
-grep -n "if (!@val)" source/kernel/src/kernel/timeconst.pl
+grep -n "if (!@val)" build/kernel/src/kernel/timeconst.pl
 # Should show line 373 with correct syntax
 ```
 
 **Issue**: `No rule to make target 'omap3621_gossamer_evt1c_defconfig'`
 ```bash
 # Solution: Verify kernel source integration
-ls source/kernel/src/arch/arm/configs/omap3621_gossamer_evt1c_defconfig
+ls build/kernel/src/arch/arm/configs/omap3621_gossamer_evt1c_defconfig
 # File should exist from felixhaedicke/nst-kernel integration
 ```
 
 **Issue**: `uImage not created`
 ```bash
 # Check if zImage was created first
-ls -la source/kernel/src/arch/arm/boot/zImage
+ls -la build/kernel/src/arch/arm/boot/zImage
 
 # Verify u-boot-tools is available in Docker
 docker run --rm quillkernel-unified which mkimage
@@ -179,11 +180,11 @@ docker run --rm quillkernel-unified which mkimage
 **Slow Build Times**:
 ```bash
 # Increase parallel jobs (default: 4)
-docker run --rm -v "$(pwd)/source/kernel:/kernel" -w /kernel/src \
+docker run --rm -v "$(pwd)/build/kernel:/kernel" -w /kernel/src \
   quillkernel-unified make -j8 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- uImage
 
 # Use ccache for faster rebuilds (if available)
-docker run --rm -v "$(pwd)/source/kernel:/kernel" -w /kernel/src \
+docker run --rm -v "$(pwd)/build/kernel:/kernel" -w /kernel/src \
   quillkernel-unified bash -c "export USE_CCACHE=1 && make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- uImage"
 ```
 
@@ -200,21 +201,18 @@ make -j2 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- uImage
 
 **Missing Modules**:
 ```bash
-# Verify SquireOS configuration
-grep -E "CONFIG_SQUIREOS" source/kernel/src/.config
-
-# Re-apply if missing
-echo -e '\nCONFIG_SQUIREOS=m\nCONFIG_SQUIREOS_JESTER=y\nCONFIG_SQUIREOS_TYPEWRITER=y\nCONFIG_SQUIREOS_WISDOM=y' >> source/kernel/src/.config
+# JesterOS is now userspace-only
+# Services located at runtime/2-application/jesteros/
+# No kernel modules needed
 ```
 
 **Wrong Configuration**:
 ```bash
 # Reset to NST defaults
-cd source/kernel/src
+cd build/kernel/src
 make ARCH=arm omap3621_gossamer_evt1c_defconfig
 
-# Then re-add SquireOS configs
-echo -e '\nCONFIG_SQUIREOS=m\nCONFIG_SQUIREOS_JESTER=y\nCONFIG_SQUIREOS_TYPEWRITER=y\nCONFIG_SQUIREOS_WISDOM=y' >> .config
+# JesterOS runs in userspace - no kernel config needed
 ```
 
 ---
@@ -249,13 +247,11 @@ hexdump -C firmware/boot/uImage | head -2
 ### Configuration Validation
 ```bash
 # Essential configs present
-grep -c "CONFIG_ARCH_OMAP3=y" source/kernel/src/.config
-grep -c "CONFIG_MACH_OMAP3621_GOSSAMER_EVT1C=y" source/kernel/src/.config
-grep -c "CONFIG_FB_OMAP3EP=y" source/kernel/src/.config
+grep -c "CONFIG_ARCH_OMAP3=y" build/kernel/src/.config
+grep -c "CONFIG_MACH_OMAP3621_GOSSAMER_EVT1C=y" build/kernel/src/.config
+grep -c "CONFIG_FB_OMAP3EP=y" build/kernel/src/.config
 
-# SquireOS configs present  
-grep -c "CONFIG_SQUIREOS=m" source/kernel/src/.config
-grep -c "CONFIG_SQUIREOS_JESTER=y" source/kernel/src/.config
+# JesterOS runs in userspace - no kernel modules
 ```
 
 ---
@@ -311,7 +307,7 @@ Power:
 ### Custom Configuration
 ```bash
 # Create custom defconfig
-cd source/kernel/src
+cd build/kernel/src
 make ARCH=arm savedefconfig
 cp defconfig arch/arm/configs/quillkernel_defconfig
 
@@ -321,14 +317,10 @@ sed -i 's/omap3621_gossamer_evt1c_defconfig/quillkernel_defconfig/' build_kernel
 
 ### Module Development
 ```bash
-# Prepare for SquireOS module development
-mkdir -p source/kernel/src/drivers/squireos
-cat > source/kernel/src/drivers/squireos/Makefile << 'EOF'
-obj-$(CONFIG_SQUIREOS) += squireos_core.o
-obj-$(CONFIG_SQUIREOS) += jester.o  
-obj-$(CONFIG_SQUIREOS) += typewriter.o
-obj-$(CONFIG_SQUIREOS) += wisdom.o
-EOF
+# JesterOS is now userspace-only
+# Services located at runtime/2-application/jesteros/
+# No kernel module development needed
+# Services: jester.sh, typewriter.sh, wisdom.sh, daemon.sh
 ```
 
 ### Performance Profiling
@@ -340,7 +332,7 @@ time ./build_kernel.sh
 docker stats --no-stream quillkernel-unified
 
 # Profile disk usage
-du -sh source/kernel/src/
+du -sh build/kernel/src/
 ```
 
 ---
@@ -358,9 +350,9 @@ du -sh source/kernel/src/
 ### Configuration Files
 | File | Purpose | Location |
 |------|---------|----------|
-| `.config` | Active kernel config | `source/kernel/src/.config` |
+| `.config` | Active kernel config | `build/kernel/src/.config` |
 | `defconfig` | Default NST config | `arch/arm/configs/omap3621_gossamer_evt1c_defconfig` |
-| `uImage.config` | Proven config | `source/kernel/nst-proven.config` |
+| `uImage` | Final kernel image | `firmware/boot/uImage` |
 
 ### Build Artifacts
 | Artifact | Size | Purpose |
