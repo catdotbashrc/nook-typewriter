@@ -506,18 +506,22 @@ This project is licensed under GPL v2 - see [LICENSE](LICENSE) file for details.
 ## 🚦 Current Status
 
 ### Completed ✅
+- [x] **Successful SD card deployment** (August 17, 2025) - Files deployed to SD
 - [x] Kernel module architecture with `/proc/squireos/` interface
 - [x] Docker-based cross-compilation environment
-- [x] Minimal root filesystem (<30MB compressed)
-- [x] Comprehensive test suite (90%+ coverage)
+- [x] Minimal root filesystem (~59MB uncompressed)
+- [x] Comprehensive test suite (7 primary tests + runners)
 - [x] Script safety improvements (input validation, error handling)
-- [x] SD card installation scripts
+- [x] SD card installation scripts with GK61 keyboard support
 - [x] ASCII art jester with mood system
 - [x] Writing statistics tracking
+- [x] 4-layer runtime architecture (UI/Application/System/Hardware)
+- [x] Debian Lenny 5.0 base for Nook compatibility
 
 ### In Progress 🔄
-- [ ] Hardware testing on actual Nook device
-- [ ] Vim writing environment integration
+- [ ] **First hardware boot verification** - Awaiting test on actual Nook
+- [ ] Hardware testing optimization on actual Nook device
+- [ ] Vim writing environment full integration
 - [ ] Power management optimization
 
 ### Future Plans 📅
