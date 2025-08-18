@@ -163,7 +163,7 @@ done
 # ============================================
 log_info "Checking Docker files for path updates..."
 
-for dockerfile in development/docker/*.dockerfile; do
+for dockerfile in build/docker/*.dockerfile; do
     if [ -f "$dockerfile" ]; then
         # Check for old runtime/scripts paths
         if grep -q "runtime/scripts" "$dockerfile" 2>/dev/null; then
