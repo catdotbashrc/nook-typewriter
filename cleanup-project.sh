@@ -1,7 +1,7 @@
 #!/bin/bash
 # cleanup-project.sh - JesterOS Project Cleanup Script
 # Purpose: Organize project structure while preserving production files
-# Usage: bash cleanup-project.sh [--dry-run]
+# Usage: bash cleanup-project.sh [--dry-run|--force]
 # Author: JesterOS Team
 # Date: 2025-01-18
 
@@ -9,8 +9,17 @@ set -euo pipefail
 trap 'echo "Error at line $LINENO"' ERR
 
 # Configuration
-DRY_RUN=${1:-}
+ARG=${1:-}
+DRY_RUN=""
+FORCE=""
 EXEC_CMD=""
+
+# Parse arguments
+if [[ "$ARG" == "--dry-run" ]]; then
+    DRY_RUN="true"
+elif [[ "$ARG" == "--force" ]]; then
+    FORCE="true"
+fi
 CLEANUP_LOG="cleanup-$(date +%Y%m%d-%H%M%S).log"
 
 # Colors for output
@@ -39,16 +48,24 @@ if [[ ! -f "CLAUDE.md" || ! -d "runtime" ]]; then
     error "Not in JesterOS root directory. Please run from project root."
 fi
 
-if [[ "$DRY_RUN" == "--dry-run" ]]; then
+if [[ "$DRY_RUN" == "true" ]]; then
     log "🔍 DRY RUN MODE - No changes will be made"
     EXEC_CMD="echo [DRY-RUN]"
+elif [[ "$FORCE" == "true" ]]; then
+    log "🚀 FORCE MODE - Changes will be made without confirmation"
 else
     log "🚀 LIVE MODE - Changes will be made"
-    read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log "Cleanup cancelled by user"
-        exit 0
+    # Check if we're in an interactive terminal
+    if [[ -t 0 ]]; then
+        read -p "Are you sure you want to proceed? (y/N) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log "Cleanup cancelled by user"
+            exit 0
+        fi
+    else
+        warn "Non-interactive mode detected, skipping confirmation"
+        warn "Use --dry-run first if unsure about changes"
     fi
 fi
 
@@ -174,13 +191,13 @@ fi
 
 # 7. Clean up empty directories
 log "🗑️ Removing empty directories..."
-if [[ -z "$DRY_RUN" ]]; then
+if [[ "$DRY_RUN" != "true" ]]; then
     find . -type d -empty -not -path "./.git/*" -not -path "./.archives/*" -not -path "./runtime/1-ui/setup" -delete 2>/dev/null && ((CLEANED_DIRS++)) || true
 fi
 
 # 8. Update .gitignore
 log "📝 Updating .gitignore..."
-if [[ -z "$DRY_RUN" ]]; then
+if [[ "$DRY_RUN" != "true" ]]; then
     if ! grep -q "^\.archives/" .gitignore 2>/dev/null; then
         cat >> .gitignore << 'EOF'
 
