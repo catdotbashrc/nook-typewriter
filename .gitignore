@@ -1,29 +1,12 @@
 # ==================================================================
-# Nook Typewriter Project - Git Ignore Configuration
+# JesterOS/Nook Project - Streamlined Git Ignore
 # ==================================================================
 
 # ------------------------------------------------------------------
-# Build Artifacts & Generated Files
+# Core Build Artifacts (Never commit these)
 # ------------------------------------------------------------------
 
-# Firmware build outputs
-firmware/kernel/uImage
-firmware/kernel/modules/*.ko
-firmware/rootfs/usr/local/bin/*
-firmware/boot/*
-# Allow NookManager.img specifically
-!firmware/bootloaders/NookManager.img
-firmware/**/*.img
-firmware/**/*.tar.gz
-
-# Release images
-releases/*.img
-releases/*.sha256
-releases/*.tar.gz
-releases/*.zip
-
-# Build temporary files
-build/tmp/
+# Kernel build outputs
 *.o
 *.ko
 *.mod.c
@@ -32,59 +15,53 @@ build/tmp/
 *.a
 *.so
 *.elf
+.tmp_versions/
+Module.symvers
+modules.order
 
-# ------------------------------------------------------------------
-# Kernel Build Artifacts (CRITICAL - DO NOT COMMIT)
-# ------------------------------------------------------------------
-
-# Entire kernel source (not stored in repo - download during build)
+# Kernel source (downloaded during build)
 kernel/src/
-
-# Object files and modules (anywhere in the project)
-**/*.o
-**/*.ko
-**/*.mod.c
-**/*.mod
-**/*.cmd
-**/*.order
-**/*.symvers
-**/*.markers
-**/modules.order
-**/Module.symvers
-**/.tmp_versions/
-**/built-in.o
-**/*.ko.cmd
-**/.*.ko.cmd
-**/.*.o.cmd
+source/kernel/src/
 
 # ------------------------------------------------------------------
-# Testing & Profiling
+# Build Outputs & Archives
 # ------------------------------------------------------------------
 
-# Test artifacts
-tests/reports/
+# Keep only essential images
+*.img
+!images/NookManager.img
+!images/2gb_clockwork-rc2.img
+!images/128mb_clockwork-rc2.img
+!firmware/bootloaders/NookManager.img
+
+# Temporary rootfs archives (created during build)
+*-rootfs-*.tar.gz
+jesteros-*.tar.gz
+!jesteros.tar.gz  # Keep the main one if needed
+
+# Build directories
+build/output/
+build/tmp/
+build/cache/
+
+# ------------------------------------------------------------------
+# Development & Testing
+# ------------------------------------------------------------------
+
+# Test outputs
 tests/*.log
-tests/**/*.log
-tests/memory-profiles/
-test_report_*.md
-test_log_*.txt
-.test_cache/
+tests/reports/
+test_*.txt
+test_*.md
 
-# Coverage reports
-coverage/
+# Coverage and profiling
 *.coverage
 *.gcov
-*.gcda
-*.gcno
-
-# Performance profiling
-*.perf
 *.prof
 perf.data
-perf.data.old
 
 # ------------------------------------------------------------------
-# Development Tools & IDEs
+# IDE & Editor Files
 # ------------------------------------------------------------------
 
 # VS Code / Cursor
@@ -92,222 +69,123 @@ perf.data.old
 .cursor/
 *.code-workspace
 
-# IntelliJ IDEA
-.idea/
-*.iml
-*.ipr
-*.iws
-
 # Vim
 *.swp
 *.swo
-*.swn
 *~
 .*.swp
-.*.swo
-
-# Emacs
-\#*\#
-.\#*
 
 # Tags
 tags
 TAGS
-.tags
-.tags1
-gtags.files
-GTAGS
-GRTAGS
-GPATH
-GSYMS
 cscope.*
 
 # ------------------------------------------------------------------
-# AI Assistant Tools
-# ------------------------------------------------------------------
-
-# MCP (Model Context Protocol)
-.mcp.json
-
-# Simone activity tracking (local only)
-.simone/
-
-# Claude artifacts
-.claude/
-claude-artifacts/
-
-# ------------------------------------------------------------------
-# Documentation Generation
-# ------------------------------------------------------------------
-
-# Temporarily generated docs (if regenerating)
-docs/generated/
-docs/tmp/
-
-# Sphinx
-docs/_build/
-docs/_static/
-docs/_templates/
-
-# Doxygen
-docs/doxygen/
-docs/html/
-docs/latex/
-
-# ------------------------------------------------------------------
-# Docker
-# ------------------------------------------------------------------
-
-# Docker build cache
-docker-cache/
-
-# IMPORTANT: Track Docker build configurations
-!build/docker/
-!build/docker/**/*.dockerfile
-!build/docker/**/*.Dockerfile
-
-# ------------------------------------------------------------------
-# Operating System Files
+# System Files
 # ------------------------------------------------------------------
 
 # macOS
 .DS_Store
-.AppleDouble
-.LSOverride
-Icon?
 ._*
-.Spotlight-V100
-.Trashes
 
 # Windows
 Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msm
-*.msp
+*.Zone.Identifier
 
 # Linux
 .directory
 .Trash-*
-.nfs*
 
 # ------------------------------------------------------------------
-# Logs & Temporary Files
+# Temporary & Backup Files
 # ------------------------------------------------------------------
 
-# Log files
+# Logs
 *.log
-logs/
 *.err
 *.out
 
-# Temporary files
+# Backups
+*.bak
+*.backup
+*.old
+*.orig
+
+# Temporary
 *.tmp
 *.temp
 tmp/
 temp/
 
-# Backup files
-*.bak
-*.backup
-*.old
-*.orig
-*.save
-
-# Patch files (unless you want to track them)
-*.patch
-*.diff
-*.rej
-
 # ------------------------------------------------------------------
-# Project Specific
+# Project-Specific Ignores
 # ------------------------------------------------------------------
 
-# Old/deprecated directories (these have been migrated)
-source/
-scripts/lib/common.sh
-build/scripts/source/
+# Old migration directories
+.archives/
+backups/
 old/
 deprecated/
 
-# Large image files (track with Git LFS if needed)
-images/2gb_clockwork-rc2.img
-# NookManager.img - allowed for bootloader base
-# *.img - keep other images ignored for now
-!firmware/boot/uImage
-
-# Android NDK (if downloaded locally)
+# Downloaded toolchains
 android-ndk-*/
-ndk/
-
-# Toolchain downloads
 toolchain/
-cross-compiler/
 
-# SD card images
-sdcard/
-*.sdcard
-
-# Personal notes (optional)
+# Personal notes
 notes/
 personal/
 TODO.personal
 
-# Zettelkasten directories (local note-taking workspace)
-.zk/
-**/.zk/
+# Docker artifacts
+.dockerenv
+docker-cache/
+
+# AI Assistant artifacts
+.mcp.json
+.simone/
+.claude/
 
 # ------------------------------------------------------------------
-# Python (for any helper scripts)
+# Exceptions - Always Track These
 # ------------------------------------------------------------------
 
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-dist/
-build/
-.pytest_cache/
-
-# ------------------------------------------------------------------
-# Exceptions - Files to TRACK
-# ------------------------------------------------------------------
-
-# Keep important config files
-!.gitignore
-!.gitattributes
+# Core project files
 !Makefile
 !*.dockerfile
+!*.Dockerfile
+!.gitignore
+!.gitattributes
 
-# Keep build scripts (important for the build process)
-!build/scripts/
-!build/scripts/**
-!Dockerfile
-
-# Keep documentation
+# Documentation
 !*.md
 !LICENSE
 !CHANGELOG
 
-# Keep runtime code (new structure)
-!runtime/**/*.sh
-!runtime/configs/**
-!runtime/ui/**
-!runtime/modules/**
+# Critical scripts
+!build.sh
+!build_kernel.sh
+!install_to_sdcard.sh
+!build/scripts/create-phoenix-installer.sh
 
-# Keep development tools
-!tools/**
+# Docker configurations
+!build/docker/
+!build/docker/**/*.dockerfile
 
-# Keep test scripts
+# Test scripts
 !tests/*.sh
 !tests/deployment-checklist.md
 
-# Keep build scripts
-!build.sh
-!build_kernel.sh
-!install_to_sdcard.sh*.o
-*.ko
-kernel/src/
+# Source utilities
+!source/utilities/**/*.sh
+!source/configs/**
+
+# Runtime code
+!runtime/**/*.sh
+!runtime/**/*.vim
+!runtime/**/*.txt
+
+# Utility scripts
+!utilities/**/*.sh
+
+# Tools
+!tools/**/*.sh
