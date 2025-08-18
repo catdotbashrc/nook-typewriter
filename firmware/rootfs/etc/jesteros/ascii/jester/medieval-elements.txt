@@ -1,2 +1,295 @@
-# SYMLINK TARGET: runtime/1-ui/themes/jester/medieval-elements.txt
-# This location should contain a symlink to the consolidated themes directory
+# Medieval Writing Elements ASCII Art Collection
+# Candles, Quills, Parchment, and More for JesterOS
+
+## CANDLES
+
+### Single Candle (Lit)
+```
+    ,
+   /|
+  / |
+ |  |
+ |  |
+[____]
+```
+
+### Single Candle (Flickering)
+```
+Frame 1:     Frame 2:     Frame 3:
+    ,           \           )
+   /|           /|         /|
+  / |          / |        / |
+ |  |         |  |       |  |
+[____]       [____]     [____]
+```
+
+### Triple Candelabra
+```
+    ,     ,     ,
+   /|    /|    /|
+  /_|___/_|___/_|
+ |_______________|
+ \_______________/
+```
+
+### Melting Candle
+```
+    ,
+   /|
+  / |~
+ |  |~~
+ |  |~~~
+[____]~~~~
+```
+
+### Extinguished Candle
+```
+    .
+    |
+  / |
+ |  |
+ |  |
+[____]
+```
+
+## QUILLS
+
+### Simple Quill
+```
+      _
+    _/ }
+   /  /
+  /  /
+ |  |
+ |  |
+  \/
+```
+
+### Quill in Inkwell
+```
+      _
+    _/ }
+   /  /
+  /  /
+ |  |
+ \  /
+  ||
+ [__]
+ \__/
+```
+
+### Quill Writing
+```
+      _
+    _/ }
+   /  /  ~~~
+  /  /  ~~~~~
+ |  |  
+  \/
+```
+
+### Fancy Feather Quill
+```
+     ___
+   _/o o\
+  / o o /
+ |  o  /
+ |    /
+ |   |
+  \ /
+   V
+```
+
+## PARCHMENT & SCROLLS
+
+### Unfurled Parchment
+```
+ _________________
+|                 |
+|                 |
+|                 |
+|                 |
+|_________________|
+```
+
+### Scroll (Side View)
+```
+  __
+ /  \___________
+|    ___________>
+ \__/
+```
+
+### Rolled Scroll
+```
+  ____
+ /    \
+| (__) |
+ \____/
+```
+
+### Ancient Tome
+```
+ _______________
+||             ||
+||   SQUIRE    ||
+||     OS      ||
+||_____________||
+|_______________| 
+```
+
+### Open Book
+```
+      ____  ____
+     /    \/    \
+    |            |
+    |  JesterOS  |
+    |   Manual   |
+    |            |
+     \__________/
+```
+
+## INKWELLS
+
+### Simple Inkwell
+```
+  ___
+ /   \
+|  █  |
+ \___/
+```
+
+### Ornate Inkwell
+```
+  .-.
+ (   )
+|~~~~~|
+ \___/
+```
+
+### Inkwell with Spill
+```
+  ___
+ /   \
+| ~~~ |
+ \___/ ~~~
+   ~~~~~~
+```
+
+## WRITING DESK SCENE
+
+### Complete Writing Setup
+```
+    ,                 _
+   /|               _/ }
+  / |              /  /
+ |  |    ____     |  |
+ |  |   /    \     \/     
+[____] |      |   [__]
+       |______|   \__/
+      Candle    Parchment  Quill
+```
+
+### Scriptorium Corner
+```
+     Medieval Writing Station
+    ========================
+         ,        
+        /|    _______________ 
+       / |   |               |
+      |  |   | "Pay close    |    _
+      |  |   | attention to  |  _/ }
+     [____]  | all manner    | /  /
+       ___   | of things..." | \  /
+      /   \  |_______________| [__]
+     |  █  |                   \__/
+      \___/  
+    Candle      Parchment      Quill
+```
+
+## SEALS & STAMPS
+
+### Wax Seal
+```
+  ___
+ /   \
+| ⚜️ |
+ \___/
+```
+
+### Letter with Seal
+```
+ _______
+|       |
+|       |
+|_______|
+   |_|
+  (⚜️)
+```
+
+## SPECIAL EFFECTS
+
+### Illuminated Letter 'S'
+```
+ ╔═══╗
+ ║ ⚜️║
+ ╚═╗ ║
+   ║ ║
+ ╔═╝ ║
+ ╚═══╝
+```
+
+### Writing Animation
+```
+Frame 1:        Frame 2:         Frame 3:
+     _               _                _
+   _/ }            _/ }             _/ }
+  /  /            /  / ~           /  / ~~
+ |  |            |  |  ~~         |  |  ~~~
+  \/              \/    ~~~        \/    ~~~~
+```
+
+### Candlelight Glow (for headers)
+```
+        , * ,
+    * /  |  \ *
+  *  |   |   |  *
+     |   |   |
+     [_______]
+```
+
+## USAGE EXAMPLES
+
+### Boot Screen with Candles
+```
+    ,               ,
+   /|              /|
+  / |  JesterOS   / |
+ |  |  ========  |  |
+ |  |  v1.0.0    |  |
+[____]          [____]
+```
+
+### Save Confirmation with Seal
+```
+   ___
+  /   \   Document sealed
+ | ⚜️ |  successfully!
+  \___/
+```
+
+### Writing Mode Header
+```
+      _     WRITING MODE
+    _/ }    ===========
+   /  /     Word Count: 0
+  |  |      Time: 00:00
+   \/
+```
+
+## Implementation Notes:
+- All elements use standard ASCII characters
+- Designed for E-Ink's high contrast display
+- Can be combined to create scenes
+- Animations use simple frame swaps
+- Medieval aesthetic throughout

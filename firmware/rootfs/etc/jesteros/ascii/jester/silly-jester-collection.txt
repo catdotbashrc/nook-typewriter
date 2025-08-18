@@ -1,2 +1,197 @@
-# SYMLINK TARGET: runtime/1-ui/themes/jester/silly-jester-collection.txt
-# This location should contain a symlink to the consolidated themes directory
+# 🎭 The Ridiculous Jester Collection for JesterOS 🎭
+# E-Ink Optimized ASCII Art - Maximum Silliness Edition!
+
+## The Derpy Court Jester (Main Boot Logo)
+```
+       .~"~.~"~.
+      /  @   @  \
+     | >  ___  < |
+     |  \  ~  /  |
+      \  '---'  /
+    .~`-._____.-'~.
+   /   |~|~|~|   \
+  |  //|  ♦  |\\  |
+  |=// |     | \\=|
+  |/   |     |   \|
+ /|    | ಠ_ಠ |    |\
+d |    |_____|    | b
+  |   /|     |\   |
+  |__/ |     | \__|
+ (_)   |     |   (_)
+       (_)   (_)
+
+    JesterOS v1.0
+  "I dropped the quill!"
+```
+
+## The Overly Excited Jester (Successful Operations)
+```
+    \o/~.~\o/
+     | ^ ^ |
+     | > < |
+     \ ‿‿‿ /
+    __|♦|♦|__
+   /  \___/  \
+  |  HUZZAH!  |
+   \_  ___  _/
+     |/   \|
+    (_)   (_)
+```
+
+## The Confused Jester (Error Messages)
+```
+     .~???~.
+    / o   o \
+   |   >.<   |
+   |  ___    |
+    \ \  / ? /
+     |♦|♦|?
+     | | |
+     |_|_|
+    /     \
+   ?       ?
+
+"M'lord, I've befuddled myself!"
+```
+
+## The Sleepy Jester (Idle/Suspend)
+```
+    .~zzZ~.
+   ( - - )
+   |  ~  |
+    \ _ /
+    |♦|♦|
+    |___|  
+   z     z
+  
+"Dreaming of scrolls..."
+```
+
+## The Panicked Jester (Critical Errors)
+```
+    !!!!!!!!
+   / O   O \
+  | __   __ |
+  |  \___/  |
+   \       /
+    |♦|♦|
+    |\|/|
+    | ! |
+   /|\ /|\
+  
+"THE PARCHMENT IS ON FIRE!"
+```
+
+## The Scholarly Jester (Loading/Processing)
+```
+     .~"~.
+    / -.- \    📜
+   | '---' |  /
+   |  ___  | /
+    |♦|_|♦|/
+    |  |  |
+    |__|__|
+   
+"Consulting the ancient texts..."
+```
+
+## The Dancing Jester (Success Animations)
+```
+Frame 1:        Frame 2:        Frame 3:
+   .~"~.          .~"~.           .~"~.
+  / > < \        / > < \         / > < \
+  | ‿‿‿ |        | ‿‿‿ |         | ‿‿‿ |
+  |♦|♦|♦|        |♦|♦|♦|         |♦|♦|♦|
+  /|   |\        ||   ||         |\   |/
+ d |   | b      d |   | b       d |   | b
+   |\ /|          || ||           |/ \|
+  (_) (_)        (_) (_)         (_) (_)
+```
+
+## The Upside-Down Jester (System Crash)
+```
+   (_) (_)
+    |   |
+   /|\ /|\
+   |♦|♦|♦|
+   \ n n /
+    | < |
+     \_/
+    '~"~'
+    
+"Everything's fine! (It's not)"
+```
+
+## The Tiny Desk Jester (Menu Headers)
+```
+ .~. 
+(o.o)
+|>◡<|
+|♦|♦|
+```
+
+## The Wide-Eyed Jester (New User Welcome)
+```
+     .~*~*~.
+    / O   O \
+   | ___‿___ |
+   \ \     / /
+    \_\♦/_/
+     | | |
+     |_|_|
+    /  |  \
+   
+"A NEW MASTER TO SERVE!"
+```
+
+## The Jester's Disembodied Head (Loading Spinner)
+```
+Frame 1: .~.    Frame 2: .~.    Frame 3: .~.    Frame 4: .~.
+        (o.o)           (-.-)           (o.o)           (-.-)
+         \_/             \_/             \_/             \_/
+```
+
+## The Dramatic Jester (File Not Found)
+```
+      .~"~.
+     / x x \
+    |  ___  |
+    | |   | |
+     \|___|/
+      |♦|♦|
+      |o|o|
+     /|T|\
+    | | | |
+    
+"Alas! The scroll has vanished!"
+```
+
+## The Sneaky Jester (Background Process)
+```
+         .~.
+        (>.>)
+         | |
+        /|\|\
+       ♦ ♦ ♦
+    
+*whispers* "Working quietly, m'lord..."
+```
+
+## Design Philosophy:
+- Big expressive eyes for emotions
+- Exaggerated expressions
+- Silly poses and gestures
+- Medieval bells represented by ~.~
+- Diamond patterns (♦) for traditional jester outfit
+- Simple shapes that render well on E-Ink
+- Each has a personality and purpose
+- Intentionally derpy and endearing
+
+## E-Ink Optimization Notes:
+- Uses basic ASCII characters
+- Avoids fine details
+- High contrast design
+- No gradient characters
+- Works at small sizes
+- Animations use simple frame swaps
+```
