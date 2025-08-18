@@ -1,0 +1,259 @@
+{
+  "project_overview": {
+    "name": "The Phoenix Project",
+    "author": "nmyshkin",
+    "purpose": "Provide options for continued use of Nook Simple Touch after B&N end-of-life (June 2024)",
+    "forum_url": "https://xdaforums.com/t/nst-g-the-phoenix-project.4673934/",
+    "total_forum_lines_analyzed": 11050,
+    "phases": [
+      {
+        "phase": 1,
+        "description": "CWM backup images of registered devices running FW 1.2.2, not rooted",
+        "backup_size": "240 MB",
+        "battery_life": "Best (1-2% overnight drain)"
+      },
+      {
+        "phase": 2,
+        "description": "CWM backup images of registered devices running FW 1.2.2, rooted, with heavily modified UI",
+        "backup_size": "300+ MB",
+        "includes": ["Stock B&N reader", "Kindle app", "EBookDroid", "Custom UI"]
+      },
+      {
+        "phase": 3,
+        "description": "CWM backup images running FW 1.1.5, rooted, with B&N system removed",
+        "backup_sizes": {
+          "AlReader": "236-239 MB",
+          "CoolReader": "237-264 MB",
+          "FBReader": "234-235 MB",
+          "Mantano": "241 MB",
+          "RTL_builds": "294-299 MB"
+        },
+        "firmware_choice": "1.1.5 for partial refresh support"
+      }
+    ]
+  },
+  
+  "technical_findings": {
+    "firmware": {
+      "recommended_version": "1.2.2",
+      "alternative_version": "1.1.5",
+      "critical_note": "Device must be registered to avoid battery drain",
+      "version_differences": {
+        "1.2.2": "Better stability, no partial refresh for some apps",
+        "1.1.5": "Required for AlReader/CoolReader partial refresh"
+      }
+    },
+    
+    "kernel_modifications": {
+      "multi_touch": "Enhanced touch input handling",
+      "no_refresh": "Eliminates screen flicker (trades ghosting)",
+      "usb_host": "External device connectivity",
+      "usb_audio": "Audio device support"
+    },
+    
+    "hardware_models": {
+      "NST": {
+        "model": "BNRV300",
+        "name": "Nook Simple Touch"
+      },
+      "NSTG": {
+        "model": "BNRV350",
+        "name": "Nook Simple Touch with Glowlight"
+      }
+    },
+    
+    "power_management": {
+      "issue": "Unregistered devices with B&N software drain battery quickly",
+      "test_results": {
+        "registered_device": "89% battery after 7 days idle (1-2% daily drain)",
+        "unregistered_device": "Dead after 7 days idle (14%+ daily drain)",
+        "phase_1_overnight": "1-2% drain typical",
+        "reader_app_consumption": {
+          "EBookDroid_landscape": "76% to 33% in 3 hours with PDF",
+          "general_target": "1.5% daily drain idle"
+        }
+      },
+      "battery_drain_causes": [
+        "Unregistered B&N system polling",
+        "WiFi radio left on (may not show in status)",
+        "Weather widget",
+        "EBookDroid in landscape mode"
+      ],
+      "solution": "Either register device or completely remove B&N system"
+    },
+    
+    "backup_tools": {
+      "primary": "ClockworkMod (CWM)",
+      "alternative": "NookManager",
+      "backup_sizes": {
+        "stock_system": "~240 MB",
+        "custom_system": "~300 MB"
+      },
+      "cwm_versions": [
+        {
+          "size": "2 GB",
+          "download": "sd_2gb_clockwork-rc2.zip"
+        },
+        {
+          "size": "128 MB",
+          "download": "sd_128mb_clockwork-rc2.zip"
+        }
+      ]
+    },
+    
+    "sd_card_requirements": {
+      "minimum_size": "1 GB",
+      "recommended_brand": "SanDisk class 10",
+      "partition_requirements": "Must be bootable",
+      "tools_needed": [
+        "win32diskimager",
+        "MiniTool Partition Wizard (for extending partitions)"
+      ]
+    },
+    
+    "rooting": {
+      "tool": "Updated NookManager for FW 1.2.2",
+      "preserves_registration": true,
+      "forum_thread": "https://xdaforums.com/t/nst-g-updating-nookmanager-for-fw-1-2-2.3873048/"
+    },
+    
+    "regional_differences": {
+      "US_version": {
+        "splash_screen": "Read Forever",
+        "dictionary": "Merriam-Webster Collegiate",
+        "dictionary_customizable": true
+      },
+      "UK_version": {
+        "splash_screen": "Multilingual text",
+        "dictionary": "Oxford English Dictionary",
+        "dictionary_customizable": false,
+        "languages": ["English", "French", "Spanish", "German", "Italian"]
+      }
+    }
+  },
+  
+  "critical_bugs_and_fixes": {
+    "touch_screen_lockup": {
+      "description": "Touch becomes unresponsive after wake from screensaver",
+      "frequency": "Random (3 hours to 3 days)",
+      "symptoms": "Home button works, touch frozen",
+      "solutions": [
+        "Two-finger horizontal swipe gesture",
+        "Clean screen gutters with cotton swab/compressed air",
+        "Adjust screen timeout values",
+        "Test with/without slide-to-unlock"
+      ]
+    },
+    "hardware_button_issues": {
+      "problem": "Page-back function doesn't work",
+      "affected_apps": ["Stock reader", "Perfect Viewer"],
+      "solution": "Use NTMM settings or remap to scancode 93"
+    },
+    "boot_stuck_issues": {
+      "symptoms": "Stuck on 'Read Forever: Your Nook is starting up'",
+      "causes": ["Battery drained", "Bad flash", "Dirty contacts"],
+      "recovery": [
+        "Charge overnight",
+        "Hold power 30 seconds",
+        "Clean button area and gutters",
+        "Re-flash as last resort"
+      ]
+    },
+    "installation_gotchas": {
+      "media_folder": "Must copy /media folder for 'Now Reading' widget",
+      "cover_capture": "Tap upper-left for non-DRM book covers",
+      "multi_reader_conflict": "Running Stock + CoolReader causes conflicts"
+    }
+  },
+  
+  "critical_file_paths": {
+    "/media/NowReading/BookType/": "Contains file '1' for UI",
+    "/media/screensavers/CurrentBookcover": "Current book cover",
+    "/data/data/jp.co.bil.android.app.dskvzr/files": "UI app data",
+    "/system/usr/share/dict/": "Dictionary location (US version)",
+    "TWL4030_Keypad.kl": "Hardware button mapping file"
+  },
+  
+  "relevance_to_jesteros": {
+    "critical_insights": [
+      "Battery drain issue when not registered - must handle this in JesterOS",
+      "Touch screen lock-up is a known hardware issue - implement recovery gesture",
+      "CWM is the standard backup/restore tool for NST community",
+      "FW 1.2.2 is the most stable and supported version",
+      "Removing B&N system completely solves power issues",
+      "SD card bootability is crucial - SanDisk Class 10 proven to work"
+    ],
+    
+    "useful_tools": [
+      "ClockworkMod (CWM) for backup/restore",
+      "NookManager for rooting and system modification",
+      "win32diskimager for creating bootable SD cards"
+    ],
+    
+    "community_solutions": [
+      "Registration bypass methods",
+      "Power management optimizations",
+      "Custom launcher replacements (ReLaunch, ADB, MIUI)",
+      "Dictionary replacement methods (US version only)"
+    ],
+    
+    "hardware_limitations": [
+      "SD card compatibility varies by brand",
+      "CWM tends to freeze after writing to device",
+      "Different dictionary formats between US/UK versions"
+    ]
+  },
+  
+  "key_contributors": [
+    "jeff_kz",
+    "mali100",
+    "verygreen",
+    "marspeople",
+    "Renate",
+    "wskelly",
+    "pinguy1982",
+    "ros87",
+    "nivieru",
+    "Yura80",
+    "similardilemma",
+    "Ahmed hamouda"
+  ],
+  
+  "actionable_items_for_jesteros": {
+    "immediate": [
+      "Implement power management to avoid battery drain (target 1.5% daily)",
+      "Add two-finger swipe gesture for touch recovery",
+      "Document SanDisk Class 10 SD card requirement",
+      "Ensure SD card uses proper bootable partition structure",
+      "Target FW 1.2.2 for maximum compatibility"
+    ],
+    "should_implement": [
+      "Hardware contact cleaning instructions in docs",
+      "Battery monitoring with low-power warnings",
+      "Touch screen recovery mechanisms",
+      "Proper sleep/wake management",
+      "Installation validation scripts for required folders"
+    ],
+    "future_considerations": [
+      "CWM backup/restore compatibility",
+      "NookManager integration possibilities",
+      "Alternative launcher options (ReLaunch, ADW)",
+      "Kernel patches (multi-touch, NoRefresh, USB host)",
+      "RTL language support (Arabic/Hebrew)"
+    ],
+    "warnings": [
+      "Must handle registration state or remove B&N system entirely",
+      "Touch screen lock-up is a known hardware issue affecting all devices",
+      "SD card brand matters - SanDisk Class 10 proven to work",
+      "CWM freezing issue needs workaround",
+      "WiFi radio can drain battery even when appears off",
+      "EBookDroid in landscape mode causes severe battery drain"
+    ],
+    "performance_targets": {
+      "idle_battery_drain": "1.5% per day",
+      "overnight_drain": "1-2%",
+      "boot_time": "Under 30 seconds",
+      "touch_response": "Immediate after wake"
+    }
+  }
+}

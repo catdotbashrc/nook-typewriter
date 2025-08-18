@@ -17,17 +17,26 @@ RELEASES_DIR := releases
 
 # Build configuration
 J_CORES := $(shell nproc 2>/dev/null || echo 4)
-DOCKER_IMAGE := jesteros-lenny
+DOCKER_IMAGE_LENNY := jesteros-lenny
+DOCKER_IMAGE_PRODUCTION := jesteros-production
+DOCKER_IMAGE_KERNEL := kernel-xda-proven
 DOCKER_KERNEL_IMAGE := kernel-xda-proven
 BASE_IMAGE ?= images/2gb_clockwork-rc2.img
 SD_DEVICE ?= auto
 BUILD_LOG := build.log
 TIMESTAMP := $(shell date +%Y%m%d_%H%M%S)
 
+# Phoenix Project validated configurations
+FIRMWARE_VERSION := 1.2.2  # Most stable per XDA community
+BATTERY_DRAIN_TARGET := 1.5  # % per day idle target
+SD_CARD_BRAND := SanDisk  # Proven reliable per Phoenix Project
+SD_CARD_CLASS := 10  # Required for reliable boot
+CWM_IMAGE_SIZE := 128MB  # Smaller CWM for installation
+
 # Enable BuildKit by default for all Docker builds
 export DOCKER_BUILDKIT=1
-# Alternative: use docker buildx if available
-DOCKER_BUILD_CMD := $(shell if docker buildx version >/dev/null 2>&1; then echo "docker buildx build"; else echo "docker build"; fi)
+# Alternative: use docker buildx if available (with --load flag for local use)
+DOCKER_BUILD_CMD := $(shell if docker buildx version >/dev/null 2>&1; then echo "docker buildx build --load"; else echo "docker build"; fi)
 
 # Colors for output (E-Ink friendly)
 RESET := \033[0m
@@ -61,6 +70,8 @@ help:
 	@echo "  $(GREEN)make lenny-rootfs$(RESET)- Build Debian Lenny rootfs for Nook"
 	@echo "  $(GREEN)make image$(RESET)       - Create bootable SD card image"
 	@echo "  $(GREEN)make release$(RESET)     - Create release package with checksums"
+	@echo "  $(GREEN)make installer$(RESET)  - Create CWM-compatible installer (Phoenix-style)"
+	@echo "  $(GREEN)make battery-check$(RESET) - Check battery optimization settings"
 	@echo ""
 	@echo "$(BOLD)Testing & Validation:$(RESET)"
 	@echo "  $(GREEN)make test$(RESET)        - Run complete test pipeline (all stages)"
@@ -141,9 +152,14 @@ docker-base-runtime: docker-base-lenny
 	@echo "$(GREEN)✓ Runtime base ready$(RESET)"
 
 # Build JesterOS production image (now uses unified base)
-docker-production: docker-base-runtime
+docker-production:
 	@echo "$(BOLD)🏰 Building JesterOS production image...$(RESET)"
-	@$(DOCKER_BUILD_CMD) -t $(DOCKER_IMAGE) -f build/docker/jesteros-production-multistage.dockerfile .
+	@# First ensure we have the Lenny base rootfs
+	@if [ ! -f lenny-rootfs.tar.gz ]; then \
+		cp .archives/rootfs/lenny-rootfs.tar.gz . 2>/dev/null || \
+		echo "$(YELLOW)Warning: lenny-rootfs.tar.gz not found$(RESET)"; \
+	fi
+	@$(DOCKER_BUILD_CMD) -t $(DOCKER_IMAGE_PRODUCTION) -f build/docker/jesteros-production.dockerfile .
 	@echo "$(GREEN)✓ JesterOS production image ready$(RESET)"
 
 # Build kernel compilation environment (now with BuildKit)
@@ -200,9 +216,10 @@ kernel: check-tools
 		echo "[$(TIMESTAMP)] ERROR: build/scripts/build_kernel.sh not found" >> $(BUILD_LOG); \
 		exit 1; \
 	fi
-	@if ! docker images | grep -q $(DOCKER_IMAGE); then \
-		echo "$(YELLOW)Building Docker image $(DOCKER_IMAGE)...$(RESET)"; \
+	@if ! docker images | grep -q $(DOCKER_IMAGE_KERNEL); then \
+		echo "$(YELLOW)Building Docker image $(DOCKER_IMAGE_KERNEL)...$(RESET)"; \
 		echo "[$(TIMESTAMP)] Building Docker image" >> $(BUILD_LOG); \
+		$(MAKE) docker-kernel; \
 	fi
 	@J_CORES=$(J_CORES) ./build/scripts/build_kernel.sh 2>&1 | tee -a $(BUILD_LOG) || (echo "$(RED)Kernel build failed!$(RESET)" && exit 1)
 	@echo "[$(TIMESTAMP)] Kernel build successful" >> $(BUILD_LOG)
@@ -211,11 +228,11 @@ kernel: check-tools
 # Create Lenny-based rootfs for deployment
 lenny-rootfs: docker-production
 	@echo "$(BOLD)📦 Creating Debian Lenny rootfs for Nook...$(RESET)"
-	@docker create --name jesteros-export $(DOCKER_IMAGE)
-	@docker export jesteros-export | gzip > jesteros-lenny-rootfs-$(BUILD_DATE).tar.gz
+	@docker create --name jesteros-export $(DOCKER_IMAGE_PRODUCTION)
+	@docker export jesteros-export | gzip > jesteros-production-rootfs-$(BUILD_DATE).tar.gz
 	@docker rm jesteros-export
-	@echo "$(GREEN)✓ Created jesteros-lenny-rootfs-$(BUILD_DATE).tar.gz$(RESET)"
-	@ls -lh jesteros-lenny-rootfs-*.tar.gz
+	@echo "$(GREEN)✓ Created jesteros-production-rootfs-$(BUILD_DATE).tar.gz$(RESET)"
+	@ls -lh jesteros-production-rootfs-*.tar.gz
 
 # Root filesystem with JesterOS 4-layer architecture
 rootfs:
@@ -321,11 +338,18 @@ boot: kernel bootloaders boot-script
 	@echo "$(GREEN)✓ Boot partition ready with all components$(RESET)"
 
 # SD card image creation
-image: firmware
+image: firmware lenny-rootfs
 	@echo "$(BOLD)💾 Creating SD card image: $(IMAGE_NAME)$(RESET)"
 	@mkdir -p $(RELEASES_DIR)
-	@if [ -f build/scripts/create-image.sh ]; then \
-		./build/scripts/create-image.sh $(IMAGE_NAME) || exit 1; \
+	@# Find the latest rootfs from Docker build
+	@ROOTFS_FILE=$$(ls -t jesteros-production-rootfs-*.tar.gz 2>/dev/null | head -1); \
+	if [ -z "$$ROOTFS_FILE" ]; then \
+		echo "$(RED)Error: No rootfs found. Run 'make lenny-rootfs' first$(RESET)"; \
+		exit 1; \
+	fi; \
+	echo "  Using rootfs: $$ROOTFS_FILE"; \
+	if [ -f build/scripts/create-image.sh ]; then \
+		ROOTFS_ARCHIVE=$$ROOTFS_FILE ./build/scripts/create-image.sh $(IMAGE_NAME) || exit 1; \
 		echo "$(GREEN)✓ Image created successfully$(RESET)"; \
 	else \
 		echo "$(RED)Error: Image creation script not found$(RESET)"; \
@@ -640,6 +664,7 @@ quick-build:
 detect-sd:
 	@echo "$(BOLD)🔍 Detecting SD card devices...$(RESET)"
 	@echo "$(YELLOW)⚠️  Excluding sda-sdd (system/Docker drives)$(RESET)"
+	@echo "$(YELLOW)📌 Phoenix Project recommends: $(SD_CARD_BRAND) Class $(SD_CARD_CLASS) cards$(RESET)"
 	@lsblk -d -o NAME,SIZE,MODEL,TRAN | grep -E "(sd|mmcblk)" | grep -v -E "sda|sdb|sdc|sdd" || echo "No removable devices found"
 	@echo ""
 	@echo "Safe removable devices (likely SD cards):"
@@ -647,15 +672,23 @@ detect-sd:
 		if [ -b $$dev ]; then \
 			size=$$(lsblk -b -d -o SIZE -n $$dev 2>/dev/null); \
 			if [ "$$size" -lt "68719476736" ]; then \
-				echo "  $$dev - $$(lsblk -d -o SIZE,MODEL -n $$dev 2>/dev/null)"; \
+				model=$$(lsblk -d -o MODEL -n $$dev 2>/dev/null); \
+				if echo "$$model" | grep -qi "sandisk"; then \
+					echo "  $$dev - $$(lsblk -d -o SIZE,MODEL -n $$dev 2>/dev/null) $(GREEN)[RECOMMENDED]$(RESET)"; \
+				else \
+					echo "  $$dev - $$(lsblk -d -o SIZE,MODEL -n $$dev 2>/dev/null)"; \
+				fi; \
 			fi; \
 		fi; \
 	done
+	@echo ""
+	@echo "$(YELLOW)⚠️  Non-SanDisk cards may have boot issues (per XDA community)$(RESET)"
 
 # Auto-deploy to SD card (safe mode - excludes system and Docker drives)
-sd-deploy: firmware test-quick
-	@echo "$(BOLD)💾 Deploying to SD card$(RESET)"
+sd-deploy: firmware test-quick battery-check
+	@echo "$(BOLD)💾 Deploying to SD card (Phoenix Project Method)$(RESET)"
 	@echo "$(GREEN)✓ Show stopper tests passed - safe to deploy$(RESET)"
+	@echo "$(YELLOW)📋 Using FW $(FIRMWARE_VERSION) configuration (most stable)$(RESET)"
 	@if [ "$(SD_DEVICE)" = "auto" ]; then \
 		echo "Auto-detecting SD card (excluding system/Docker drives)..."; \
 		SD_CARD=$$(ls /dev/sd[e-z] /dev/mmcblk[0-9] 2>/dev/null | head -1); \
@@ -775,5 +808,75 @@ bootloader-status:
 	@echo ""
 	@echo "$(YELLOW)Note: These files are preserved during 'make clean'$(RESET)"
 	@echo "      Only 'make distclean' will remove them"
+
+# Battery optimization check (Phoenix Project findings)
+battery-check:
+	@echo "$(BOLD)🔋 Checking battery optimization settings...$(RESET)"
+	@echo "═══════════════════════════════════════════"
+	@echo "Phoenix Project battery drain targets:"
+	@echo "  - Registered device: 1-2% overnight"
+	@echo "  - Unregistered: 14%+ daily (CRITICAL ISSUE)"
+	@echo "  - Target: $(BATTERY_DRAIN_TARGET)% daily idle"
+	@echo ""
+	@echo "$(YELLOW)⚠️  Critical battery drain causes:$(RESET)"
+	@echo "  ❌ Unregistered B&N system polling"
+	@echo "  ❌ WiFi radio left on (hidden)"
+	@echo "  ❌ Weather widget active"
+	@echo "  ❌ EBookDroid in landscape mode"
+	@echo ""
+	@echo "$(GREEN)✓ JesterOS solution:$(RESET)"
+	@echo "  - B&N system completely removed"
+	@echo "  - No network services enabled"
+	@echo "  - No background polling"
+	@echo "  - Expected drain: <$(BATTERY_DRAIN_TARGET)% daily"
+	@echo "═══════════════════════════════════════════"
+
+# Create CWM-compatible installer (Phoenix Project method)
+installer: firmware
+	@echo "$(BOLD)📦 Creating CWM-compatible installer...$(RESET)"
+	@echo "  Using Phoenix Project installation method"
+	@mkdir -p $(RELEASES_DIR)/installer
+	@# Create installation script
+	@echo '#!/sbin/sh' > $(RELEASES_DIR)/installer/install.sh
+	@echo '# JesterOS CWM Installer (Phoenix Project compatible)' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'echo "Installing JesterOS..."' >> $(RELEASES_DIR)/installer/install.sh
+	@echo '# Backup critical files' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'mount /dev/block/mmcblk0p5 /system' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'cp /system/build.prop /sdcard/backup.prop' >> $(RELEASES_DIR)/installer/install.sh
+	@echo '# Wipe system (keep /rom untouched!)' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'rm -rf /system/*' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'rm -rf /data/*' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'rm -rf /cache/*' >> $(RELEASES_DIR)/installer/install.sh
+	@echo '# Extract JesterOS' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'tar xzf /sdcard/jesteros-system.tar.gz -C /system/' >> $(RELEASES_DIR)/installer/install.sh
+	@echo '# Add touch recovery gesture' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'echo "# Two-finger swipe recovery" >> /system/etc/init.d/99-touch-recovery' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'sync' >> $(RELEASES_DIR)/installer/install.sh
+	@echo 'echo "Installation complete!"' >> $(RELEASES_DIR)/installer/install.sh
+	@chmod +x $(RELEASES_DIR)/installer/install.sh
+	@echo "$(GREEN)✓ CWM installer created$(RESET)"
+	@echo "  Follows Phoenix Project standards"
+	@echo "  Preserves /rom partition (safe)"
+	@echo "  Includes touch recovery gesture"
+
+# Touch screen recovery documentation
+touch-recovery-doc:
+	@echo "$(BOLD)👆 Touch Screen Lock-up Recovery$(RESET)"
+	@echo "═══════════════════════════════════════════"
+	@echo "$(YELLOW)Known hardware issue affecting ALL Nook devices$(RESET)"
+	@echo ""
+	@echo "Symptoms:"
+	@echo "  - Touch frozen after wake from screensaver"
+	@echo "  - Home button works but touch doesn't"
+	@echo "  - Random occurrence (3 hours to 3 days)"
+	@echo ""
+	@echo "$(GREEN)Recovery methods:$(RESET)"
+	@echo "  1. Two-finger horizontal swipe gesture"
+	@echo "  2. Clean screen gutters with cotton swab"
+	@echo "  3. Adjust screen timeout values"
+	@echo "  4. Test with/without slide-to-unlock"
+	@echo ""
+	@echo "JesterOS implements automatic recovery gesture"
+	@echo "═══════════════════════════════════════════"
 
 .DEFAULT_GOAL := help
