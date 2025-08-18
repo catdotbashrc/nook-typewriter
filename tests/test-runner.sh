@@ -240,3 +240,10 @@ main() {
 }
 
 main "$@"
+# Run unit tests
+if [[ -d "tests/unit" ]]; then
+    echo "Running unit tests..."
+    for test in tests/unit/test_*.sh; do
+        [[ -f "$test" ]] && bash "$test"
+    done
+fi
