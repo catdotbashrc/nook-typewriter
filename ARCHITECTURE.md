@@ -1,6 +1,8 @@
 # JesterOS Architecture Documentation
 
-# JoKernel 4-Layer Architecture
+## Overview
+
+JesterOS implements a clean 4-layer userspace architecture designed for simplicity, maintainability, and writer-focused functionality on the Nook SimpleTouch e-reader.
 
 ## Architecture Evolution
 

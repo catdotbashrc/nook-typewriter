@@ -12,34 +12,35 @@
 
 ## 📦 Step 1: Build JesterOS
 
-### Using Modular Docker (NEW - Recommended)
+### Quick Build with Make (Recommended)
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/nook-typewriter.git
-cd nook-typewriter
+git clone https://github.com/yourusername/jesteros-nook.git
+cd jesteros-nook
 
-# Build the modular base image with GK61 keyboard support
-docker build -t jesteros-base -f build/docker/jesteros-base.dockerfile .
+# Build everything (kernel + rootfs)
+make firmware
 
-# Quick test to verify build
-./tests/test-runner.sh jesteros-base simple-test.sh
+# Or build components separately
+make kernel          # Build kernel only
+make lenny-rootfs    # Build rootfs only
 
-# Package for deployment
-docker create --name export jesteros-base
-docker export export | gzip > jesteros.tar.gz
-docker rm export
+# Create Phoenix-compatible installer
+make installer
 ```
 
-### Using Traditional Build Scripts
+### Manual Docker Build
 ```bash
-# Build kernel modules
-./build/utilities/build_modules.sh
+# Build production image
+make docker-production
 
-# Create deployment package
-./build/utilities/create_deployment.sh
+# Export rootfs
+make lenny-rootfs
 ```
 
 ## 💾 Step 2: Prepare SD Card
+
+> ⚠️ **Important**: Use SanDisk Class 10 SD cards only! Other brands have proven unreliable per Phoenix Project testing.
 
 ```bash
 # CRITICAL: Use sector 63 alignment for Nook compatibility!

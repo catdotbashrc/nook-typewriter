@@ -1,3 +1,7 @@
+# JesterOS System Information
+
+## Hardware Specifications
+
 Processor	: ARMv7 Processor rev 2 (v7l)
 BogoMIPS	: 298.32
 Features	: swp half thumb fastmult vfp edsp neon vfpv3 

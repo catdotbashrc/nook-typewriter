@@ -1,6 +1,8 @@
 # JesterOS Memory Constraints Documentation
 
-# JokerOS Memory Reality Update
+## Executive Summary
+
+JesterOS operates under severe memory constraints on the Nook SimpleTouch, with only 35MB available after the Android base system consumes 188MB of the 233MB total RAM.
 
 ## Critical Discovery: Memory Constraints Were Wrong by 4x
 
