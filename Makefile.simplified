@@ -1,0 +1,229 @@
+# Nook Typewriter - Simplified Build System
+# Transform a $20 e-reader into a distraction-free writing device
+# Medieval-themed, writer-focused, E-Ink optimized
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+VERSION := 1.0.0
+BUILD_DATE := $(shell date +%Y%m%d)
+
+# Directories
+KERNEL_DIR := source/kernel
+SCRIPTS_DIR := runtime
+FIRMWARE_DIR := firmware
+BUILD_DIR := build
+
+# Docker images (make them overridable)
+DOCKER_IMAGE ?= jesteros-lenny
+KERNEL_IMAGE ?= kernel-xda-proven
+
+# SD card device (auto-detect by default)
+SD_DEVICE ?= auto
+
+# Build options
+J_CORES := $(shell nproc 2>/dev/null || echo 4)
+FORCE ?= no
+
+# Enable Docker BuildKit
+export DOCKER_BUILDKIT=1
+
+# Colors (minimal set)
+RESET := \033[0m
+BOLD := \033[1m
+GREEN := \033[32m
+YELLOW := \033[33m
+RED := \033[31m
+
+# ============================================================================
+# PRIMARY TARGETS (What most users need)
+# ============================================================================
+.PHONY: help all build deploy clean
+
+# Default target
+all: build
+
+help:
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
+	@echo "$(BOLD)           🏰 Nook Typewriter - Simplified 🏰$(RESET)"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
+	@echo ""
+	@echo "$(BOLD)Quick Commands:$(RESET)"
+	@echo "  $(GREEN)make build$(RESET)    - Build everything (smart rebuild)"
+	@echo "  $(GREEN)make deploy$(RESET)   - Build & deploy to SD card"
+	@echo "  $(GREEN)make clean$(RESET)    - Clean build artifacts"
+	@echo ""
+	@echo "$(BOLD)Individual Components:$(RESET)"
+	@echo "  $(GREEN)make kernel$(RESET)   - Build kernel only"
+	@echo "  $(GREEN)make rootfs$(RESET)   - Build root filesystem"
+	@echo "  $(GREEN)make test$(RESET)     - Run safety tests"
+	@echo ""
+	@echo "$(BOLD)Options:$(RESET)"
+	@echo "  $(GREEN)make deploy SD_DEVICE=/dev/sdg$(RESET) - Specify device"
+	@echo "  $(GREEN)make deploy FORCE=yes$(RESET)          - Skip confirmation"
+	@echo ""
+	@echo "$(BOLD)Current Config:$(RESET) v$(VERSION) | $(BUILD_DATE)"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════$(RESET)"
+
+# ============================================================================
+# SIMPLIFIED BUILD TARGETS
+# ============================================================================
+
+# Smart build - only rebuilds what's needed
+build: check-env
+	@echo "$(BOLD)🔨 Building Nook Typewriter$(RESET)"
+	@# Check if kernel needs rebuild
+	@if [ ! -f $(FIRMWARE_DIR)/boot/uImage ] || \
+	    [ $(BUILD_DIR)/scripts/build_kernel.sh -nt $(FIRMWARE_DIR)/boot/uImage ]; then \
+		$(MAKE) kernel; \
+	fi
+	@# Always rebuild rootfs (it's fast)
+	@$(MAKE) rootfs
+	@# Ensure bootloaders exist
+	@$(MAKE) bootloaders
+	@echo "$(GREEN)✅ Build complete!$(RESET)"
+
+# Build kernel using Docker
+kernel: check-env
+	@echo "$(BOLD)🔨 Building kernel...$(RESET)"
+	@$(BUILD_DIR)/scripts/build_kernel.sh
+	@mkdir -p $(FIRMWARE_DIR)/boot
+	@cp $(KERNEL_DIR)/src/arch/arm/boot/uImage $(FIRMWARE_DIR)/boot/ 2>/dev/null || \
+		cp $(BUILD_DIR)/kernel/uImage $(FIRMWARE_DIR)/boot/ 2>/dev/null || \
+		{ echo "$(RED)Error: Kernel build failed$(RESET)"; exit 1; }
+	@echo "$(GREEN)✓ Kernel ready$(RESET)"
+
+# Build root filesystem (simplified - no Docker export confusion)
+rootfs:
+	@echo "$(BOLD)📦 Building root filesystem...$(RESET)"
+	@# Create directory structure
+	@mkdir -p $(FIRMWARE_DIR)/rootfs/{usr/local/bin,etc/jesteros,var/jesteros}
+	@# Install scripts
+	@echo "  Installing JesterOS scripts..."
+	@find $(SCRIPTS_DIR) -name "*.sh" -type f -exec cp {} $(FIRMWARE_DIR)/rootfs/usr/local/bin/ \;
+	@chmod +x $(FIRMWARE_DIR)/rootfs/usr/local/bin/*.sh 2>/dev/null || true
+	@# Install configs
+	@if [ -d runtime/1-ui/themes ]; then \
+		mkdir -p $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii; \
+		cp -r runtime/1-ui/themes/* $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/ 2>/dev/null || true; \
+	fi
+	@echo "$(GREEN)✓ Root filesystem ready$(RESET)"
+
+# Extract bootloaders (only if missing)
+bootloaders:
+	@mkdir -p $(FIRMWARE_DIR)/boot
+	@if [ ! -f $(FIRMWARE_DIR)/boot/MLO ] || [ ! -f $(FIRMWARE_DIR)/boot/u-boot.bin ]; then \
+		echo "$(YELLOW)⚠ Bootloaders missing - please extract manually$(RESET)"; \
+		echo "  Run: $(BUILD_DIR)/scripts/extract-bootloaders.sh"; \
+	else \
+		echo "$(GREEN)✓ Bootloaders present$(RESET)"; \
+	fi
+
+# ============================================================================
+# DEPLOYMENT
+# ============================================================================
+
+# Deploy to SD card (simplified)
+deploy: build test
+	@echo "$(BOLD)💾 Deploying to SD card$(RESET)"
+	@$(BUILD_DIR)/scripts/deploy-to-sd.sh $(SD_DEVICE) $(FORCE)
+
+# Quick test before deployment
+test:
+	@echo "$(BOLD)🛡️ Running safety checks...$(RESET)"
+	@cd tests && ./01-safety-check.sh && ./02-boot-test.sh
+	@echo "$(GREEN)✓ Tests passed$(RESET)"
+
+# ============================================================================
+# DOCKER MANAGEMENT (Simplified)
+# ============================================================================
+
+# Build all Docker images
+docker: docker-kernel docker-rootfs
+
+docker-kernel:
+	@echo "$(BOLD)🐳 Building kernel Docker image...$(RESET)"
+	@docker build -t $(KERNEL_IMAGE) -f $(BUILD_DIR)/docker/kernel-xda-proven.dockerfile .
+
+docker-rootfs:
+	@echo "$(BOLD)🐳 Building rootfs Docker image...$(RESET)"
+	@docker build -t $(DOCKER_IMAGE) -f $(BUILD_DIR)/docker/jesteros-production-multistage.dockerfile .
+
+# Export Docker rootfs (if needed for special cases)
+docker-export: docker-rootfs
+	@echo "$(BOLD)📦 Exporting Docker rootfs...$(RESET)"
+	@docker create --name temp-export $(DOCKER_IMAGE)
+	@docker export temp-export | gzip > docker-rootfs-$(BUILD_DATE).tar.gz
+	@docker rm temp-export
+	@echo "$(GREEN)✓ Exported to docker-rootfs-$(BUILD_DATE).tar.gz$(RESET)"
+
+# ============================================================================
+# MAINTENANCE
+# ============================================================================
+
+# Clean build artifacts (preserve bootloaders)
+clean:
+	@echo "$(BOLD)🧹 Cleaning...$(RESET)"
+	@rm -rf $(FIRMWARE_DIR)/rootfs
+	@find $(FIRMWARE_DIR)/boot -type f -not -name "MLO" -not -name "u-boot.bin" -delete 2>/dev/null || true
+	@rm -f *.log *.tar.gz
+	@echo "$(GREEN)✓ Clean complete$(RESET)"
+
+# Deep clean (including Docker)
+distclean: clean
+	@echo "$(BOLD)🧹 Deep cleaning...$(RESET)"
+	@rm -rf $(FIRMWARE_DIR)
+	@docker system prune -f 2>/dev/null || true
+	@echo "$(GREEN)✓ Deep clean complete$(RESET)"
+
+# Check environment
+check-env:
+	@which docker >/dev/null 2>&1 || { echo "$(RED)Error: Docker not found$(RESET)"; exit 1; }
+	@which bash >/dev/null 2>&1 || { echo "$(RED)Error: Bash not found$(RESET)"; exit 1; }
+	@test -d $(KERNEL_DIR) || { echo "$(RED)Error: Kernel source not found$(RESET)"; exit 1; }
+	@test -d $(SCRIPTS_DIR) || { echo "$(RED)Error: Scripts not found$(RESET)"; exit 1; }
+
+# Show build status
+status:
+	@echo "$(BOLD)📊 Build Status$(RESET)"
+	@echo "═══════════════════════════════════════════"
+	@if [ -f $(FIRMWARE_DIR)/boot/uImage ]; then \
+		echo "Kernel: $(GREEN)✓$(RESET) $(shell ls -lh $(FIRMWARE_DIR)/boot/uImage | awk '{print $$5}')"; \
+	else \
+		echo "Kernel: $(RED)✗$(RESET) Not built"; \
+	fi
+	@if [ -d $(FIRMWARE_DIR)/rootfs/usr/local/bin ]; then \
+		echo "Rootfs: $(GREEN)✓$(RESET) $(shell find $(FIRMWARE_DIR)/rootfs -name "*.sh" | wc -l) scripts"; \
+	else \
+		echo "Rootfs: $(RED)✗$(RESET) Not built"; \
+	fi
+
+# ============================================================================
+# ADVANCED TARGETS (Hidden from main help)
+# ============================================================================
+
+# Run full test suite
+test-all:
+	@cd tests && ./run-all-tests.sh
+
+# Quick kernel update to existing SD
+kernel-update:
+	@echo "$(BOLD)⚡ Quick kernel update$(RESET)"
+	@$(MAKE) kernel
+	@if [ "$(SD_DEVICE)" != "auto" ]; then \
+		sudo mount $(SD_DEVICE)1 /mnt && \
+		sudo cp $(FIRMWARE_DIR)/boot/uImage /mnt/ && \
+		sudo umount /mnt && \
+		echo "$(GREEN)✓ Kernel updated on SD card$(RESET)"; \
+	fi
+
+# ============================================================================
+# HELPERS
+# ============================================================================
+
+.DEFAULT_GOAL := help
+
+# Include advanced targets if requested
+ifeq ($(ADVANCED),yes)
+include Makefile.advanced
+endif

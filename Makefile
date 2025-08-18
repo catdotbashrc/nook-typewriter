@@ -195,16 +195,16 @@ kernel: check-tools
 	@echo "$(BOLD)🔨 Building kernel (JesterOS services in userspace)...$(RESET)"
 	@echo "  Using kernel source: catdotbashrc/nst-kernel (reliable mirror)"
 	@echo "[$(TIMESTAMP)] Starting kernel build" >> $(BUILD_LOG)
-	@if [ ! -f build/utilities/build_kernel.sh ]; then \
-		echo "$(RED)Error: build/utilities/build_kernel.sh not found$(RESET)"; \
-		echo "[$(TIMESTAMP)] ERROR: build/utilities/build_kernel.sh not found" >> $(BUILD_LOG); \
+	@if [ ! -f build/scripts/build_kernel.sh ]; then \
+		echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)"; \
+		echo "[$(TIMESTAMP)] ERROR: build/scripts/build_kernel.sh not found" >> $(BUILD_LOG); \
 		exit 1; \
 	fi
 	@if ! docker images | grep -q $(DOCKER_IMAGE); then \
 		echo "$(YELLOW)Building Docker image $(DOCKER_IMAGE)...$(RESET)"; \
 		echo "[$(TIMESTAMP)] Building Docker image" >> $(BUILD_LOG); \
 	fi
-	@J_CORES=$(J_CORES) ./build/utilities/build_kernel.sh 2>&1 | tee -a $(BUILD_LOG) || (echo "$(RED)Kernel build failed!$(RESET)" && exit 1)
+	@J_CORES=$(J_CORES) ./build/scripts/build_kernel.sh 2>&1 | tee -a $(BUILD_LOG) || (echo "$(RED)Kernel build failed!$(RESET)" && exit 1)
 	@echo "[$(TIMESTAMP)] Kernel build successful" >> $(BUILD_LOG)
 	@echo "$(GREEN)✓ Kernel build successful$(RESET)"
 
@@ -263,11 +263,11 @@ bootloaders:
 	@echo "$(BOLD)🔧 Checking bootloader files...$(RESET)"
 	@if [ ! -f $(FIRMWARE_DIR)/boot/MLO ] || [ ! -f $(FIRMWARE_DIR)/boot/u-boot.bin ]; then \
 		echo "$(YELLOW)   ⚠ Bootloaders missing - attempting extraction$(RESET)"; \
-		if [ -f build/utilities/extract-bootloaders-dd.sh ]; then \
-			./build/utilities/extract-bootloaders-dd.sh; \
-		elif [ -f build/utilities/extract-bootloaders.sh ]; then \
+		if [ -f build/scripts/extract-bootloaders-dd.sh ]; then \
+			./build/scripts/extract-bootloaders-dd.sh; \
+		elif [ -f build/scripts/extract-bootloaders.sh ]; then \
 			echo "   Note: This requires sudo for mounting"; \
-			./build/utilities/extract-bootloaders.sh || true; \
+			./build/scripts/extract-bootloaders.sh || true; \
 		else \
 			echo "$(RED)   ✗ No extraction scripts found!$(RESET)"; \
 			exit 1; \
@@ -275,7 +275,7 @@ bootloaders:
 		if [ ! -f $(FIRMWARE_DIR)/boot/MLO ] || [ ! -f $(FIRMWARE_DIR)/boot/u-boot.bin ]; then \
 			echo "$(YELLOW)   ⚠ Automatic extraction failed$(RESET)"; \
 			echo "   Please extract manually:"; \
-			echo "   1. Run: sudo ./build/utilities/extract-bootloaders.sh"; \
+			echo "   1. Run: sudo ./build/scripts/extract-bootloaders.sh"; \
 			echo "   2. Or follow instructions from extract-bootloaders-dd.sh"; \
 			exit 1; \
 		fi; \
@@ -324,12 +324,12 @@ boot: kernel bootloaders boot-script
 image: firmware
 	@echo "$(BOLD)💾 Creating SD card image: $(IMAGE_NAME)$(RESET)"
 	@mkdir -p $(RELEASES_DIR)
-	@if [ -f build/utilities/create-image.sh ]; then \
-		./build/utilities/create-image.sh $(IMAGE_NAME) || exit 1; \
+	@if [ -f build/scripts/create-image.sh ]; then \
+		./build/scripts/create-image.sh $(IMAGE_NAME) || exit 1; \
 		echo "$(GREEN)✓ Image created successfully$(RESET)"; \
 	else \
 		echo "$(RED)Error: Image creation script not found$(RESET)"; \
-		echo "Expected: build/utilities/create-image.sh"; \
+		echo "Expected: build/scripts/create-image.sh"; \
 		exit 1; \
 	fi
 
@@ -427,7 +427,7 @@ validate: check-tools
 	@echo "$(BOLD)✅ Validating build environment...$(RESET)"
 	@test -d $(KERNEL_DIR) || (echo "$(RED)Error: Kernel directory not found$(RESET)" && echo "  Run: git submodule init && git submodule update" && exit 1)
 	@test -d $(SCRIPTS_DIR) || (echo "$(RED)Error: Scripts directory not found$(RESET)" && echo "  Expected: $(SCRIPTS_DIR)" && exit 1)
-	@test -f build/utilities/build_kernel.sh || (echo "$(RED)Error: build/utilities/build_kernel.sh not found$(RESET)" && exit 1)
+	@test -f build/scripts/build_kernel.sh || (echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)" && exit 1)
 	@test -f $(SCRIPTS_DIR)/3-system/common/common.sh || (echo "$(RED)Error: Common library not found$(RESET)" && echo "  Expected: $(SCRIPTS_DIR)/3-system/common/common.sh" && exit 1)
 	@echo "$(GREEN)✓ Environment validated$(RESET)"
 	@echo "  - Kernel source: Available ($(shell find $(KERNEL_DIR) -name "*.c" | wc -l) files)"
@@ -628,7 +628,7 @@ deps:
 # Quick build target - skips unchanged components
 quick-build:
 	@echo "$(BOLD)⚡ Quick build mode$(RESET)"
-	@if [ -f $(FIRMWARE_DIR)/boot/uImage ] && [ build/utilities/build_kernel.sh -ot $(FIRMWARE_DIR)/boot/uImage ]; then \
+	@if [ -f $(FIRMWARE_DIR)/boot/uImage ] && [ build/scripts/build_kernel.sh -ot $(FIRMWARE_DIR)/boot/uImage ]; then \
 		echo "$(YELLOW)Kernel unchanged, skipping rebuild$(RESET)"; \
 	else \
 		$(MAKE) kernel; \
