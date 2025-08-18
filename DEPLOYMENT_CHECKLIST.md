@@ -26,8 +26,11 @@
 
 ### System Build
 ```bash
-# Build kernel
-[ ] ./build_kernel.sh completes without errors
+# Build complete system
+[x] make firmware completes without errors
+[x] make kernel builds successfully
+[x] make lenny-rootfs creates rootfs archive
+[x] Docker images built and tagged correctly
 [ ] Kernel image created: arch/arm/boot/uImage
 [ ] Size < 4MB
 

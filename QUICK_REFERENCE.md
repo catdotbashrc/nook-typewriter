@@ -6,24 +6,26 @@
 
 ### Build & Deploy
 ```bash
-make quick-build       # Fast incremental build
-make sd-deploy         # Build + deploy to SD card
-./build_kernel.sh      # Docker kernel build
-make firmware          # Complete system build
+make firmware          # Complete system build (kernel + rootfs)
+make kernel           # Build kernel only
+make lenny-rootfs     # Build rootfs only
+make sd-deploy        # Deploy to SD card (with safety checks)
+make installer        # Create Phoenix-compatible installer
 ```
 
-### Testing
+### Testing & Validation
 ```bash
-make test              # Run all tests
-./test-jesteros-userspace.sh  # Test JesterOS services
-docker run -it --rm nook-writer vim  # Test locally
+make test-quick       # Run show-stopper tests
+make battery-check    # Check battery optimization
+make touch-recovery-doc # View touch recovery info
+docker run -it --rm jesteros-production vim  # Test locally
 ```
 
 ### Development
 ```bash
-cd source/kernel       # Kernel development
-cd source/scripts      # Script development
-cd docs/              # Documentation
+cd source/kernel      # Kernel source (Linux 2.6.29)
+cd runtime/           # Userspace services (4 layers)
+cd build/docker/      # Docker configurations
 vim CLAUDE.md         # Update AI guidelines
 ```
 

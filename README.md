@@ -4,6 +4,15 @@
 
 Transform your $20 used Nook SimpleTouch into a $400 distraction-free writing device with JesterOS - a whimsical, writer-focused Linux environment.
 
+## 📚 Table of Contents
+- [What is JesterOS?](#-what-is-jesteros)
+- [System Requirements](#-system-requirements)
+- [Quick Start](#-quick-start-guide)
+- [Architecture](#-architecture)
+- [Project Status](#-project-status)
+- [Troubleshooting](#-troubleshooting)
+- [Documentation](#-documentation)
+
 ## 🎭 What is JesterOS?
 
 JesterOS is a custom Linux environment designed specifically for the Nook SimpleTouch e-reader, turning it into a dedicated writing device. Every decision prioritizes **writers over features**.
@@ -19,8 +28,8 @@ JesterOS is a custom Linux environment designed specifically for the Nook Simple
 ## 📋 System Requirements
 
 ### Hardware
-- Nook SimpleTouch (1st gen B&N e-reader)
-- 4GB+ SD card
+- Nook SimpleTouch (1st gen B&N e-reader, FW 1.2.2 recommended)
+- **SanDisk Class 10** SD card (4GB+) - *Other brands proven unreliable*
 - USB cable for initial setup
 - (Optional) USB OTG cable + powered hub for external keyboard
 - (Optional) USB keyboard (GK61 or any HID-compliant keyboard)
@@ -530,6 +539,48 @@ This project is licensed under GPL v2 - see [LICENSE](LICENSE) file for details.
 - [ ] Advanced writing analytics
 - [ ] Battery life optimization to 2+ weeks
 - [ ] Release packaging and distribution
+
+## 🔧 Troubleshooting
+
+### Known Hardware Issues (Phoenix Project Findings)
+
+#### Touch Screen Freeze
+- **Issue**: Touch becomes unresponsive after wake (universal hardware defect)
+- **Solution**: Two-finger horizontal swipe gesture
+- **Prevention**: Clean screen gutters with cotton swab
+
+#### Battery Drain
+- **Issue**: 14% daily drain on unregistered devices
+- **Solution**: JesterOS removes B&N system entirely
+- **Target**: 1.5% daily drain when idle
+
+#### SD Card Boot Issues
+- **Issue**: Non-SanDisk cards fail randomly
+- **Solution**: Use SanDisk Class 10 cards exclusively
+- **Note**: Sector 63 alignment critical for boot
+
+### Recovery Options
+1. **Factory Reset**: Hold power during boot 8 times
+2. **CWM Recovery**: Boot from CWM SD card
+3. **Safe**: /rom partition always preserved
+
+## 📖 Documentation
+
+### Essential Guides
+- [Quick Start Guide](QUICK_START.md) - Get up and running fast
+- [Quick Reference](QUICK_REFERENCE.md) - Common commands cheat sheet
+- [Architecture Overview](ARCHITECTURE.md) - System design documentation
+- [Memory Constraints](MEMORY_CONSTRAINTS.md) - Understanding hardware limits
+
+### Technical Documentation
+- [Kernel Compilation](KERNEL_COMPILATION_DESIGN.md) - Build system details
+- [SD Card Setup](sdcard.md) - Deployment process
+- [Reverse Engineering](REVERSE_ENGINEERING.md) - Hardware analysis
+
+### Development Resources
+- [Claude Context](CLAUDE.md) - AI assistant guidelines
+- [Boot Roadmap](BOOT_ROADMAP.md) - Development priorities
+- [Deployment Checklist](DEPLOYMENT_CHECKLIST.md) - Release preparation
 
 ---
 
