@@ -68,18 +68,35 @@
 
 ## How to Test
 
+### Quick Start
 ```bash
 # Run all 7 tests (takes ~30 seconds)
 ./run-tests.sh
 
-# Or run by category
-./01-safety-check.sh     # Must pass!
-./02-boot-test.sh        # Must pass!
-./04-docker-smoke.sh     # Should pass
-./05-consistency-check.sh # Should pass
-./06-memory-guard.sh     # Should pass
-./03-functionality.sh    # Nice to have
-./07-writer-experience.sh # Nice to have
+# Run comprehensive validation (all phases)
+./comprehensive-validation.sh
+
+# Test with specific stage
+TEST_STAGE=post-build ./run-tests.sh
+
+# Docker-based testing
+./test-runner.sh jesteros-test validate-jesteros.sh
+```
+
+### Individual Test Scripts
+```bash
+# Show Stoppers (MUST PASS)
+./01-safety-check.sh     # Returns: 0 if safe, 1 if dangerous
+./02-boot-test.sh        # Returns: 0 if boot ready, 1 if issues
+
+# Writing Blockers (SHOULD PASS)  
+./04-docker-smoke.sh     # Returns: 0 if Docker working, 1 if issues
+./05-consistency-check.sh # Returns: 0 if consistent, 1 if issues
+./06-memory-guard.sh     # Returns: 0 if within limits, 1 if exceeds
+
+# Writer Experience (NICE TO PASS)
+./03-functionality.sh    # Returns: 0 if functional, 1 if missing
+./07-writer-experience.sh # Returns: 0 if acceptable, 1 if needs work
 ```
 
 ## Test Results
@@ -97,18 +114,26 @@ Check `DEPLOY_CHECKLIST.txt` - it's literally a checklist!
 
 ```
 tests/
-├── README.md                    # You are here
+├── README.md                    # You are here (comprehensive docs)
 ├── DEPLOY_CHECKLIST.txt         # Pre-flight checklist
-├── run-tests.sh                 # Runs all 7 tests
+│
+├── Core Test Scripts (7 focused tests)
 ├── 01-safety-check.sh           # Show Stopper: Device safety
 ├── 02-boot-test.sh              # Show Stopper: Boot validation
 ├── 03-functionality.sh          # Experience: Fun features
-├── 04-docker-smoke.sh           # Writing Blocker: Runtime test (NEW)
-├── 05-consistency-check.sh      # Writing Blocker: Script validation (NEW)
-├── 06-memory-guard.sh           # Writing Blocker: Memory protection (NEW)
-├── 07-writer-experience.sh      # Experience: Error quality (NEW)
-└── archive/                     # TO BE DELETED - 48 old tests
-    └── [Overcomplicated tests we don't need]
+├── 04-docker-smoke.sh           # Writing Blocker: Runtime test
+├── 05-consistency-check.sh      # Writing Blocker: Script validation
+├── 06-memory-guard.sh           # Writing Blocker: Memory protection
+├── 07-writer-experience.sh      # Experience: Error quality
+│
+├── Test Orchestration Scripts
+├── run-tests.sh                 # 3-stage test runner (pre/post/runtime)
+├── comprehensive-validation.sh  # Runs all 7 tests in phases
+├── test-runner.sh              # Docker test management
+├── validate-jesteros.sh        # JesterOS userspace validation
+│
+└── archive/                     # Obsolete tests (consolidated)
+    └── obsolete-runners/        # Old phase scripts
 ```
 
 ## FAQ

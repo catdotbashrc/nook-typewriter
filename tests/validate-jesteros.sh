@@ -2,6 +2,11 @@
 # JesterOS Validation Script
 # Validates that the userspace service migration is complete and functional
 # "By quill and candlelight, we validate the realm!"
+#
+# Usage: ./validate-jesteros.sh
+# Returns: 0 if all validations pass, 1 if any fail
+# Context: Run inside Docker or on device
+# Tests: Userspace services, interfaces, medieval theme
 
 set -euo pipefail
 

@@ -1,7 +1,8 @@
 #!/bin/bash
 # Simple kernel build script for JoKernel
 
-set -e
+set -euo pipefail
+trap 'echo "Error at line $LINENO"' ERR
 
 # Source build configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,9 +23,20 @@ if [ -f "$SCRIPT_DIR/setup-kernel-source.sh" ]; then
 fi
 
 # Check if XDA-proven Docker image exists, build if needed
-if ! docker images | grep -q "jokernel-unified"; then
-    echo "→ Building XDA-proven Docker environment..."
-    docker build -t jokernel-unified -f build/docker/kernel-xda-proven.dockerfile build/docker/
+# Use optimized version with BuildKit caching if available
+if ! docker images | grep -q "kernel-xda-proven-optimized"; then
+    if [ -f "build/docker/kernel-xda-proven-optimized.dockerfile" ]; then
+        echo "→ Building optimized XDA-proven Docker environment with BuildKit..."
+        DOCKER_BUILDKIT=1 docker build -t kernel-xda-proven-optimized -f build/docker/kernel-xda-proven-optimized.dockerfile .
+        # Create alias for compatibility
+        docker tag kernel-xda-proven-optimized jokernel-unified
+    elif ! docker images | grep -q "jokernel-unified"; then
+        echo "→ Building XDA-proven Docker environment..."
+        docker build -t jokernel-unified -f build/docker/kernel-xda-proven.dockerfile build/docker/
+    fi
+else
+    # Use optimized image with compatibility alias
+    docker tag kernel-xda-proven-optimized jokernel-unified 2>/dev/null || true
 fi
 
 # Build the kernel using Docker
@@ -37,6 +49,7 @@ PROJECT_ROOT="${PROJECT_ROOT:-/home/jyeary/projects/personal/nook}"
 docker run --rm \
     -v "${PROJECT_ROOT}/source/kernel:/kernel" \
     -v "${PROJECT_ROOT}/firmware:/firmware" \
+    -e J_CORES="${J_CORES:-4}" \
     -w /kernel/src \
     jokernel-unified \
     bash -c "
@@ -58,11 +71,11 @@ CONFIG_JESTEROS_WISDOM=y
 EOF
         
         echo '→ Building kernel (this may take 5-10 minutes)...'
-        make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- olddefconfig
-        make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- uImage
+        make -j${J_CORES:-4} ARCH=arm CROSS_COMPILE=arm-linux-androideabi- olddefconfig
+        make -j${J_CORES:-4} ARCH=arm CROSS_COMPILE=arm-linux-androideabi- uImage
         
         echo '→ Building modules...'
-        make -j4 ARCH=arm CROSS_COMPILE=arm-linux-androideabi- modules
+        make -j${J_CORES:-4} ARCH=arm CROSS_COMPILE=arm-linux-androideabi- modules
         
         echo ''
         echo '═══════════════════════════════════════════════════════════════'

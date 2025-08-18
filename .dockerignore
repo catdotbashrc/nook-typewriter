@@ -66,26 +66,27 @@ Thumbs.db
 # ------------------------------------------------------------------
 firmware/
 releases/
+build/output/
+deployment_package/
+cwm_package/
 *.img
-# *.tar.gz  # Commented out for testing - need lenny-rootfs.tar.gz
 *.zip
 *.iso
 *.bin
 *.elf
+# Exclude all tar.gz except lenny-rootfs.tar.gz needed for production build
+jesteros-*.tar.gz
+nook-mvp-rootfs*.tar.gz
+docker-backup*.tar.gz
+sdcard-backup*.tar.gz
 
 # ------------------------------------------------------------------
-# Kernel Build Artifacts (Large)
+# Kernel Build Artifacts (Large - 467MB!)
 # ------------------------------------------------------------------
-source/kernel/src/**/*.o
-source/kernel/src/**/*.ko
-source/kernel/src/**/*.cmd
-source/kernel/src/.tmp_versions/
-source/kernel/src/vmlinux
-source/kernel/src/System.map
-source/kernel/src/arch/arm/boot/Image
-source/kernel/src/arch/arm/boot/zImage
-# Keep uImage as we might reference it
-!source/kernel/src/arch/arm/boot/uImage
+# Exclude entire kernel source directory - not needed for Docker builds
+source/kernel/
+# Only exception: keep essential config files if needed
+!source/kernel/config/
 
 # ------------------------------------------------------------------
 # Test Artifacts
@@ -116,16 +117,18 @@ temp/
 # ------------------------------------------------------------------
 # Large Files Not Needed for Build
 # ------------------------------------------------------------------
-images/2gb_clockwork-rc2.img
+images/
+activate/
+backups/
+wifi/
 android-ndk-*/
 ndk/
 toolchain/
 sdcard/
 *.sdcard
-# Commented out for testing
-# lenny-rootfs.tar.gz  # Need this for authentic testing
+# Keep lenny-rootfs.tar.gz for production build
+# lenny-rootfs.tar.gz is needed for authentic testing
 lenny-rootfs/
-nook-mvp-rootfs.tar.gz
 
 # ------------------------------------------------------------------
 # Personal/Local Files

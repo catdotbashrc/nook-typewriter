@@ -1,6 +1,10 @@
 #!/bin/bash
 # Docker smoke test - Test actual runtime behavior in safe container
 # This validates that core functionality works without hardware risk
+#
+# Usage: ./04-docker-smoke.sh
+# Returns: 0 if runtime tests pass, 1 if issues detected
+# Requires: Docker daemon running
 
 set -euo pipefail
 

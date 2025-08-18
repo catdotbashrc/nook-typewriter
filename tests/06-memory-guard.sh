@@ -1,6 +1,10 @@
 #!/bin/bash
 # Memory guard - Protect the sacred 160MB writing space
 # Ensures OS stays under 96MB to preserve writer's workspace
+#
+# Usage: ./06-memory-guard.sh
+# Returns: 0 if memory usage acceptable, 1 if over budget
+# Critical: Nook has only 256MB RAM total!
 
 set -euo pipefail
 
@@ -74,7 +78,12 @@ fi
 
 # Check 5: Reasonable script count
 echo -n "✓ Script count... "
-SCRIPT_COUNT=$(find ../source/scripts -name "*.sh" 2>/dev/null | wc -l || echo "0")
+if [ -d "../source/scripts" ]; then
+    SCRIPT_COUNT=$(find ../source/scripts -name "*.sh" 2>/dev/null | wc -l | tr -d ' ')
+else
+    SCRIPT_COUNT=0
+fi
+SCRIPT_COUNT=${SCRIPT_COUNT:-0}
 if [ "$SCRIPT_COUNT" -lt 30 ]; then
     echo "EXCELLENT ($SCRIPT_COUNT scripts)"
 elif [ "$SCRIPT_COUNT" -lt 50 ]; then
@@ -89,7 +98,12 @@ fi
 
 # Check 6: No memory leaks in scripts
 echo -n "✓ No obvious memory leaks... "
-INFINITE_LOOPS=$(grep -r "while true\|while :" ../source/scripts 2>/dev/null | grep -v "sleep\|read\|wait" | wc -l || echo "0")
+if [ -d "../source/scripts" ]; then
+    INFINITE_LOOPS=$(grep -r "while true\|while :" ../source/scripts 2>/dev/null | grep -v "sleep\|read\|wait" | wc -l | tr -d ' ')
+else
+    INFINITE_LOOPS=0
+fi
+INFINITE_LOOPS=${INFINITE_LOOPS:-0}
 if [ "$INFINITE_LOOPS" -eq 0 ]; then
     echo "YES"
 else

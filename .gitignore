@@ -299,8 +299,6 @@ build/
 !runtime/modules/**
 
 # Keep development tools
-!development/**/*.sh
-!development/docker/**
 !tools/**
 
 # Keep test scripts
