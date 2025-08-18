@@ -106,14 +106,14 @@ This file scheduled for removal to save memory (~15KB).
 ### Build System
 - **[build/](build/)** - Build infrastructure
 - **[build/docker/](build/docker/)** - Docker configurations
-- **[development/docker/](development/docker/)** - Docker files
+- **[build/docker/](build/docker/)** - Docker files
   - `nookwriter-optimized.dockerfile` - Main build image
   - `minimal-boot.dockerfile` - Minimal boot environment
 
 ### Deployment
 - **[deployment_package/](deployment_package/)** - Ready-to-deploy artifacts
-- **[tools/deployment/](tools/deployment/)** - Deployment scripts
-- **[scripts/deployment/](scripts/deployment/)** - SD card creation
+- **[utilities/deployment/](utilities/deployment/)** - Deployment scripts
+- **[utilities/deployment/](utilities/deployment/)** - SD card creation
 
 ### Firmware & Boot
 - **[firmware/boot/](firmware/boot/)** - Kernel and bootloaders
@@ -130,8 +130,8 @@ This file scheduled for removal to save memory (~15KB).
   - `run-tests.sh` - Primary test runner
   - `test-improvements.sh` - Improvement validation
   - `phase*-validation.sh` - Phased testing
-- **[scripts/test/](scripts/test/)** - Test framework
-- **[tools/testing/](tools/testing/)** - Test utilities
+- **[utilities/test/](utilities/test/)** - Test framework
+- **[utilities/testing/](utilities/testing/)** - Test utilities
 
 ### Reports
 - **[TEST_REPORT.md](TEST_REPORT.md)** - Latest test results
@@ -144,14 +144,14 @@ This file scheduled for removal to save memory (~15KB).
 ## 🔧 Tools & Utilities
 
 ### Development Tools
-- **[tools/](tools/)** - Development utilities
-- **[tools/maintenance/](tools/maintenance/)** - Maintenance scripts
-- **[tools/debug/](tools/debug/)** - Debugging tools
-- **[tools/setup/](tools/setup/)** - Setup utilities
+- **[utilities/](utilities/)** - Development utilities
+- **[utilities/maintenance/](utilities/maintenance/)** - Maintenance scripts
+- **[utilities/debug/](utilities/debug/)** - Debugging tools
+- **[utilities/setup/](utilities/setup/)** - Setup utilities
 
 ### Scripts
-- **[scripts/](scripts/)** - Core scripts
-- **[scripts/lib/common.sh](scripts/lib/common.sh)** - Common library
+- **[utilities/](utilities/)** - Core scripts
+- **[utilities/lib/common.sh](utilities/lib/common.sh)** - Common library
 
 ---
 

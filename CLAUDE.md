@@ -262,7 +262,7 @@ source/
 │   ├── ascii/          # Jester ASCII art collections
 │   ├── system/         # Boot services and system files
 │   └── vim/            # Vim configurations for writing
-└── scripts/            # System scripts organized by function
+└── utilities/          # System scripts organized by function
     ├── boot/           # Boot sequence scripts
     ├── menu/           # Menu system implementations
     ├── services/       # Background services
@@ -280,16 +280,16 @@ When analyzing this project for security, quality, or performance:
 - The 2,986 files with unsafe C functions are in vanilla kernel, accepted risk
 
 **INCLUDE in analysis** (our actual project code):
-- `source/scripts/` - All our shell scripts (boot, menu, services)
+- `source/utilities/` - All our shell scripts (boot, menu, services)
 - `source/configs/` - Configuration files
 - `build/` - Build scripts and Dockerfiles
-- `tools/` - Maintenance and deployment tools
+- `utilities/` - Maintenance and deployment tools
 - `tests/` - Test suites
 - `docs/` - Documentation
 
 ### Security Focus Areas
 Focus security analysis ONLY on our code:
-- Shell scripts in `source/scripts/` (check for safety headers, input validation)
+- Shell scripts in `source/utilities/` (check for safety headers, input validation)
 - Build scripts (check for proper error handling)
 - Menu systems (check for path traversal protection)
 - Boot scripts (check for race conditions)

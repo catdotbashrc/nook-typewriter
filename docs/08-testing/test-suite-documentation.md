@@ -4,7 +4,7 @@
 
 ## Overview
 
-The Nook Typewriter project employs a comprehensive test suite with 32 test scripts covering critical functionality, ensuring system reliability within the constrained embedded environment.
+The Nook Typewriter project employs a comprehensive test suite with 35 test scripts covering critical functionality, ensuring system reliability within the constrained embedded environment. The test infrastructure now uses a **modular Docker approach** for better maintainability and faster iteration.
 
 ---
 
@@ -12,14 +12,38 @@ The Nook Typewriter project employs a comprehensive test suite with 32 test scri
 
 | Metric | Value |
 |--------|-------|
-| **Total Test Scripts** | 32 |
-| **Test Categories** | 10 |
+| **Total Test Scripts** | 35 |
+| **Test Categories** | 11 |
 | **Coverage Target** | 90% |
 | **Priority Levels** | High, Medium, Low |
 | **Test Functions** | 58+ |
 | **Execution Time** | ~5 minutes |
 
 ---
+
+## 🎯 New Modular Test System
+
+### Test Runner Framework (`test-runner.sh`)
+
+**Purpose**: Orchestrates modular test execution with external scripts
+
+```bash
+# Build base image
+./tests/test-runner.sh build
+
+# Run specific test
+./tests/test-runner.sh [image] [test-script]
+
+# List available tests
+./tests/test-runner.sh list
+```
+
+**Benefits**:
+- 🎯 **Focused Images**: Base image contains runtime only
+- 🔄 **Reusable**: Same base for dev, test, and deployment
+- 🧪 **Flexible**: Add/modify tests without rebuilding
+- 📦 **Smaller Images**: No embedded test code
+- 🚀 **Faster Iteration**: Change tests instantly
 
 ## 🏗️ Test Framework Architecture
 

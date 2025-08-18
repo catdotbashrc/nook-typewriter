@@ -8,6 +8,11 @@
 
 Creating a bootable SD card for the Nook Simple Touch requires precise technical requirements that differ significantly from modern Linux systems. This guide documents the **critical discoveries** that enable successful SD card booting, now enhanced with our **4-partition recovery architecture** for maximum resilience and user data protection.
 
+### 🎯 New Features
+- **USB Keyboard Support**: Full external keyboard capability via USB OTG
+- **GK61 Integration**: Optimized for mechanical keyboards
+- **Modular Docker Build**: Simplified deployment with jesteros-base image
+
 ## ⚠️ Critical Requirements
 
 ### Partition Alignment (MANDATORY)
@@ -48,6 +53,8 @@ Boot files must be copied in **exact order** to ensure contiguous storage:
 cp MLO /mount/point/MLO                    # FIRST - ROM bootloader needs contiguous MLO
 sync                                       # Ensure MLO is written before continuing
 cp u-boot.bin /mount/point/u-boot.bin     # SECOND - MLO loads this
+cp uImage /mount/point/uImage             # THIRD - Kernel with USB support
+cp jesteros-base.tar.gz /mount/point/     # FOURTH - Root filesystem with GK61 support
 sync
 cp uImage /mount/point/uImage              # THIRD - U-Boot loads kernel
 cp boot.scr /mount/point/boot.scr          # FOURTH - U-Boot script

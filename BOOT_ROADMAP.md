@@ -35,7 +35,7 @@ cd /home/jyeary/projects/personal/nook
 ```bash
 # Build the minimal boot image
 cd /home/jyeary/projects/personal/nook
-docker build -t nook-mvp -f development/docker/minimal-boot.dockerfile .
+docker build -t nook-mvp -f build/docker/minimal-boot.dockerfile .
 
 # Export it
 docker create --name temp-nook nook-mvp
@@ -46,7 +46,7 @@ docker rm temp-nook
 ### Option B: Full Writer Build (After you confirm boot works)
 ```bash
 # Build the full writing environment
-docker build -t nook-writer -f development/docker/nookwriter-optimized.dockerfile .
+docker build -t nook-writer -f build/docker/nookwriter-optimized.dockerfile .
 
 # Export it
 docker create --name temp-writer nook-writer

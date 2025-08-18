@@ -6,6 +6,12 @@
 
 The deployment package provides everything needed to install JesterOS on a Barnes & Noble Nook Simple Touch, transforming it into a medieval-themed digital typewriter. JesterOS now runs as lightweight userspace services with our resilient **4-partition recovery architecture**, making deployment simpler, safer, and virtually indestructible.
 
+### 🎯 New in v2.0
+- **USB Keyboard Support**: Full external keyboard integration
+- **GK61 Optimization**: Mechanical keyboard support via USB OTG
+- **Modular Docker Build**: Simplified deployment with jesteros-base
+- **Enhanced Input Handling**: Multiple input device management
+
 ---
 
 ## 📁 Deployment Package Structure
@@ -30,7 +36,9 @@ deployment_package/
 │           ├── jesteros-userspace.sh    # Main JesterOS service
 │           ├── jesteros-tracker.sh      # Writing statistics tracker
 │           ├── jester-splash.sh         # Terminal display
-│           └── jester-splash-eink.sh    # E-Ink optimized display
+│           ├── jester-splash-eink.sh    # E-Ink optimized display
+│           ├── usb-keyboard-manager.sh  # USB keyboard support
+│           └── usb-keyboard-setup.sh    # Keyboard configuration
 ├── etc/
 │   └── init.d/
 │       └── jesteros             # Init script for JesterOS
@@ -48,7 +56,9 @@ deployment_package/
 
 ### Method 1: Automated Installation (Recommended)
 
-**Requirements**: Root access on target device
+**Requirements**: 
+- Root access on target device
+- (Optional) USB OTG cable + powered hub for keyboard support
 
 **Process**:
 ```bash
@@ -68,6 +78,8 @@ sudo ./install.sh
 - Creates `/var/jesteros/` directory structure
 - Installs init script
 - Enables auto-start at boot
+- Configures USB keyboard support (if hardware detected)
+- Sets up input device monitoring
 
 ### Method 2: Manual Installation
 
@@ -405,14 +417,14 @@ mkdir -p ${PACKAGE_NAME}/{usr/local/bin,etc/init.d,var/jesteros/typewriter}
 mkdir -p ${PACKAGE_NAME}/{boot,images,recovery,tools}
 
 # Copy system files
-cp source/scripts/boot/jesteros-*.sh ${PACKAGE_NAME}/usr/local/bin/
+cp source/utilities/boot/jesteros-*.sh ${PACKAGE_NAME}/usr/local/bin/
 cp source/configs/system/jesteros.init ${PACKAGE_NAME}/etc/init.d/jesteros
 
 # Copy boot files (critical order!)
 cp firmware/boot/MLO ${PACKAGE_NAME}/boot/
 cp firmware/boot/u-boot.bin ${PACKAGE_NAME}/boot/
 cp firmware/boot/uImage ${PACKAGE_NAME}/boot/
-cp scripts/boot.scr ${PACKAGE_NAME}/boot/
+cp utilities/boot.scr ${PACKAGE_NAME}/boot/
 
 # Create system and recovery images
 tar -czf ${PACKAGE_NAME}/images/jesteros-system.tar.gz -C build/rootfs/ .

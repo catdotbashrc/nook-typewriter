@@ -13,6 +13,7 @@ JesterOS is a custom Linux environment designed specifically for the Nook Simple
 - **E-Ink Optimized**: Designed for the unique constraints and benefits of E-Ink
 - **Medieval Whimsy**: A court jester companion that tracks your writing progress
 - **Ultra-Light**: Entire system uses <8MB RAM, leaving 100MB+ for your writing
+- **External Keyboard Support**: Full USB keyboard support including GK61 mechanical keyboards
 - **No Internet**: Intentionally offline to maintain focus
 
 ## 📋 System Requirements
@@ -21,6 +22,8 @@ JesterOS is a custom Linux environment designed specifically for the Nook Simple
 - Nook SimpleTouch (1st gen B&N e-reader)
 - 4GB+ SD card
 - USB cable for initial setup
+- (Optional) USB OTG cable + powered hub for external keyboard
+- (Optional) USB keyboard (GK61 or any HID-compliant keyboard)
 
 ### Build Requirements
 - Docker (for cross-compilation)
@@ -91,12 +94,15 @@ cd nook-typewriter
 # Build kernel and modules
 ./build_kernel.sh
 
-# Build root filesystem
-docker build -t nook-mvp-rootfs -f minimal-boot.dockerfile .
+# Build modular base image (NEW - includes GK61 support)
+docker build -t jesteros-base -f build/docker/jesteros-base.dockerfile .
 
-# Package rootfs
-docker create --name nook-export nook-mvp-rootfs
-docker export nook-export | gzip > nook-mvp-rootfs.tar.gz
+# Test the build
+./tests/test-runner.sh jesteros-base simple-test.sh
+
+# Package for deployment
+docker create --name nook-export jesteros-base
+docker export nook-export | gzip > jesteros-base.tar.gz
 docker rm nook-export
 ```
 
@@ -277,7 +283,7 @@ gcc -fsyntax-only -D__KERNEL__ -DMODULE quillkernel/modules/*.c
 
 ```bash
 # Verify SD card
-./scripts/verify-sd-card.sh
+./utilities/verify-sd-card.sh
 
 # Mount test
 ./mount_sdcard_helper.sh detect
@@ -327,12 +333,12 @@ nook-typewriter/
 │   ├── src/                  # Linux 2.6.29 source
 │   └── build/                # Build configs
 ├── config/                   # Configuration files
-│   ├── scripts/              # System scripts
+│   ├── utilities/            # System scripts
 │   │   ├── nook-menu.sh      # Main menu
 │   │   └── boot-jester.sh    # Boot animations
 │   └── vim/                  # Vim configuration
 ├── tests/                    # Test suite
-├── scripts/                  # Build & utility scripts
+├── utilities/                # Build & utility scripts
 ├── boot/                     # Boot configurations
 └── docs/                     # Documentation
 ```
@@ -429,7 +435,7 @@ cat /proc/squireos/jester
 cat /proc/squireos/typewriter/stats
 
 # System health check
-./source/scripts/services/health-check.sh
+./source/utilities/services/health-check.sh
 ```
 
 ## 📚 Documentation

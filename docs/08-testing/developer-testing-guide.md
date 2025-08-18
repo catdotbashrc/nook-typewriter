@@ -18,8 +18,8 @@ graph LR
 
 | Stage | Target Directory | What's Tested | When to Run |
 |-------|-----------------|---------------|-------------|
-| **Pre-Build** | `scripts/` | Build tools, deployment scripts | Before Docker build |
-| **Post-Build** | `source/scripts/` | Docker-generated runtime scripts | After Docker build |
+| **Pre-Build** | `utilities/` | Build tools, deployment scripts | Before Docker build |
+| **Post-Build** | `source/utilities/` | Docker-generated runtime scripts | After Docker build |
 | **Runtime** | Container | Actual execution behavior | After container starts |
 
 ---
@@ -96,8 +96,8 @@ TEST_STAGE=runtime ./tests/run-tests.sh
 # 1. Verify your starting point
 make test-pre-build  # Ensure build tools work
 
-# 2. Make your changes to scripts/
-vim scripts/deployment/create-sd-image.sh
+# 2. Make your changes to utilities/
+vim utilities/deployment/create-sd-image.sh
 
 # 3. Test your changes
 make test-pre-build  # Verify changes don't break build
@@ -109,10 +109,10 @@ make test-pre-build  # Verify changes don't break build
 make docker-build
 
 # 2. Validate generated scripts
-make test-post-build  # Check source/scripts/ output
+make test-post-build  # Check source/utilities/ output
 
 # 3. If issues found, fix in Dockerfile or build process
-# (Never edit source/scripts/ directly - it's regenerated!)
+# (Never edit source/utilities/ directly - it's regenerated!)
 ```
 
 ### Before Deployment
@@ -129,24 +129,24 @@ TEST_STAGE=post-build ./tests/01-safety-check.sh
 ## Understanding Test Failures
 
 ### Pre-Build Stage Failures
-**Location**: Problems in `scripts/` directory
-**Fix**: Edit the script directly in `scripts/`
+**Location**: Problems in `utilities/` directory
+**Fix**: Edit the script directly in `utilities/`
 
 Example:
 ```bash
-✗ Script not executable: scripts/deployment/create-sd-image.sh
-→ Fix: chmod +x scripts/deployment/create-sd-image.sh
+✗ Script not executable: utilities/deployment/create-sd-image.sh
+→ Fix: chmod +x utilities/deployment/create-sd-image.sh
 ```
 
 ### Post-Build Stage Failures
-**Location**: Problems in `source/scripts/` directory
-**Fix**: Modify Dockerfile or build process (NOT source/scripts/)
+**Location**: Problems in `source/utilities/` directory
+**Fix**: Modify Dockerfile or build process (NOT source/utilities/)
 
 Example:
 ```bash
 ✗ Found /proc/squireos references (should be /var/jesteros)
 → Fix: Update Dockerfile COPY or sed commands
-→ Wrong: Edit source/scripts/boot/init.sh directly
+→ Wrong: Edit source/utilities/boot/init.sh directly
 ```
 
 ### Runtime Stage Failures
@@ -165,14 +165,14 @@ Example:
 ## Test Stage Details
 
 ### Pre-Build Stage
-Tests the `scripts/` directory containing build and deployment tools:
+Tests the `utilities/` directory containing build and deployment tools:
 - `apply_metadata.sh` - Metadata application
 - `create-sd-image.sh` - SD card creation
 - `secure-chmod-replacements.sh` - Security tools
 - `version-control.sh` - Version management
 
 ### Post-Build Stage
-Tests the `source/scripts/` directory containing runtime scripts:
+Tests the `source/utilities/` directory containing runtime scripts:
 - `boot/*.sh` - Boot sequence scripts
 - `menu/*.sh` - Writing menu system
 - `services/*.sh` - JesterOS services
@@ -272,7 +272,7 @@ jobs:
 
 ### Common Issues
 
-**"Directory source/scripts/ not found"**
+**"Directory source/utilities/ not found"**
 - Run `make docker-build` first
 - Post-build tests require Docker output
 
@@ -294,9 +294,9 @@ echo $TEST_STAGE
 TEST_STAGE=post-build bash -x ./tests/05-consistency-check.sh
 
 # Check what's in each directory
-ls -la scripts/
-ls -la source/scripts/
-docker run --rm nook-writer ls -la /source/scripts/
+ls -la utilities/
+ls -la source/utilities/
+docker run --rm nook-writer ls -la /source/utilities/
 ```
 
 ---
@@ -322,8 +322,8 @@ make test-safety      # Critical safety only
 make test-quick       # Show stoppers only
 
 # Where to fix issues
-scripts/            → Fix directly (pre-build)
-source/scripts/     → Fix in Dockerfile (post-build)
+utilities/          → Fix directly (pre-build)
+source/utilities/   → Fix in Dockerfile (post-build)
 Container behavior  → Fix in source files (runtime)
 ```
 
