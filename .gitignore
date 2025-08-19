@@ -28,31 +28,14 @@ source/kernel/src/
 # ------------------------------------------------------------------
 
 # Keep only essential images
-*.img
 !images/NookManager.img
 !images/2gb_clockwork-rc2.img
 !images/128mb_clockwork-rc2.img
 !firmware/bootloaders/NookManager.img
 
-# Temporary rootfs archives (created during build)
-*-rootfs-*.tar.gz
-jesteros-*.tar.gz
-!jesteros.tar.gz  # Keep the main one if needed
-
-# Build directories
-build/output/
-build/tmp/
-build/cache/
-
 # ------------------------------------------------------------------
 # Development & Testing
 # ------------------------------------------------------------------
-
-# Test outputs
-tests/*.log
-tests/reports/
-test_*.txt
-test_*.md
 
 # Coverage and profiling
 *.coverage
@@ -88,10 +71,6 @@ cscope.*
 .DS_Store
 ._*
 
-# Windows
-Thumbs.db
-*.Zone.Identifier
-
 # Linux
 .directory
 .Trash-*
@@ -114,36 +93,29 @@ Thumbs.db
 # Temporary
 *.tmp
 *.temp
-tmp/
-temp/
 
 # ------------------------------------------------------------------
 # Project-Specific Ignores
 # ------------------------------------------------------------------
 
+# Build output directory (all generated files)
+build/
+
 # Old migration directories
 .archives/
-backups/
-old/
-deprecated/
-
-# Downloaded toolchains
-android-ndk-*/
-toolchain/
 
 # Personal notes
 notes/
 personal/
 TODO.personal
 
-# Docker artifacts
-.dockerenv
-docker-cache/
-
-# AI Assistant artifacts
-.mcp.json
-.simone/
-.claude/
+# Individual scratch files (never committed)
+*.scratch.md         # Scratch notes on any topic
+*.wip.md            # Work-in-progress documentation
+*.local.md          # Local-only notes
+*-NOTES.md          # Personal notes files
+*-TODO.md           # Personal todo lists
+*-DRAFT.md          # Draft documents
 
 # ------------------------------------------------------------------
 # Exceptions - Always Track These
@@ -161,31 +133,6 @@ docker-cache/
 !LICENSE
 !CHANGELOG
 
-# Critical scripts
-!build.sh
-!build_kernel.sh
-!install_to_sdcard.sh
-!build/scripts/create-phoenix-installer.sh
-
-# Docker configurations
-!build/docker/
-!build/docker/**/*.dockerfile
-
 # Test scripts
 !tests/*.sh
-!tests/deployment-checklist.md
 
-# Source utilities
-!source/utilities/**/*.sh
-!source/configs/**
-
-# Runtime code
-!runtime/**/*.sh
-!runtime/**/*.vim
-!runtime/**/*.txt
-
-# Utility scripts
-!utilities/**/*.sh
-
-# Tools
-!tools/**/*.sh

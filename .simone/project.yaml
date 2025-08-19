@@ -1,0 +1,137 @@
+# Simone Project Configuration
+# Generated: 2025-01-13
+
+project:
+  name: "Nook Typewriter"
+  description: "Transform a $20 Nook e-reader into a distraction-free writing device with custom Linux kernel"
+  type: "single"
+  riskLevel: 7  # Autonomous operation with minimal confirmations
+
+contexts:
+  - name: "nook-typewriter"
+    path: "."
+    description: "Embedded Linux distribution for Nook e-reader with medieval-themed writing environment"
+    
+    stack:
+      language: "C"
+      framework:
+        name: "Linux Kernel 2.6.29"
+        version: "2.6.29"
+        enabled: true
+      database:
+        type: "none"
+        orm: "none"
+        enabled: false
+      styling:
+        system: "none"
+        enabled: false
+    
+    tooling:
+      build:
+        enabled: true
+        command: "make firmware"
+        clean: "make clean"
+      test:
+        enabled: true
+        command: "make test"
+        coverage: "./tests/run-all-tests.sh"
+        watch: "none"
+      lint:
+        enabled: false
+        command: "none"
+        autofix: "none"
+      format:
+        enabled: false
+        command: "none"
+        check: "none"
+      commit:
+        enabled: true
+        command: "git commit"
+      
+      # Custom commands specific to this project
+      kernel:
+        build: "./build_kernel.sh"
+        modules: "make modules"
+      validate:
+        command: "make validate"
+        check_tools: "make check-tools"
+      deploy:
+        install: "make install"
+        sdcard: "./install_to_sdcard.sh"
+    
+    methodology:
+      development: "none"
+      architecture: "embedded"
+      workflow: "github-flow"
+
+shared:
+  conventions:
+    style: "kernel-style"
+    documentation: "medieval-themed"
+    testing: "safety-first"
+  quality:
+    linting: false
+    testing: true
+    coverage: 90
+  constraints:
+    memory_limit: "96MB"
+    sacred_writing_space: "160MB"
+    hardware: "ARM 800MHz, 256MB RAM, E-Ink display"
+
+github:
+  repository: "catdotbashrc/nook-typewriter"
+  tool: "cli"
+  defaultBranch: "dev"
+  github_projects:
+    enabled: true
+    project_id: "PVT_kwHODGGs784BAaZX"
+    project_number: 1
+    # Workflow: Todo → In Progress → Done
+    # All items start in Todo, move to In Progress when working, Done when complete
+    idea_status: "Todo"       # Draft ideas and thoughts start here
+    work_status: "Todo"       # Pull work items from Todo queue
+    new_issue_status: "Todo"  # New GitHub issues created go to Todo
+    available_statuses:
+      - "Todo"        # Queue for all new items (ideas, issues, tasks)
+      - "In Progress" # Currently being worked on
+      - "Done"        # Completed items
+
+features:
+  pr_review_wait:
+    enabled: false
+    initial_wait: 30
+    poll_interval: 30
+    timeout: 600
+    auto_merge: false
+
+settings:
+  auto_commit: false
+  verbose: false
+  emoji: false
+  memory_conscious: true
+
+ai_optimization:
+  preferred_session_size: 20000  # tokens
+  max_context_usage: 180000      # tokens (90% of 200K)
+  parallel_tasks: 3               # simultaneous work streams
+  
+  patterns:
+    use_references: true          # Reference existing code patterns
+    incremental_development: true # Build in small chunks
+    test_first: true              # Generate tests before implementation
+    inline_docs: true             # Document complex logic immediately
+  
+  efficiency_targets:
+    code_per_token: 0.1           # lines per token
+    test_coverage: 80             # minimum percentage
+    doc_ratio: 0.2                # docs/code ratio
+    
+  commit_style:
+    format: "ai-session"          # Use AI session format
+    include_metrics: true         # Add token usage
+    preserve_context: true        # Note key decisions
+    
+  recovery_strategies:
+    context_overflow: "split"     # Split into smaller tasks
+    test_failure: "add_context"   # Add test context
+    style_violation: "reference"  # Reference pattern library

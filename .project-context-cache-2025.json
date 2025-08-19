@@ -1,0 +1,114 @@
+{
+  "project": {
+    "name": "JesterOS/JoKernel/QuillKernel",
+    "description": "Transform $20 Nook SimpleTouch e-reader into a distraction-free writing device",
+    "version": "1.0.0-dev",
+    "philosophy": "Writers > Features, RAM saved = Words written",
+    "architecture": "U-Boot → Android → Linux chroot → JesterOS userspace → Vim",
+    "status": "Testing phase - Hardware boot pending"
+  },
+  
+  "hardware": {
+    "device": "Barnes & Noble Nook Simple Touch",
+    "codename": "gossamer",
+    "model": "BNRV300",
+    "cpu": "TI OMAP3621 ARM Cortex-A8 800MHz",
+    "ram": "256MB (233MB available)",
+    "display": "6-inch E-Ink Pearl 800x600",
+    "storage": "2GB internal + SD card"
+  },
+  
+  "memory_budget": {
+    "total": "233MB available",
+    "android_base": "188MB (measured from device)",
+    "jesteros": "10MB (ABSOLUTE MAX)",
+    "vim": "8MB (minimal config)",
+    "writing_space": "27MB+ (sacred space for manuscripts)"
+  },
+  
+  "build_system": {
+    "primary_tool": "Make",
+    "docker_images": [
+      "jesteros-lenny-base",
+      "jesteros-production",
+      "kernel-xda-proven",
+      "modern-packager"
+    ],
+    "key_commands": {
+      "firmware": "Build complete system",
+      "lenny-rootfs": "Build Debian Lenny rootfs with vim",
+      "test": "Run safety tests",
+      "sd-deploy": "Deploy to SD card"
+    }
+  },
+  
+  "directory_structure": {
+    "build/": "Docker configurations and build scripts",
+    "docs/": "Comprehensive documentation",
+    "firmware/": "Root filesystem and boot images",
+    "source/": "JesterOS source code and kernel",
+    "tests/": "Test suite and validation",
+    "tools/": "Development utilities",
+    "utilities/": "Helper scripts",
+    "lenny-rootfs/": "Debian Lenny rootfs extraction"
+  },
+  
+  "services": {
+    "interface": "/var/jesteros/",
+    "components": [
+      "jester (ASCII companion)",
+      "typewriter/stats (writing metrics)",
+      "wisdom (medieval quotes)"
+    ]
+  },
+  
+  "documentation": {
+    "main_files": [
+      "README.md - Project overview",
+      "INDEX.md - Complete project map",
+      "CLAUDE.md - Development constraints",
+      "PROJECT_REFERENCE.md - Full reference"
+    ],
+    "scratch_area": "docs/.scratch/ (WIP documentation)"
+  },
+  
+  "critical_constraints": [
+    "Hardware: ARM Cortex-A8, 233MB RAM, E-Ink display",
+    "Philosophy: Writers > features",
+    "Architecture: REQUIRES Android layer (cannot bypass)",
+    "Memory: 10MB max for JesterOS, 8MB for Vim",
+    "Safety: All scripts must use 'set -euo pipefail'",
+    "Scope: EXCLUDE source/kernel/src/ from analysis (vanilla Linux 2.6.29)"
+  ],
+  
+  "development_rules": [
+    "PREFER updating existing files over creating new",
+    "NEVER exceed 96MB OS usage",
+    "NO network features, compilers, or media players",
+    "Write to docs/.scratch/ for notes/research",
+    "Only write to docs/[category]/ on explicit request"
+  ],
+  
+  "recent_work": [
+    "Fixed vim binary missing in production Docker",
+    "Cleaned Docker artifacts from firmware",
+    "Analyzed missing Nook hardware support files",
+    "Created documentation scratch area structure",
+    "Optimized CLAUDE.md for SuperClaude (90% token reduction)"
+  ],
+  
+  "pending_tasks": [
+    "First hardware boot verification",
+    "Extract Android boot files from NookManager.img",
+    "Compile FBInk for ARM architecture",
+    "Implement hybrid boot architecture (Android + Linux)",
+    "Optimize vim for E-Ink display"
+  ],
+  
+  "cache_metadata": {
+    "created": "2025-01-19",
+    "format_version": "1.0",
+    "git_branch": "dev",
+    "git_status": "Modified files in CLAUDE.md, Makefile, docs/, firmware/"
+  }
+}

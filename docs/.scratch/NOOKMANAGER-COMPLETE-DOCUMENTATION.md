@@ -1,0 +1,450 @@
+# NookManager v0.5.0 - Complete System Documentation
+
+## Table of Contents
+1. [Overview](#overview)
+2. [System Architecture](#system-architecture)
+3. [Boot Components](#boot-components)
+4. [File System Structure](#file-system-structure)
+5. [Scripts Reference](#scripts-reference)
+6. [Menu System](#menu-system)
+7. [Hardware Interfaces](#hardware-interfaces)
+8. [Partition Layout](#partition-layout)
+9. [Customization](#customization)
+10. [Integration Guide](#integration-guide)
+
+---
+
+## Overview
+
+**NookManager** is a bootable SD card image that provides root access, backup/restore capabilities, and system management for Barnes & Noble Nook Simple Touch e-readers.
+
+### Key Features
+- Boots from SD card without modifying internal storage
+- Complete backup and restore functionality
+- One-click rooting process
+- Text-based menu interface optimized for E-Ink
+- WiFi and network configuration
+- Custom script support
+
+### System Requirements
+- Nook Simple Touch (BNRV300)
+- SD card (128MB minimum, Class 10 recommended)
+- Battery charge >40% for operations
+
+---
+
+## System Architecture
+
+### Boot Chain
+```
+Power On → ROM Bootloader → MLO → U-Boot → Linux Kernel → Android Init → NookManager
+```
+
+### Component Stack
+```
+┌─────────────────────────┐
+│   Menu Interface        │  User interaction layer
+├─────────────────────────┤
+│   Scripts Layer         │  System operations
+├─────────────────────────┤
+│   Android Init (minimal)│  Hardware initialization
+├─────────────────────────┤
+│   Linux Kernel 2.6.29   │  Core OS
+├─────────────────────────┤
+│   U-Boot Bootloader     │  Boot orchestration
+├─────────────────────────┤
+│   MLO (X-Loader)        │  First-stage boot
+└─────────────────────────┘
+```
+
+---
+
+## Boot Components
+
+### Primary Boot Files
+
+| File | Size | Purpose | Memory Address |
+|------|------|---------|----------------|
+| `MLO` | 16KB | OMAP3621 first-stage bootloader | ROM |
+| `u-boot.bin` | 159KB | Second-stage bootloader | 0x80008000 |
+| `uImage` | 1.8MB | Linux kernel 2.6.29 | 0x81c00000 |
+| `uRamdisk` | 10.7MB | Android init + root filesystem | 0x81f00000 |
+
+### Support Files
+
+| File | Size | Purpose |
+|------|------|---------|
+| `boot.scr` | 201B | U-Boot script defining boot sequence |
+| `cfg.bin` | 27B | Configuration parameters |
+| `wvf.bin` | 92KB | E-Ink waveform data for display refresh |
+| `booting.pgm` | 480KB | Boot splash screen image |
+| `flash_spl.bin` | 20KB | Secondary program loader (backup) |
+
+### Boot Script (`boot.scr`)
+```bash
+run setbootargs          # Configure kernel parameters
+mmcinit 0                # Initialize internal MMC
+mmcinit 1                # Initialize SD card
+fatload mmc 0 0x81c00000 uImage     # Load kernel
+fatload mmc 0 0x81f00000 uRamdisk   # Load ramdisk
+bootm 0x81c00000 0x81f00000         # Boot kernel with ramdisk
+```
+
+---
+
+## File System Structure
+
+### Root Directory (`/mnt/nook/`)
+```
+/mnt/nook/
+├── boot files (MLO, u-boot.bin, uImage, uRamdisk)
+├── custom/          # User customizations
+├── files/           # System files for installation
+├── hooks/           # Event-triggered scripts
+├── menu/            # Menu system components
+└── scripts/         # Core functionality scripts
+```
+
+### `/files/` - Installation Files
+```
+files/
+├── data/            # User data modifications
+│   └── app/        # Custom applications (APK)
+├── rom/            # ROM backups
+│   └── devconf/    # Device configuration
+└── system/         # Android system files
+    ├── app/        # System applications
+    ├── bin/        # System binaries
+    ├── fonts/      # DroidSansFallback.ttf
+    └── framework/  # Android framework files
+```
+
+### `/hooks/` - Event Scripts
+- `system_ready` - Executed when system boot completes
+- `network_ready` - Executed when network connection established
+- `network_failed` - Executed when network connection fails
+
+### `/custom/` - User Extensions
+```
+custom/
+├── files/          # Custom files to install
+├── menu/           # Custom menu entries
+├── scripts/        # Custom scripts
+└── README.txt      # Customization guide
+```
+
+---
+
+## Scripts Reference
+
+### Core System Scripts
+
+#### `mount_nook` - Mount Nook Partitions
+```bash
+# Creates mount points and mounts all Nook partitions
+/dev/block/mmcblk0p1 → /nook/boot     (vfat)  # Boot partition
+/dev/block/mmcblk0p2 → /rom           (vfat)  # ROM partition
+/dev/block/mmcblk0p3 → /nook/factory  (ext2)  # Factory reset
+/dev/block/mmcblk0p5 → /nook/system   (ext2)  # Android system
+/dev/block/mmcblk0p6 → /nook/userdata (vfat)  # User data
+/dev/block/mmcblk0p7 → /nook/cache    (ext3)  # Cache
+/dev/block/mmcblk0p8 → /data          (ext3)  # Data partition
+```
+
+#### `do_root` - Complete Rooting Process
+```bash
+1. Mount Nook partitions
+2. Patch uRamdisk for root access
+3. Install BusyBox utilities
+4. Install su (superuser) binary
+5. Enable non-market apps
+6. Install package installer
+7. Install launcher
+8. Install Nook modifications
+9. Optional: Install ADB, fonts, Amazon market
+10. Cleanup and unmount
+```
+
+### Installation Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `install_busybox` | Install Unix utilities |
+| `install_su` | Install superuser for root access |
+| `install_launcher` | Install ADW Launcher |
+| `install_nookmods` | Install B&N app modifications |
+| `install_adbkonnect` | Install wireless ADB |
+| `install_font` | Install DroidSansFallback font |
+| `install_amazon_market` | Install Amazon Appstore |
+| `enable_nonmarket_apps` | Allow third-party APK installation |
+
+### Backup/Restore Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `create_backup` | Create full system backup to SD card |
+| `restore_backup` | Restore from backup |
+| `restore_factory` | Factory reset (with confirmation) |
+| `restore_all_bn` | Re-enable all B&N services |
+| `disable_all_bn` | Disable B&N services (for custom ROM) |
+
+### Utility Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `menu` | Main menu rendering engine |
+| `menu_draw` | Draw menu interface |
+| `menu_getkey` | Handle button input |
+| `format_unused_sdcard` | Format SD card free space |
+| `patch_uramdisk` | Modify boot ramdisk for root |
+| `postroot_cleanup` | Clean up after rooting |
+
+---
+
+## Menu System
+
+### Architecture
+- Text-based interface optimized for E-Ink display
+- Button-driven navigation (no touchscreen required)
+- Battery level monitoring with safety checks
+- Dynamic menu generation based on system state
+
+### Main Menu Structure
+```
+┌─────────────────────────────┐
+│        Main Menu            │
+│ System: 1.2.2               │
+│ Battery Level: 85%          │
+├─────────────────────────────┤
+│ [1] ← Rescue                │
+│ [2] Root →                  │
+│ [3] ← Exit                  │
+│ [4] More →                  │
+└─────────────────────────────┘
+```
+
+### Menu Components
+
+#### `/menu/mainmenu` - Primary Interface
+- Displays system version and battery level
+- Prevents operations if battery <40%
+- Routes to submenus based on button press
+
+#### `/menu/root` - Rooting Menu
+```bash
+Options:
+1. Root device
+2. Unroot device
+3. Install Google apps
+4. Return to main menu
+```
+
+#### `/menu/rescue` - Recovery Options
+```bash
+Options:
+1. Backup current system
+2. Restore from backup
+3. Factory reset
+4. Return to main menu
+```
+
+#### `/menu/more` - Additional Options
+```bash
+Options:
+1. Manage B&N apps
+2. Format SD card space
+3. About NookManager
+4. Return to main menu
+```
+
+### Button Mapping
+- **Button 1** (Top Left): Navigate/Select left option
+- **Button 2** (Top Right): Navigate/Select right option
+- **Button 3** (Bottom Left): Back/Exit
+- **Button 4** (Bottom Right): More options/Next
+
+---
+
+## Hardware Interfaces
+
+### Display Control
+```bash
+# E-Ink refresh control
+/sys/class/graphics/fb0/pgflip_refresh  # Page flip refresh
+/sys/class/graphics/fb0/epd_refresh     # E-Paper display refresh
+
+# Framebuffer device
+/dev/graphics/fb0  # Main display (800x600)
+```
+
+### Power Management
+```bash
+# Battery monitoring
+/sys/class/power_supply/bq27510-0/capacity  # Battery percentage
+/sys/class/power_supply/bq27510-0/voltage_now  # Current voltage
+```
+
+### Storage Devices
+```bash
+/dev/block/mmcblk0*  # Internal eMMC (8 partitions)
+/dev/block/mmcblk1*  # External SD card
+```
+
+### Network Interfaces
+```bash
+tiwlan0  # WiFi interface (TI WL1271)
+lo       # Loopback interface
+```
+
+---
+
+## Partition Layout
+
+### Internal Storage (mmcblk0)
+| Part | Mount | FS | Size | Purpose |
+|------|-------|-----|------|---------|
+| p1 | /boot | vfat | 16MB | Boot files |
+| p2 | /rom | vfat | 16MB | Device config |
+| p3 | /factory | ext2 | 190MB | Factory image |
+| p4 | - | extended | - | Extended partition |
+| p5 | /system | ext2 | 285MB | Android system |
+| p6 | /media | vfat | 285MB | User media |
+| p7 | /cache | ext3 | 239MB | App cache |
+| p8 | /data | ext3 | 800MB | User data |
+
+### SD Card Layout (mmcblk1)
+| Part | Size | Purpose |
+|------|------|---------|
+| p1 | 128MB | NookManager boot |
+| p2 | Remaining | User storage/backups |
+
+---
+
+## Customization
+
+### Adding Custom Scripts
+1. Create script in `/custom/scripts/`
+2. Make executable: `chmod +x script_name`
+3. Call from menu or hooks
+
+### Custom Menu Items
+1. Create menu file in `/custom/menu/`
+2. Follow menu script format
+3. Link from main menu system
+
+### Post-Root Customization
+Create `/custom/scripts/post_root`:
+```bash
+#!/bin/sh
+# Called after successful rooting
+# Add custom configurations here
+```
+
+### System Ready Hook
+Create `/custom/scripts/system_ready`:
+```bash
+#!/bin/sh
+# Called when system fully booted
+# Start custom services here
+```
+
+---
+
+## Integration Guide
+
+### For JesterOS Integration
+
+#### Required Components
+```bash
+# Boot infrastructure (2.8MB total)
+MLO                     # 16KB - First-stage boot
+u-boot.bin             # 159KB - Bootloader
+wvf.bin                # 92KB - E-Ink waveforms
+
+# From uRamdisk extraction (2.2MB)
+init                   # 128KB - Android init
+omap-edpd.elf         # 634KB - E-Ink daemon
+default_waveform.bin  # 95KB - Display patterns
+baseimage.dof         # 1.2MB - DSP firmware
+bridged               # 87KB - DSP bridge
+cexec.out            # 79KB - DSP loader
+```
+
+#### Adaptation Strategy
+1. **Use NookManager's boot chain**
+   - Keep MLO and u-boot.bin unchanged
+   - Modify boot.scr for JesterOS kernel
+
+2. **Create hybrid init**
+   ```bash
+   # Minimal init.rc for hardware setup
+   on boot
+       # Load DSP for E-Ink
+       exec /sbin/cexec.out -T /etc/dsp/baseimage.dof
+       exec /sbin/bridged
+       
+       # Start E-Ink daemon
+       exec /sbin/omap-edpd.elf --fbdev=/dev/graphics/fb0
+       
+       # Switch to JesterOS
+       exec /jesteros/init
+   ```
+
+3. **Preserve critical paths**
+   - Memory addresses: kernel@0x81c00000, ramdisk@0x81f00000
+   - E-Ink waveform: must include wvf.bin
+   - DSP firmware: required for display acceleration
+
+#### Testing Approach
+1. Boot NookManager first (verify hardware works)
+2. Replace uRamdisk with hybrid version
+3. Test display initialization
+4. Replace kernel with JesterOS kernel
+5. Full integration test
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Won't boot | Verify MLO is first file copied to SD |
+| Black screen | Check battery >40%, try different SD card |
+| Menu not responding | Clean button contacts, check connections |
+| Backup fails | Ensure sufficient SD card space (>2GB) |
+| Network fails | Verify WiFi credentials in wpa_supplicant.conf |
+
+### Recovery Mode
+If device becomes unbootable:
+1. Boot from NookManager SD card
+2. Select Rescue → Factory Reset
+3. Re-root if desired
+
+### Debug Access
+- ADB over USB: Enabled after rooting
+- ADB over WiFi: Install ADBKonnect
+- Serial console: Requires hardware modification
+
+---
+
+## Version History
+
+### v0.5.0 (2012-12-28)
+- Initial public release
+- Full root capability
+- Backup/restore functionality
+- Menu-driven interface
+
+---
+
+## Legal Notice
+
+NookManager is provided as-is for educational and personal use. Users are responsible for compliance with applicable laws and terms of service. Rooting may void warranty.
+
+---
+
+*Documentation generated from NookManager v0.5.0 image analysis*
+*Source: /mnt/nook (NookManager.img mounted)*
+*Date: 2025-01-19*

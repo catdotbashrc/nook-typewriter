@@ -8,11 +8,14 @@ BUILD_DATE := $(shell date +%Y%m%d)
 IMAGE_NAME := nook-typewriter-$(VERSION).img
 
 # Directory configuration with validation
-KERNEL_DIR := source/kernel
-# JESTEROS_DIR removed - JesterOS now runs in userspace, not kernel  
-SCRIPTS_DIR := runtime
-CONFIGS_DIR := runtime/configs
+KERNEL_DIR := firmware/kernel
+SCRIPTS_DIR := scripts
+DOCKER_DIR := docker
 FIRMWARE_DIR := firmware
+BUILD_DIR := build
+BUILD_ROOTFS_DIR := $(BUILD_DIR)/rootfs
+BUILD_IMAGES_DIR := $(BUILD_DIR)/images
+TESTS_DIR := tests
 RELEASES_DIR := releases
 
 # Build configuration
@@ -23,7 +26,7 @@ DOCKER_IMAGE_KERNEL := kernel-xda-proven
 DOCKER_KERNEL_IMAGE := kernel-xda-proven
 BASE_IMAGE ?= images/2gb_clockwork-rc2.img
 SD_DEVICE ?= auto
-BUILD_LOG := build.log
+BUILD_LOG := $(BUILD_DIR)/logs/build.log
 TIMESTAMP := $(shell date +%Y%m%d_%H%M%S)
 
 # Phoenix Project validated configurations
@@ -229,9 +232,12 @@ kernel: check-tools
 lenny-rootfs: docker-production
 	@echo "$(BOLD)📦 Creating Debian Lenny rootfs for Nook...$(RESET)"
 	@docker create --name jesteros-export $(DOCKER_IMAGE_PRODUCTION)
-	@docker export jesteros-export | gzip > jesteros-production-rootfs-$(BUILD_DATE).tar.gz
+	@# Export and clean Docker contamination in one pipeline
+	@docker export jesteros-export | tar --delete .dockerenv 2>/dev/null | gzip > jesteros-production-rootfs-$(BUILD_DATE).tar.gz || \
+		(docker export jesteros-export | gzip > jesteros-production-rootfs-$(BUILD_DATE).tar.gz)
 	@docker rm jesteros-export
 	@echo "$(GREEN)✓ Created jesteros-production-rootfs-$(BUILD_DATE).tar.gz$(RESET)"
+	@echo "$(GREEN)✓ Removed Docker contamination markers$(RESET)"
 	@ls -lh jesteros-production-rootfs-*.tar.gz
 
 # Root filesystem with JesterOS 4-layer architecture

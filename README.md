@@ -1,587 +1,100 @@
-# JesterOS - Distraction-Free Writing for Nook SimpleTouch
+# JesterOS - E-Ink Writing Environment for Nook SimpleTouch
 
-> "By quill and candlelight, we code for those who write" 🕯️📜
+> Transform your $20 Nook into a distraction-free writing device
 
-Transform your $20 used Nook SimpleTouch into a $400 distraction-free writing device with JesterOS - a whimsical, writer-focused Linux environment.
+## What is JesterOS?
 
-## 📚 Table of Contents
-- [What is JesterOS?](#-what-is-jesteros)
-- [System Requirements](#-system-requirements)
-- [Quick Start](#-quick-start-guide)
-- [Architecture](#-architecture)
-- [Project Status](#-project-status)
-- [Troubleshooting](#-troubleshooting)
-- [Documentation](#-documentation)
-
-## 🎭 What is JesterOS?
-
-JesterOS is a custom Linux environment designed specifically for the Nook SimpleTouch e-reader, turning it into a dedicated writing device. Every decision prioritizes **writers over features**.
+JesterOS is a lightweight Linux environment that turns the Nook SimpleTouch e-reader into a dedicated writing device. Built on the philosophy that **writers deserve focus**, not features.
 
 ### Key Features
-- **Distraction-Free Writing**: Vim-based environment with zero distractions
-- **E-Ink Optimized**: Designed for the unique constraints and benefits of E-Ink
-- **Medieval Whimsy**: A court jester companion that tracks your writing progress
-- **Ultra-Light**: Entire system uses <8MB RAM, leaving 100MB+ for your writing
-- **External Keyboard Support**: Full USB keyboard support including GK61 mechanical keyboards
-- **No Internet**: Intentionally offline to maintain focus
+- **8MB Total Footprint** - Leaves 100MB+ for your writing
+- **Vim-Based Editor** - Optimized for E-Ink display
+- **ASCII Jester Companion** - Tracks your writing progress
+- **USB Keyboard Support** - Full mechanical keyboard compatibility
+- **Zero Distractions** - No internet, no notifications, just writing
 
-## 📋 System Requirements
+## Quick Start
 
-### Hardware
-- Nook SimpleTouch (1st gen B&N e-reader, FW 1.2.2 recommended)
-- **SanDisk Class 10** SD card (4GB+) - *Other brands proven unreliable*
-- USB cable for initial setup
-- (Optional) USB OTG cable + powered hub for external keyboard
-- (Optional) USB keyboard (GK61 or any HID-compliant keyboard)
+### Requirements
+- Nook SimpleTouch (FW 1.2.2)
+- SanDisk Class 10 SD card (4GB+)
+- Docker for building
+- USB keyboard (optional)
 
-### Build Requirements
-- Docker (for cross-compilation)
-- 10GB free disk space
-- Linux or WSL2 environment
-- **Display**: 6" E-Ink (800x600, 16-level grayscale)
-- **Storage**: 2GB internal + SD card slot
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     JoKernel Stack                           │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  User Space                     Kernel Space                │
-│  ┌──────────┐                  ┌──────────────┐            │
-│  │   Vim    │                  │  JesterOS    │            │
-│  │ Editor   │◄────────────────►│   Modules    │            │
-│  └──────────┘                  └──────┬───────┘            │
-│       ▲                               │                     │
-│       │                               ▼                     │
-│  ┌──────────┐                  ┌──────────────┐            │
-│  │   Menu   │                  │    /proc     │            │
-│  │  System  │◄────────────────►│  Interface   │            │
-│  └──────────┘                  └──────┬───────┘            │
-│                                       │                     │
-│  Minimal Debian                       ▼                     │
-│  Rootfs (31MB)                 ┌──────────────┐            │
-│                                │ Linux Kernel │            │
-│                                │    2.6.29    │            │
-│                                └──────┬───────┘            │
-│                                       │                     │
-│                                       ▼                     │
-│                                ┌──────────────┐            │
-│                                │   Android    │            │
-│                                │  Bootloader  │            │
-│                                └──────────────┘            │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Component Layers
-
-1. **Bootloader**: Stock Android bootloader (U-Boot based)
-2. **Kernel**: Custom Linux 2.6.29 with JesterOS modules
-3. **Root Filesystem**: Minimal Debian Bullseye (31MB)
-4. **User Interface**: Vim + custom menu system
-
-## 🚀 Quick Start
-
-### Prerequisites
-```bash
-# Required tools
-docker --version  # Docker 20.10+
-git --version     # Git 2.25+
-sudo access       # For SD card operations
-
-# For native builds (optional)
-arm-linux-gnueabi-gcc --version  # ARM cross-compiler
-```
-
-### Clone and Build
-```bash
-# Clone repository with submodules
-git clone --recursive https://github.com/yourusername/nook-typewriter.git
-cd nook-typewriter
-
-# Build kernel and modules
-./build_kernel.sh
-
-# Build modular base image (NEW - includes GK61 support)
-docker build -t jesteros-base -f build/docker/jesteros-base.dockerfile .
-
-# Test the build
-./tests/test-runner.sh jesteros-base simple-test.sh
-
-# Package for deployment
-docker create --name nook-export jesteros-base
-docker export nook-export | gzip > jesteros-base.tar.gz
-docker rm nook-export
-```
-
-## 🛠️ Development Setup
-
-### Docker Build Environment
-
-The project uses Docker for consistent cross-compilation:
-
-```dockerfile
-# quillkernel/Dockerfile
-FROM ubuntu:20.04
-# Installs Android NDK r10e for ARM cross-compilation
-# Sets up build environment with kernel 2.6.29 support
-```
-
-Build the Docker environment:
-```bash
-cd quillkernel
-docker build -t quillkernel-builder .
-```
-
-### Local Development
-
-For local development without Docker:
+### Build & Deploy
 
 ```bash
-# Install ARM toolchain
-sudo apt-get install gcc-arm-linux-gnueabi
+# Clone repository
+git clone --recursive https://github.com/yourusername/nook.git
+cd nook
 
-# Set environment variables
-export ARCH=arm
-export CROSS_COMPILE=arm-linux-gnueabi-
+# Build system
+make firmware
 
-# Build kernel
-cd nst-kernel-base/src
-make omap3621_gossamer_evt1c_defconfig
-make -j$(nproc) uImage
+# Deploy to SD card
+sudo ./deploy-to-sd.sh
+
+# Insert SD card and boot Nook
+# Hold page buttons while powering on
 ```
 
-## 🔨 Build System
-
-### Kernel Build Process
-
-```bash
-# Main build script
-./build_kernel.sh
-
-# What it does:
-# 1. Configures kernel for Nook hardware
-# 2. Enables SquireOS modules
-# 3. Compiles kernel to uImage
-# 4. Builds kernel modules (.ko files)
-```
-
-### Module Integration
-
-SquireOS modules are integrated into the kernel build system:
-
-```makefile
-# nst-kernel-base/src/drivers/Makefile
-obj-$(CONFIG_SQUIREOS) += ../../../../quillkernel/modules/
-
-# nst-kernel-base/src/drivers/Kconfig
-source "drivers/Kconfig.squireos"
-```
-
-### Configuration Options
-
-```kconfig
-# drivers/Kconfig.squireos
-menuconfig SQUIREOS
-    tristate "SquireOS Medieval Interface"
-    
-config SQUIREOS_JESTER
-    bool "Enable Court Jester companion"
-    
-config SQUIREOS_TYPEWRITER
-    bool "Enable typewriter statistics"
-    
-config SQUIREOS_WISDOM
-    bool "Enable writing wisdom quotes"
-```
-
-## 🎭 JesterOS Services
-
-### Service Overview (Userspace)
-
-| Service | Purpose | Interface Location | Health Check |
-|---------|---------|-------------------|---------------|
-| **jester-daemon** | ASCII art companion with moods | `/var/jesteros/jester` | Mood updates every 30s |
-| **jesteros-tracker** | Writing statistics & achievements | `/var/jesteros/typewriter/stats` | File monitoring active |
-| **health-check** | System resource monitoring | `/var/jesteros/health/status` | Memory < 96MB limit |
-| **service-manager** | Central service orchestration | `/var/jesteros/services/status` | All services running |
-
-### Service Development
-
-Example JesterOS service structure:
-```bash
-#!/bin/bash
-# New JesterOS Service Template
-set -euo pipefail
-
-# Source common functions
-. "$(dirname "$0")/../lib/common.sh"
-
-# Service configuration
-SERVICE_NAME="New Service"
-INTERFACE_DIR="/var/jesteros/newservice"
-PID_FILE="/var/run/jesteros/newservice.pid"
-
-# Main service loop
-run_service() {
-    while true; do
-        # Service logic here
-        update_service_status
-        sleep 30
-    done
-}
-
-# Health check
-check_service_health() {
-    [[ -f "$INTERFACE_DIR/status" ]] && 
-    grep -q "healthy" "$INTERFACE_DIR/status"
-}
-
-main "$@"
-```
-
-### Testing Services
-
-```bash
-# Start all JesterOS services
-sudo jesteros-service-manager.sh start all
-
-# Check service status
-jesteros-service-manager.sh status
-
-# View jester companion
-cat /var/jesteros/jester
-
-# Check writing statistics
-cat /var/jesteros/typewriter/stats
-
-# Monitor system health
-cat /var/jesteros/health/status
-
-# Enable continuous monitoring
-jesteros-service-manager.sh monitor
-```
-
-## 🧪 Testing
-
-### Test Suite
-
-```bash
-# Run all tests
-./tests/run-tests.sh
-
-# Individual test categories
-./tests/test-docker-build.sh    # Docker build verification
-./tests/test-vim-modes.sh       # Vim configuration
-./tests/test-health-check.sh    # System health
-./tests/test-plugin-system.sh   # Plugin architecture
-```
-
-### Module Testing
-
-```bash
-# Test kernel modules
-./test/test_modules.sh
-
-# Check module syntax
-gcc -fsyntax-only -D__KERNEL__ -DMODULE quillkernel/modules/*.c
-```
-
-### Hardware Testing
-
-```bash
-# Verify SD card
-./utilities/verify-sd-card.sh
-
-# Mount test
-./mount_sdcard_helper.sh detect
-./mount_sdcard_helper.sh mount /dev/sdX
-```
-
-## 📦 Deployment
-
-### SD Card Preparation
-
-```bash
-# 1. Prepare SD card (WARNING: Erases SD card!)
-sudo ./prepare_sdcard.sh
-
-# 2. Mount partitions
-sudo ./mount_sde.sh
-
-# 3. Install QuillKernel
-sudo ./install_to_sdcard.sh
-
-# 4. Unmount safely
-sync
-sudo umount /mnt/nook_boot /mnt/nook_root
-```
-
-### Boot Process
-
-1. Insert SD card into Nook
-2. Hold page-turn buttons while powering on
-3. QuillKernel boots from SD card
-4. Jester appears on E-Ink display
-5. Menu system launches
-
-## 📁 Project Structure
+## System Architecture
 
 ```
-nook-typewriter/
-├── quillkernel/              # QuillKernel specific code
-│   ├── modules/              # Kernel modules (C)
-│   │   ├── squireos_core.c   # Base module
-│   │   ├── jester.c          # ASCII jester
-│   │   ├── typewriter.c      # Stats tracking
-│   │   └── wisdom.c          # Quote system
-│   ├── Dockerfile            # Build environment
-│   └── build.sh              # Build script
-├── nst-kernel-base/          # Kernel source (submodule)
-│   ├── src/                  # Linux 2.6.29 source
-│   └── build/                # Build configs
-├── config/                   # Configuration files
-│   ├── utilities/            # System scripts
-│   │   ├── nook-menu.sh      # Main menu
-│   │   └── boot-jester.sh    # Boot animations
-│   └── vim/                  # Vim configuration
-├── tests/                    # Test suite
-├── utilities/                # Build & utility scripts
-├── boot/                     # Boot configurations
-└── docs/                     # Documentation
+User Space → Vim Editor → JesterOS Services
+                ↓
+        /var/jesteros/ Interface
+                ↓
+        Linux 2.6.29 Kernel
+                ↓
+        Android Bootloader
 ```
 
-## 🤝 Contributing
+## Memory Budget
 
-### Development Workflow
+| Component | Usage | Purpose |
+|-----------|-------|---------|
+| Android Base | 188MB | System foundation |
+| JesterOS | 10MB | Core services |
+| Vim | 8MB | Text editor |
+| **Free for Writing** | **27MB+** | Your manuscripts |
 
-1. **Fork** the repository
-2. **Create** feature branch: `git checkout -b feature-name`
-3. **Test** your changes thoroughly
-4. **Document** any new features
-5. **Submit** pull request
+## Documentation
 
-### Code Standards
+- **[INDEX.md](INDEX.md)** - Complete project map
+- **[CLAUDE.md](CLAUDE.md)** - Development constraints
+- **[docs/](docs/)** - Full documentation
 
-- **C Kernel Code**: Follow Linux kernel coding style
-- **Shell Scripts**: Use ShellCheck for validation
-- **Memory**: Every byte matters - optimize aggressively
-- **E-Ink**: Minimize screen refreshes
+## Project Status
 
-### Testing Requirements
+### ✅ Working
+- Userspace implementation complete
+- SD card deployment verified
+- ASCII jester with mood system
+- Writing statistics tracking
 
-- All modules must compile without warnings
-- Memory usage must stay under limits
-- E-Ink compatibility must be maintained
-- Medieval theme must be preserved 🏰
+### 🔄 Testing
+- First hardware boot pending
+- Power optimization in progress
 
-## 🔧 Troubleshooting
+## Contributing
 
-### Common Issues
+This project prioritizes **simplicity over features**. PRs welcome for:
+- Memory optimization
+- E-Ink display improvements
+- Writing-focused features
+- Bug fixes
 
-#### Kernel Build Fails
-```bash
-# Check Docker image
-docker images | grep quillkernel-builder
+## License
 
-# Rebuild if needed
-cd quillkernel && docker build -t quillkernel-builder .
+GPL v2 - See [LICENSE](LICENSE)
 
-# Clean build attempt
-./build_kernel.sh clean
-./build_kernel.sh
-```
+## Philosophy
 
-#### SD Card Mount Errors
-```bash
-# Check filesystem
-sudo fsck.vfat -r /dev/sdX1
-
-# Reformat if corrupted
-sudo mkfs.vfat -F 16 -n NOOK_BOOT /dev/sdX1
-sudo mkfs.ext4 -L NOOK_ROOT /dev/sdX2
-```
-
-#### Module Load Failures
-```bash
-# Check kernel version match
-uname -r
-modinfo squireos_core.ko
-
-# Check dmesg for errors
-dmesg | grep squireos
-
-# Manual module loading sequence
-insmod /lib/modules/2.6.29/squireos_core.ko
-insmod /lib/modules/2.6.29/jester.ko
-insmod /lib/modules/2.6.29/typewriter.ko
-insmod /lib/modules/2.6.29/wisdom.ko
-```
-
-#### Memory Issues
-```bash
-# Check current usage
-free -h
-cat /proc/meminfo
-
-# Verify sacred writing space
-df -h /root/notes
-```
-
-### Debug Tools
-
-```bash
-# Kernel messages
-dmesg | grep squireos
-
-# Module information
-lsmod | grep squireos
-
-# Process filesystem
-ls -la /proc/squireos/
-cat /proc/squireos/jester
-cat /proc/squireos/typewriter/stats
-
-# System health check
-./source/utilities/services/health-check.sh
-```
-
-## 📚 Documentation
-
-### 🎯 Quick Access
-- **[MASTER_INDEX.md](MASTER_INDEX.md)** - Complete documentation hub (40+ files)
-- **[QUICK_START.md](QUICK_START.md)** - Get started in 5 minutes
-- **[PROJECT_INDEX_COMPLETE.md](PROJECT_INDEX_COMPLETE.md)** - Full project structure
-- **[CLAUDE.md](CLAUDE.md)** - Development philosophy and guidelines
-
-### 📖 Core Documentation
-
-#### Kernel & Modules
-- **[Kernel Documentation](docs/kernel-reference/KERNEL_DOCUMENTATION.md)** - Complete JoKernel/JesterOS reference
-- **[Kernel API Reference](docs/KERNEL_API_REFERENCE.md)** - Module development guide
-- **[Module Quick Reference](docs/MODULE_API_QUICK_REFERENCE.md)** - API quick reference
-- **[Kernel Build Guide](docs/KERNEL_BUILD_EXPLAINED.md)** - Build process explained
-
-#### Build & Development
-- **[Build System Documentation](docs/BUILD_SYSTEM_DOCUMENTATION.md)** - Docker & compilation
-- **[Scripts Catalog](docs/SCRIPTS_CATALOG.md)** - All shell scripts documented
-- **[Source API Reference](docs/SOURCE_API_REFERENCE.md)** - Complete API documentation
-
-#### Configuration & Deployment
-- **[Configuration Reference](docs/CONFIGURATION_REFERENCE.md)** - All config files
-- **[Deployment Documentation](docs/DEPLOYMENT_DOCUMENTATION.md)** - Installation methods
-- **[SD Card Deployment](docs/deployment/XDA_DEPLOYMENT_METHOD.md)** - XDA method
-
-#### Testing & Quality
-- **[Test Suite Documentation](docs/TEST_SUITE_DOCUMENTATION.md)** - Complete test coverage
-- **[Testing Procedures](docs/TESTING_PROCEDURES.md)** - Test procedures
-- **[Developer Testing Guide](docs/DEVELOPER_TESTING_GUIDE.md)** - Testing guidelines
-
-#### Design & UI
-- **[ASCII Art Advanced](docs/ASCII_ART_ADVANCED.md)** - Jester art guide
-- **[UI Components](docs/ui-components-design.md)** - Interface design
-- **[Style Guide](docs/QUILLOS_STYLE_GUIDE.md)** - Medieval theme guide
-
-### 📚 Technical References
-- **[Linux 2.6.29 Quick Reference](docs/kernel-reference/QUICK_REFERENCE_2.6.29.md)**
-- **[Proc Filesystem Guide](docs/kernel-reference/proc-filesystem-2.6.29.md)**
-- **[ARM Memory Management](docs/kernel-reference/memory-management-arm-2.6.29.md)**
-- **[Module Building Guide](docs/kernel-reference/module-building-2.6.29.md)**
-
-### 🔗 External Resources
-- [Original Nook Kernel](https://github.com/felixhaedicke/nst-kernel) - Base kernel source
-- [Linux 2.6.29 Documentation](https://www.kernel.org/doc/html/v2.6.29/) - Kernel API reference
-- [FBInk Library](https://github.com/NiLuJe/FBInk) - E-Ink display interface
-- [XDA Forum Thread](docs/XDA-RESEARCH-FINDINGS.md) - Community research
-
-## 📄 License
-
-This project is licensed under GPL v2 - see [LICENSE](LICENSE) file for details.
-
-## 🏆 Credits
-
-- **Felix Hädicke** - Original NST kernel foundation
-- **NiLuJe** - FBInk E-Ink library
-- **XDA Community** - Research and guidance
-- **Barnes & Noble** - Original Nook hardware
-- **Medieval Scribes** - Eternal inspiration
-- **The Court Jester** - Digital companionship
+> **Writers > Features**  
+> **RAM saved = Words written**  
+> **Medieval computing for modern writers**
 
 ---
 
-*"By quill and compiler, we craft digital magic!"* 🪶✨
-
-## 🚦 Current Status
-
-### Completed ✅
-- [x] **Successful SD card deployment** (August 17, 2025) - Files deployed to SD
-- [x] Kernel module architecture with `/proc/squireos/` interface
-- [x] Docker-based cross-compilation environment
-- [x] Minimal root filesystem (~59MB uncompressed)
-- [x] Comprehensive test suite (7 primary tests + runners)
-- [x] Script safety improvements (input validation, error handling)
-- [x] SD card installation scripts with GK61 keyboard support
-- [x] ASCII art jester with mood system
-- [x] Writing statistics tracking
-- [x] 4-layer runtime architecture (UI/Application/System/Hardware)
-- [x] Debian Lenny 5.0 base for Nook compatibility
-
-### In Progress 🔄
-- [ ] **First hardware boot verification** - Awaiting test on actual Nook
-- [ ] Hardware testing optimization on actual Nook device
-- [ ] Vim writing environment full integration
-- [ ] Power management optimization
-
-### Future Plans 📅
-- [ ] Spell checker integration
-- [ ] Thesaurus support
-- [ ] Advanced writing analytics
-- [ ] Battery life optimization to 2+ weeks
-- [ ] Release packaging and distribution
-
-## 🔧 Troubleshooting
-
-### Known Hardware Issues (Phoenix Project Findings)
-
-#### Touch Screen Freeze
-- **Issue**: Touch becomes unresponsive after wake (universal hardware defect)
-- **Solution**: Two-finger horizontal swipe gesture
-- **Prevention**: Clean screen gutters with cotton swab
-
-#### Battery Drain
-- **Issue**: 14% daily drain on unregistered devices
-- **Solution**: JesterOS removes B&N system entirely
-- **Target**: 1.5% daily drain when idle
-
-#### SD Card Boot Issues
-- **Issue**: Non-SanDisk cards fail randomly
-- **Solution**: Use SanDisk Class 10 cards exclusively
-- **Note**: Sector 63 alignment critical for boot
-
-### Recovery Options
-1. **Factory Reset**: Hold power during boot 8 times
-2. **CWM Recovery**: Boot from CWM SD card
-3. **Safe**: /rom partition always preserved
-
-## 📖 Documentation
-
-### Essential Guides
-- [Quick Start Guide](QUICK_START.md) - Get up and running fast
-- [Quick Reference](QUICK_REFERENCE.md) - Common commands cheat sheet
-- [Architecture Overview](ARCHITECTURE.md) - System design documentation
-- [Memory Constraints](MEMORY_CONSTRAINTS.md) - Understanding hardware limits
-
-### Technical Documentation
-- [Kernel Compilation](KERNEL_COMPILATION_DESIGN.md) - Build system details
-- [SD Card Setup](sdcard.md) - Deployment process
-- [Reverse Engineering](REVERSE_ENGINEERING.md) - Hardware analysis
-
-### Development Resources
-- [Claude Context](CLAUDE.md) - AI assistant guidelines
-- [Boot Roadmap](BOOT_ROADMAP.md) - Development priorities
-- [Deployment Checklist](DEPLOYMENT_CHECKLIST.md) - Release preparation
-
----
-
-**For Writers, By Developers** | **Vim + E-Ink = ❤️** | **Medieval Computing Since 2024**
+*By quill and compiler, we craft digital magic* 🪶

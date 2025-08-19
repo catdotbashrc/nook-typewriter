@@ -3,7 +3,7 @@
 # Comprehensive startup script for all JesterOS userspace services
 # "By quill and candlelight, we serve the realm of writing!"
 
-# Set TERM if not set (for Docker environments)
+# Set TERM if not set (for compatibility)
 export TERM="${TERM:-xterm}"
 
 # Safety settings
