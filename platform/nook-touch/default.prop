@@ -1,0 +1,60 @@
+# default.prop for JesterOS/Nook Touch
+# Android 2.3 Gingerbread era properties
+# Size target: <1KB
+
+# System identification
+ro.build.id=JesterOS
+ro.build.display.id=JesterOS 1.0.0-alpha.1
+ro.build.version.release=2.3.7
+ro.build.date=Mon Jan 20 02:30:00 UTC 2025
+ro.build.type=user
+ro.build.tags=release-keys
+
+# Product information
+ro.product.model=BNRV300
+ro.product.brand=nook
+ro.product.name=nook
+ro.product.device=zoom2
+ro.product.board=zoom2
+ro.product.manufacturer=Barnes and Noble
+
+# Hardware configuration
+ro.board.platform=omap3
+ro.hardware=omap3621_evt1a
+ro.revision=5
+
+# System settings
+ro.secure=0
+ro.allow.mock.location=0
+ro.debuggable=0
+persist.sys.usb.config=mass_storage,adb
+dalvik.vm.heapsize=32m
+ro.kernel.android.checkjni=0
+
+# Performance settings
+persist.sys.ui.hw=1
+debug.sf.hw=1
+debug.egl.hw=1
+debug.composition.type=gpu
+pm.sleep_mode=1
+
+# JesterOS specific properties
+ro.jesteros.version=1.0.0-alpha.1
+ro.jesteros.memory.limit=95
+ro.jesteros.theme=medieval
+persist.jesteros.mode=writer
+persist.jesteros.daemon=enabled
+
+# E-ink display
+ro.eink.monochrome=1
+ro.eink.waveform=/system/etc/waveform/default_waveform.bin
+persist.eink.refresh.mode=partial
+
+# SD card optimization
+persist.sys.sdcardfs=force
+vold.post_fs_data_done=1
+
+# Power management
+persist.sys.shutdown.mode=hibernate
+wifi.supplicant_scan_interval=180
+pm.sleep_mode=1

@@ -1,14 +1,23 @@
-# Boot configuration for Nook Simple Touch
+# uEnv.txt - JesterOS Boot Configuration for Nook Touch
 # This file goes on the boot partition (FAT32)
+# Hybrid Android/JesterOS boot configuration
 
-# Boot arguments for Linux kernel
-bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=f2fs rw rootwait mem=256M init=/sbin/init
+# Boot arguments for hybrid Android/JesterOS system
+bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait mem=256M init=/init androidboot.console=ttyS0
 
-# Boot commands
-bootcmd=mmc rescan; fatload mmc 0:1 0x80300000 uImage; bootm 0x80300000
+# Memory addresses (OMAP3621 specific)
+loadaddr=0x80008000
+rdaddr=0x81600000
 
-# Optional: Enable quiet boot for cleaner experience
-# bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=f2fs rw rootwait mem=256M quiet
+# Boot delay (seconds)
+bootdelay=3
 
-# Optional: Alternative for ext4 filesystem (if F2FS isn't working)
-# bootargs=console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait mem=256M
+# Boot commands - Load kernel and ramdisk
+bootcmd=echo Booting JesterOS...; mmc rescan; fatload mmc 0:1 ${loadaddr} uImage; fatload mmc 0:1 ${rdaddr} uRamdisk; bootm ${loadaddr} ${rdaddr}
+
+# Alternative simple boot (kernel only, no ramdisk)
+# bootcmd=mmc rescan; fatload mmc 0:1 0x80008000 uImage; bootm 0x80008000
+
+# Display configuration for E-ink
+omapfb.mode=dvi:800x600MR-16@60
+omapdss.def_disp=lcd

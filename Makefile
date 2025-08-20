@@ -109,7 +109,7 @@ help:
 all: validate firmware
 
 # Complete firmware build with validation
-firmware: check-tools kernel rootfs boot
+firmware: check-tools kernel rootfs boot ramdisk
 	@echo "$(GREEN)$(BOLD)✅ Firmware build complete!$(RESET)"
 	@echo "  Kernel: $(shell ls -lh $(FIRMWARE_DIR)/boot/uImage 2>/dev/null | awk '{print $$5}')"
 	@echo "  MLO: $(shell ls -lh $(FIRMWARE_DIR)/boot/MLO 2>/dev/null | awk '{print $$5}')"
@@ -342,6 +342,51 @@ boot: kernel bootloaders boot-script
 		echo "$(GREEN)   ✓ Boot configuration copied$(RESET)"; \
 	fi
 	@echo "$(GREEN)✓ Boot partition ready with all components$(RESET)"
+
+# Build ramdisk for hybrid Android/JesterOS boot
+ramdisk: check-tools
+	@echo "$(BOLD)📦 Building uRamdisk for JesterOS...$(RESET)"
+	@if [ ! -f scripts/build-ramdisk.sh ]; then \
+		echo "$(RED)Error: scripts/build-ramdisk.sh not found$(RESET)"; \
+		exit 1; \
+	fi
+	@scripts/build-ramdisk.sh
+	@if [ -f build/boot/uRamdisk ]; then \
+		echo "$(GREEN)✓ uRamdisk built successfully$(RESET)"; \
+		echo "  Size: $$(ls -lh build/boot/uRamdisk | awk '{print $$5}')"; \
+	else \
+		echo "$(RED)✗ Failed to build uRamdisk$(RESET)"; \
+		exit 1; \
+	fi
+
+# Generate boot script from boot.cmd
+boot-script: check-tools
+	@echo "$(BOLD)📜 Generating boot script...$(RESET)"
+	@if [ ! -f scripts/generate-boot-script.sh ]; then \
+		echo "$(RED)Error: scripts/generate-boot-script.sh not found$(RESET)"; \
+		exit 1; \
+	fi
+	@scripts/generate-boot-script.sh
+	@if [ -f platform/nook-touch/boot/boot.scr ]; then \
+		echo "$(GREEN)✓ boot.scr generated successfully$(RESET)"; \
+	else \
+		echo "$(RED)✗ Failed to generate boot.scr$(RESET)"; \
+		exit 1; \
+	fi
+
+# SD card image creation (target for complete bootable image)
+sd-image: firmware ramdisk boot-script
+	@echo "$(BOLD)💾 Creating complete SD card image with JesterOS...$(RESET)"
+	@mkdir -p $(BUILD_DIR)/sd-image
+	@# Prepare boot partition files
+	@cp platform/nook-touch/boot/MLO $(BUILD_DIR)/sd-image/
+	@cp platform/nook-touch/boot/u-boot.bin $(BUILD_DIR)/sd-image/
+	@cp platform/nook-touch/boot/uImage $(BUILD_DIR)/sd-image/ 2>/dev/null || true
+	@cp build/boot/uRamdisk $(BUILD_DIR)/sd-image/
+	@cp platform/nook-touch/boot/boot.scr $(BUILD_DIR)/sd-image/
+	@cp platform/nook-touch/boot/uEnv.txt $(BUILD_DIR)/sd-image/
+	@echo "$(GREEN)✓ SD card image files prepared in $(BUILD_DIR)/sd-image/$(RESET)"
+	@echo "  Next step: Use 'make sd-deploy' to write to SD card"
 
 # SD card image creation
 image: firmware lenny-rootfs

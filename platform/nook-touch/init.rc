@@ -1,0 +1,138 @@
+# JesterOS Minimal Android Init Configuration
+# Compatible with Android 2.3 (Gingerbread) init
+# Target: <4KB memory footprint for embedded Nook SimpleTouch
+# Boot chain: MLO → U-Boot → Kernel → Android Init → JesterOS
+
+on early-init
+    # Create essential mount points
+    mkdir /system
+    mkdir /data 0771 system system
+    mkdir /cache 0770 system cache
+    mkdir /config 0500 root root
+    
+    # Mount essential filesystems
+    mount tmpfs tmpfs /tmp mode=0755
+    
+    # Create device nodes
+    mkdir /dev
+    mount tmpfs tmpfs /dev mode=0755
+    mkdir /dev/pts
+    mkdir /dev/socket
+    mount devpts devpts /dev/pts
+    
+    # Create Android property workspace
+    mkdir /dev/__properties__ 0700 root root
+
+on init
+    # Set up kernel parameters
+    write /proc/sys/kernel/panic_on_oops 1
+    write /proc/sys/vm/min_free_kbytes 2048
+    write /proc/sys/vm/overcommit_memory 1
+    
+    # Configure for low memory (256MB total)
+    write /proc/sys/vm/swappiness 0
+    write /proc/sys/vm/dirty_ratio 5
+    write /proc/sys/vm/dirty_background_ratio 2
+    
+    # Set up DSP for E-ink acceleration
+    mkdir /etc/dsp 0755 root root
+    
+    # Create paths for E-ink daemon
+    mkdir /var 0755 root root
+    mkdir /var/run 0755 root root
+    
+    # Symlink for legacy compatibility
+    symlink /system/bin /bin
+    symlink /system/lib /lib
+
+on fs
+    # Mount system partition (read-only for stability)
+    mount ext2 /dev/block/mmcblk0p1 /system ro
+    
+    # Mount data partition
+    mount ext2 /dev/block/mmcblk0p2 /data nosuid nodev
+    
+    # Create runtime directories
+    mkdir /data/misc 0755 root root
+    mkdir /data/local 0771 shell shell
+    mkdir /data/local/tmp 0771 shell shell
+
+on post-fs
+    # Load DSP firmware for E-ink acceleration
+    chmod 0644 /etc/dsp/baseimage.dof
+    chmod 0644 /etc/dsp/subframeip_snode_dsp.dll64P
+    
+    # Set permissions for framebuffer
+    chmod 0666 /dev/graphics/fb0
+    chmod 0666 /dev/fb0
+    
+    # Prepare E-ink waveform
+    chmod 0644 /etc/dsp/default_waveform.bin
+
+on boot
+    # Configure memory killer for 256MB device
+    write /sys/module/lowmemorykiller/parameters/minfree 1536,2048,4096,5120,5632,6144
+    
+    # Set CPU governor for battery efficiency
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ondemand
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 300000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 800000
+    
+    # Configure buttons
+    chmod 0644 /sys/devices/platform/gpio-keys/disabled_keys
+    chmod 0644 /sys/devices/platform/gpio-keys/disabled_switches
+    
+    # Enable USB gadget for keyboard support
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 2080
+    write /sys/class/android_usb/android0/idProduct 0003
+    write /sys/class/android_usb/android0/functions hid
+    write /sys/class/android_usb/android0/enable 1
+    
+    # Set scheduler for SD card
+    write /sys/block/mmcblk0/queue/scheduler noop
+    
+    # Start critical services
+    start omap-edpd
+    start jesteros-init
+
+# E-ink display daemon (critical for hardware control)
+service omap-edpd /sbin/omap-edpd.elf
+    class core
+    critical
+    user root
+    group root
+    # Keep running - display won't work without this
+    onrestart restart jesteros-init
+
+# JesterOS initialization service
+service jesteros-init /system/bin/jesteros-init.sh
+    class late_start
+    user root
+    group root
+    oneshot
+    # Environment for JesterOS
+    setenv PATH /system/bin:/bin:/sbin
+    setenv HOME /data/local
+    setenv TERM linux
+    setenv JESTEROS_ROOT /system/jesteros
+    setenv MEMORY_LIMIT 95
+
+# Property triggers
+on property:sys.boot_completed=1
+    # System is ready, ensure JesterOS starts
+    start jesteros-init
+
+on property:init.svc.omap-edpd=stopped
+    # Critical: restart E-ink daemon if it crashes
+    start omap-edpd
+
+# Minimal property settings
+on property:persist.service.adb.enable=0
+    stop adbd
+
+# Memory guardian trigger
+on property:sys.memory.critical=1
+    # Emergency memory recovery
+    stop unnecessary_services
+    write /proc/sys/vm/drop_caches 3
