@@ -27,11 +27,13 @@ source/kernel/src/
 # Build Outputs & Archives
 # ------------------------------------------------------------------
 
-# Keep only essential images
-!images/NookManager.img
-!images/2gb_clockwork-rc2.img
-!images/128mb_clockwork-rc2.img
-!firmware/bootloaders/NookManager.img
+# Large image files (use Git LFS or external storage)
+*.img
+installer.img
+platform/nook-touch/bootloaders/*.img
+vendor/images/*.img
+images/*.img
+firmware/bootloaders/*.img
 
 # ------------------------------------------------------------------
 # Development & Testing
