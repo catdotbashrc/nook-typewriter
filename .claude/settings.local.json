@@ -148,7 +148,8 @@
       "Bash(then)",
       "Bash(if [ -f \"tests/$file\" ])",
       "Bash(else)",
-      "Bash(tar:*)"
+      "Bash(tar:*)",
+      "Bash(do [ -f \"$file\" ])"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",
@@ -165,5 +166,5 @@
   "enabledMcpjsonServers": [
     "simone"
   ],
-  "outputStyle": "default"
+  "outputStyle": "documentation-specialist"
 }

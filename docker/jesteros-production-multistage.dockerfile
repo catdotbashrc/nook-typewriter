@@ -7,7 +7,7 @@
 FROM jesteros:dev-base AS validator
 
 # Copy runtime scripts for validation
-COPY runtime/ /validate/runtime/
+COPY src/ /validate/src/
 
 # Validate all shell scripts at build time
 RUN echo "→ Validating JesterOS scripts..." && \
@@ -28,15 +28,15 @@ FROM jesteros:runtime-base AS production
 # Maintains CRITICAL Nook hardware compatibility
 
 # Create the complete JesterOS directory structure (as it would be deployed)
-RUN mkdir -p /runtime/1-ui/display \
-    /runtime/1-ui/themes \
-    /runtime/2-application/jesteros \
-    /runtime/3-system/common \
-    /runtime/3-system/services \
-    /runtime/4-hardware/eink \
-    /runtime/configs/services \
-    /runtime/configs/system \
-    /runtime/init \
+RUN mkdir -p /src/1-ui/display \
+    /src/1-ui/themes \
+    /src/2-application/jesteros \
+    /src/3-system/common \
+    /src/3-system/services \
+    /src/4-hardware/eink \
+    /src/configs/services \
+    /src/configs/system \
+    /src/init \
     /var/jesteros/typewriter \
     /var/jesteros/health \
     /var/run/jesteros \
@@ -51,15 +51,15 @@ RUN mkdir -p /runtime/1-ui/display \
 
 # Copy the validated JesterOS runtime system from validator stage
 # Scripts have been pre-validated, so we know they're syntactically correct
-COPY --from=validator /validate/runtime/ /runtime/
+COPY --from=validator /validate/src/ /src/
 
 # Setup JesterOS: make scripts executable, create symlinks, and initialize
 RUN find /runtime -name "*.sh" -type f -exec chmod +x {} \; 2>/dev/null || true && \
-    ln -sf /runtime/2-application/jesteros/jester-daemon.sh /usr/local/bin/jester-daemon.sh && \
-    ln -sf /runtime/2-application/jesteros/jesteros-tracker.sh /usr/local/bin/jesteros-tracker.sh && \
-    ln -sf /runtime/2-application/jesteros/health-check.sh /usr/local/bin/health-check.sh && \
-    ln -sf /runtime/2-application/jesteros/manager.sh /usr/local/bin/jesteros-manager.sh && \
-    ln -sf /runtime/init/jesteros-service-init.sh /usr/local/bin/jesteros-service-init.sh && \
+    ln -sf /src/2-application/jesteros/jester-daemon.sh /usr/local/bin/jester-daemon.sh && \
+    ln -sf /src/2-application/jesteros/jesteros-tracker.sh /usr/local/bin/jesteros-tracker.sh && \
+    ln -sf /src/2-application/jesteros/health-check.sh /usr/local/bin/health-check.sh && \
+    ln -sf /src/2-application/jesteros/manager.sh /usr/local/bin/jesteros-manager.sh && \
+    ln -sf /src/init/jesteros-service-init.sh /usr/local/bin/jesteros-service-init.sh && \
     echo "By quill and candlelight!" > /var/lib/jester/motto && \
     echo "0" > /var/lib/jester/wordcount
 
@@ -69,7 +69,7 @@ ENV EDITOR=vi
 ENV SHELL=/bin/sh
 ENV RUNTIME_BASE=/runtime
 ENV JESTEROS_BASE=/var/jesteros
-ENV COMMON_PATH=/runtime/3-system/common/common.sh
+ENV COMMON_PATH=/src/3-system/common/common.sh
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Working directory (as on Nook)
@@ -126,7 +126,7 @@ else
 fi
 
 # Start service manager
-if /runtime/2-application/jesteros/manager.sh init >/dev/null 2>&1; then
+if /src/2-application/jesteros/manager.sh init >/dev/null 2>&1; then
     echo -e "${GREEN}✓ Service manager started${NC}"
 else
     echo -e "${RED}✗ Service manager failed${NC}"
@@ -134,7 +134,7 @@ else
 fi
 
 # Health check
-if /runtime/2-application/jesteros/health-check.sh check >/dev/null 2>&1; then
+if /src/2-application/jesteros/health-check.sh check >/dev/null 2>&1; then
     echo -e "${GREEN}✓ Health monitoring active${NC}"
 else
     echo -e "${RED}✗ Health monitoring failed${NC}"

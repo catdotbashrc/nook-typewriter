@@ -1,2 +1,0 @@
-# SYMLINK TARGET: runtime/1-ui/themes/jester-collection.txt
-# This location should contain a symlink to the consolidated themes directory

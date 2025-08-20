@@ -1,9 +1,10 @@
 # Simone Project Configuration
 # Generated: 2025-01-13
+# Updated: 2025-01-20
 
 project:
-  name: "Nook Typewriter"
-  description: "Transform a $20 Nook e-reader into a distraction-free writing device with custom Linux kernel"
+  name: "JesterOS/JoKernel - Nook Typewriter"
+  description: "Medieval-themed embedded Linux distribution transforming Barnes & Noble Nook Simple Touch into a distraction-free writing device"
   type: "single"
   riskLevel: 7  # Autonomous operation with minimal confirmations
 
@@ -13,10 +14,14 @@ contexts:
     description: "Embedded Linux distribution for Nook e-reader with medieval-themed writing environment"
     
     stack:
-      language: "C"
+      language: "C, Shell Script"
       framework:
-        name: "Linux Kernel 2.6.29"
-        version: "2.6.29"
+        name: "Linux Kernel 2.6.29 + JesterOS 4-Layer Architecture"
+        version: "2.6.29-jester"
+        enabled: true
+      runtime:
+        name: "Debian Lenny 5.0"
+        version: "5.0"
         enabled: true
       database:
         type: "none"
@@ -50,14 +55,22 @@ contexts:
       
       # Custom commands specific to this project
       kernel:
-        build: "./build_kernel.sh"
+        build: "make kernel"
+        quick: "make quick-build"
         modules: "make modules"
       validate:
         command: "make validate"
         check_tools: "make check-tools"
+        safety: "make test-safety"
       deploy:
         install: "make install"
-        sdcard: "./install_to_sdcard.sh"
+        sdcard: "make sd-deploy"
+        detect: "make detect-sd"
+        quick_deploy: "make quick-deploy"
+      docker:
+        build_all: "make docker-build"
+        lenny: "make docker-lenny"
+        production: "make docker-production"
     
     methodology:
       development: "none"
@@ -69,14 +82,18 @@ shared:
     style: "kernel-style"
     documentation: "medieval-themed"
     testing: "safety-first"
+    shell: "bash/sh mixed (Android init compatibility)"
   quality:
     linting: false
     testing: true
     coverage: 90
+    test_stages: "pre-build, post-build, runtime"
   constraints:
-    memory_limit: "96MB"
+    memory_limit: "95MB"
     sacred_writing_space: "160MB"
-    hardware: "ARM 800MHz, 256MB RAM, E-Ink display"
+    hardware: "OMAP3621 ARM Cortex-A8 800MHz, 256MB RAM, 6-inch E-Ink Pearl"
+    boot_chain: "MLO → U-Boot → Linux → Android Init → JesterOS"
+    critical_files: "MLO, u-boot.bin (protected during clean)"
 
 github:
   repository: "catdotbashrc/nook-typewriter"

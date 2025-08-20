@@ -1,6 +1,0 @@
-/dev/mmcblk0p2  /      f2fs   defaults        0 1
-proc            /proc  proc   defaults        0 0
-sysfs           /sys   sysfs  defaults        0 0
-devpts          /dev/pts devpts gid=5,mode=620 0 0
-tmpfs           /run   tmpfs  defaults,size=32m 0 0
-tmpfs           /tmp   tmpfs  defaults,size=64m 0 0

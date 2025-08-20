@@ -1,15 +1,15 @@
-# 🔨 Build System Documentation
+# Build System Documentation
 
 > **Type**: How-To Guide & Reference  
 > **Audience**: Developers building JesterOS  
 > **Prerequisites**: Docker, Linux/WSL2, 10GB disk space  
 > **Last Updated**: January 2025
 
-## 📚 Overview
+## Overview
 
 The JesterOS build system provides consistent, reproducible ARM cross-compilation using Docker containers with BuildKit optimization.
 
-### ⚡ Performance Metrics
+### Performance Metrics
 
 | Metric | Before | After | Improvement |
 |--------|--------|-------|-------------|
@@ -18,11 +18,10 @@ The JesterOS build system provides consistent, reproducible ARM cross-compilatio
 | Total image size | 2GB | 1.2GB | 40% smaller |
 | Debian compatibility | 100% | 100% | Maintained |
 
-!!! success "Phoenix Project Integration"
-    Build system incorporates proven methods from XDA community research,
-    including NDK r12b toolchain and sector 63 alignment requirements.
+> **Note**: Build system incorporates proven methods from XDA community research,
+> including NDK r12b toolchain and sector 63 alignment requirements.
 
-## 📊 Build System Architecture
+## Build System Architecture
 
 ### Key Components
 
@@ -213,7 +212,7 @@ done
 
 # Stage 2: Production
 FROM jesteros:runtime-base AS production
-COPY --from=validator /validate/runtime/ /runtime/
+COPY --from=validator /validate/src/ /src/
 ```
 
 ### 4. **Minimal Boot Environment** (`minimal-boot.dockerfile`)
@@ -303,7 +302,7 @@ RUN find / -name "*.a" -delete
 1. ./build/utilities/build-kernel.sh     # Build kernel
 2. ./build/utilities/build-rootfs.sh      # Build root filesystem
 3. ./build/utilities/create-boot.sh       # Create boot files
-4. Package results in firmware/
+4. Package results in platform/nook-touch/
 ```
 
 ### Kernel Build Script (`build_kernel.sh`)
@@ -316,7 +315,7 @@ RUN find / -name "*.a" -delete
 3. Enable JesterOS modules in config
 4. Cross-compile kernel to uImage
 5. Build kernel modules
-6. Copy artifacts to `firmware/boot/`
+6. Copy artifacts to `platform/nook-touch/boot/`
 
 **Configuration Applied**:
 ```bash
@@ -328,8 +327,8 @@ echo 'CONFIG_JESTEROS_WISDOM=y' >> .config
 ```
 
 **Output**:
-- Kernel: `firmware/boot/uImage` (~1.9MB)
-- Modules: `firmware/lib/modules/*.ko`
+- Kernel: `platform/nook-touch/boot/uImage` (~1.9MB)
+- Modules: `platform/nook-touch/lib/modules/*.ko`
 
 ### Module Build Script (`build_modules.sh`)
 

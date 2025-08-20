@@ -99,7 +99,14 @@ cscope.*
 # ------------------------------------------------------------------
 
 # Build output directory (all generated files)
-build/
+# Temporarily commented for migration - RESTORE AFTER!
+# build/
+build/*.log
+build/kernel/
+build/rootfs/
+build/output/
+build/tmp/
+# Keep build/scripts/ tracked during migration
 
 # Old migration directories
 .archives/

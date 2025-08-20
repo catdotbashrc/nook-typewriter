@@ -1,46 +1,60 @@
 # Project Constitution
 
 ## Project
-- **Name**: Nook Typewriter
-- **Description**: Transform a $20 Nook e-reader into a distraction-free writing device
+- **Name**: JesterOS/JoKernel - Nook Typewriter
+- **Description**: Medieval-themed embedded Linux distribution for Barnes & Noble Nook Simple Touch
+- **Version**: 1.0.0-alpha.1
 
 ## Tech Stack
-- **Language**: C, Shell Script
-- **Framework**: Linux Kernel 2.6.29, Embedded Debian
-- **Package Manager**: make, Docker
+- **Languages**: C (kernel), Shell Script (runtime)
+- **Kernel**: Linux 2.6.29-jester with Android init
+- **Runtime**: JesterOS 4-Layer Architecture (35 scripts)
+- **Base OS**: Debian Lenny 5.0
+- **Build System**: Make + Docker (BuildKit optimized)
+- **Cross-Compiler**: ARM toolchain (NDK r10e)
 
 ## Structure
 ```
-source/         - Kernel and system implementation
-tests/          - Comprehensive test suite
+runtime/        - 4-layer JesterOS architecture (UI/App/System/Hardware)
+source/         - Linux kernel 2.6.29 source
+tests/          - 3-stage test pipeline
 docs/           - Medieval-themed documentation
-build/          - Cross-compilation environment
-firmware/       - Boot and hardware configs
+build/          - Docker-based cross-compilation
+firmware/       - Bootloaders, kernel, DSP firmware
+docker/         - Container definitions
 ```
 
 ## Essential Commands
 ```bash
-# Build everything
+# Build complete firmware
 make firmware
 
-# Build kernel only
-./build_kernel.sh
+# Quick build (skip unchanged)
+make quick-build
 
-# Run tests
-make test
+# Run test pipeline
+make test         # Full 3-stage
+make test-quick   # Critical only
+make test-safety  # Safety checks
 
 # Deploy to SD card
-make install
+make detect-sd    # Find SD cards
+make sd-deploy    # Deploy firmware
+
+# Docker management
+make docker-build # Build all images
 ```
 
 ## Critical Rules
-- **NEVER violate 160MB sacred writing space** - This memory is reserved for writers
-- **Every feature must help writers write** - No distractions or unnecessary features
-- **Test before hardware deployment** - Always run smoke tests before SD card install
-- **Maintain medieval theme** - Keep the whimsy and jester spirit alive
-- **Memory budget is sacred** - OS must stay under 96MB total
-- **E-Ink limitations are features** - Embrace slow refresh as mindful interaction
-- **Safety-first development** - Input validation and error handling in all scripts
+- **NEVER violate 160MB sacred writing space** - Reserved for writers, inviolable
+- **95MB OS limit is absolute** - Enforced by memory-guardian.sh
+- **Test before hardware deployment** - Run test-safety minimum before SD deploy
+- **Bootloaders are protected** - MLO/u-boot.bin preserved during clean
+- **E-Ink awareness required** - 200-980ms refresh, design for minimal updates
+- **Android init required** - Cannot bypass, hardware drivers depend on it
+- **SanDisk Class 10 SD only** - Other brands proven unreliable (Phoenix Project)
+- **Safety-first shell scripts** - set -euo pipefail mandatory
+- **Medieval theme throughout** - Jester daemon, quill metaphors, candlelight focus
 
 ---
 

@@ -1,0 +1,232 @@
+{
+  "metadata": {
+    "project": "JesterOS/JoKernel",
+    "version": "1.0.0-alpha.1",
+    "cached_at": "2025-01-20",
+    "cache_type": "deep",
+    "coverage": "comprehensive"
+  },
+  "project_overview": {
+    "name": "Nook Typewriter - JesterOS",
+    "description": "Transform a $20 Barnes & Noble Nook Simple Touch into a distraction-free writing device",
+    "target_device": "B&N Nook Simple Touch (OMAP3621 gossamer)",
+    "philosophy": "Writers over features, medieval-themed, E-Ink optimized",
+    "key_features": [
+      "E-Ink optimized Vim with 4 profiles",
+      "Medieval-themed Jester daemon writing assistant",
+      "Battery optimization (<1.5% daily drain)",
+      "95MB OS memory limit enforcement",
+      "USB keyboard support",
+      "4-layer architecture (UI, Application, System, Hardware)"
+    ]
+  },
+  "technical_specs": {
+    "hardware": {
+      "cpu": "ARM Cortex-A8 800MHz",
+      "ram": "256MB",
+      "display": "6-inch E-Ink Pearl 800x600",
+      "board": "omap3621_gossamer_evt1c",
+      "storage": "Internal flash + SD card"
+    },
+    "software": {
+      "kernel": "Linux 2.6.29-jester",
+      "base_os": "Debian Lenny 5.0",
+      "init_system": "Android init (hardware layer only)",
+      "userspace": "JesterOS 4-layer architecture"
+    },
+    "memory_budget": {
+      "os_max": "95MB",
+      "vim_max": "10MB",
+      "writing_reserved": "160MB",
+      "total": "256MB"
+    }
+  },
+  "architecture": {
+    "type": "4-layer JesterOS",
+    "layers": {
+      "1_ui": {
+        "description": "Display and menu systems",
+        "scripts": ["display.sh", "menu.sh", "jester-menu.sh", "nook-menu.sh"],
+        "path": "runtime/1-ui/"
+      },
+      "2_application": {
+        "description": "JesterOS services and writing tools",
+        "scripts": ["daemon.sh", "jester-daemon.sh", "tracker.sh", "manager.sh"],
+        "path": "runtime/2-application/"
+      },
+      "3_system": {
+        "description": "Core functions and services",
+        "scripts": ["common.sh", "memory-guardian.sh", "unified-monitor.sh"],
+        "path": "runtime/3-system/"
+      },
+      "4_hardware": {
+        "description": "Device drivers and hardware management",
+        "scripts": ["button-handler.sh", "usb-keyboard-manager.sh", "battery-monitor.sh"],
+        "path": "runtime/4-hardware/"
+      }
+    },
+    "script_count": 35,
+    "init_flow": "Android init → JesterOS init → 4-layer services"
+  },
+  "build_system": {
+    "type": "Makefile + Docker",
+    "docker_images": [
+      "jesteros:lenny-base",
+      "jesteros:dev-base",
+      "jesteros:runtime-base",
+      "jesteros-production",
+      "kernel-xda-proven-optimized"
+    ],
+    "toolchain": {
+      "compiler": "arm-linux-androideabi-4.9",
+      "ndk": "Android NDK r10e",
+      "cross_compile": "ARM cross-compilation in Docker"
+    },
+    "build_targets": {
+      "firmware": "Complete firmware (kernel + rootfs)",
+      "kernel": "Linux kernel with JesterOS patches",
+      "rootfs": "Root filesystem with JesterOS services",
+      "lenny-rootfs": "Debian Lenny base rootfs",
+      "image": "Bootable SD card image",
+      "release": "Release package with checksums"
+    },
+    "optimization": {
+      "buildkit": "Enabled by default",
+      "cache_layers": "Unified base images for efficiency",
+      "parallel_builds": "Uses all CPU cores"
+    }
+  },
+  "firmware_components": {
+    "bootloaders": {
+      "MLO": {"size": "16KB", "desc": "First-stage bootloader", "protected": true},
+      "u-boot.bin": {"size": "159KB", "desc": "Second-stage bootloader", "protected": true},
+      "boot.scr": {"size": "199B", "desc": "Boot script"}
+    },
+    "kernel": {
+      "uImage": {"size": "1.9MB", "desc": "Linux kernel image"},
+      "version": "2.6.29-jester",
+      "load_addr": "0x80008000",
+      "source": "catdotbashrc/nst-kernel (reliable mirror)"
+    },
+    "android_layer": {
+      "purpose": "Hardware initialization only",
+      "components": ["init", "dsp drivers", "e-ink drivers"],
+      "dsp_files": {
+        "baseimage.dof": "1.2MB",
+        "default_waveform.bin": "95KB",
+        "subframeip_snode_dsp.dll64P": "191KB"
+      }
+    },
+    "e_ink": {
+      "wvf.bin": {"size": "93KB", "desc": "E-Ink waveform data"},
+      "refresh_modes": ["Full", "Partial", "A2 (fast)"]
+    }
+  },
+  "deployment": {
+    "sd_card": {
+      "recommended": "SanDisk Class 10",
+      "partitions": {
+        "boot": "50MB vfat (MLO, u-boot, kernel)",
+        "root": "200MB ext4 (JesterOS)",
+        "data": "remaining ext4 (user data)"
+      }
+    },
+    "installation_methods": {
+      "sd_boot": "Direct SD card boot",
+      "cwm": "ClockworkMod recovery installer",
+      "nookmanager": "NookManager image method"
+    },
+    "base_images": {
+      "2gb": "2gb_clockwork-rc2.img",
+      "128mb": "128mb_clockwork-rc2.img (installer)",
+      "nookmanager": "NookManager.img"
+    }
+  },
+  "testing": {
+    "pipeline": {
+      "stages": ["pre-build", "post-build", "runtime"],
+      "coverage_target": "90%",
+      "timeout": "300s per test"
+    },
+    "critical_tests": [
+      "01-safety-check.sh - Critical safety validations",
+      "02-boot-test.sh - Boot sequence verification",
+      "05-consistency-check.sh - File consistency",
+      "06-memory-guard.sh - Memory limit enforcement"
+    ],
+    "test_categories": {
+      "safety": "Critical safety checks",
+      "quick": "Show stopper tests only",
+      "writing": "Writer experience tests",
+      "parallel": "Parallel test execution"
+    }
+  },
+  "dependencies": {
+    "build_time": [
+      "Docker with BuildKit support",
+      "ARM cross-compiler (NDK r10e)",
+      "mkimage (u-boot-tools)",
+      "4GB+ disk space",
+      "Linux or WSL2 environment"
+    ],
+    "runtime": [
+      "Debian Lenny 5.0 base system",
+      "BusyBox utilities",
+      "Vim editor (E-Ink optimized)",
+      "E-Ink framebuffer driver",
+      "Android init (hardware layer)"
+    ],
+    "python": {
+      "version": ">=3.13",
+      "packages": ["superclaude>=3.0.0.2"]
+    }
+  },
+  "project_structure": {
+    "root": "/home/jyeary/projects/personal/nook",
+    "key_directories": {
+      "build": "Build outputs and Docker configurations",
+      "docker": "Docker container definitions",
+      "docs": "Project documentation",
+      "firmware": "Boot files and system components",
+      "runtime": "4-layer JesterOS scripts (35 total)",
+      "scripts": "Build and deployment utilities (29 scripts)",
+      "source": "Linux kernel 2.6.29 source",
+      "tests": "Test suite and validation"
+    },
+    "configuration_files": {
+      "Makefile": "Main build orchestration",
+      "pyproject.toml": "Python project configuration",
+      ".mcp.json": "MCP server configuration (simone)",
+      ".env": "Environment variables",
+      ".project-context-cache.json": "Project metadata cache"
+    }
+  },
+  "known_issues": {
+    "hardware": {
+      "touch_freeze": "Known issue, two-finger swipe recovery implemented",
+      "battery_drain": "Unregistered devices drain 14%+ daily (solved by removing B&N system)"
+    },
+    "phoenix_project": {
+      "firmware": "FW 1.2.2 most stable per XDA community",
+      "sd_cards": "SanDisk Class 10 required for reliable boot"
+    }
+  },
+  "development_status": {
+    "version": "1.0.0-alpha.1",
+    "stage": "Production deployment phase",
+    "recent_work": [
+      "Major project cleanup and consolidation",
+      "4-layer architecture implementation",
+      "Docker build optimization with BuildKit",
+      "Comprehensive test suite implementation"
+    ],
+    "git_status": {
+      "branch": "dev",
+      "recent_commits": [
+        "c9ae428 - Major project cleanup",
+        "291e7c2 - Reorganize for production",
+        "59e773c - Markdown improvements"
+      ]
+    }
+  }
+}

@@ -8,7 +8,7 @@ BUILD_DATE := $(shell date +%Y%m%d)
 IMAGE_NAME := nook-typewriter-$(VERSION).img
 
 # Directory configuration with validation
-KERNEL_DIR := firmware/kernel
+KERNEL_DIR := platform/nook-touch/kernel
 SCRIPTS_DIR := scripts
 DOCKER_DIR := docker
 FIRMWARE_DIR := firmware
@@ -264,8 +264,8 @@ rootfs:
 	@if [ -d $(CONFIGS_DIR) ]; then \
 		echo "  Installing configurations..."; \
 		mkdir -p $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/jester; \
-		cp runtime/1-ui/themes/jester/*.txt $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/jester/ 2>/dev/null || true; \
-		cp runtime/1-ui/themes/ascii-art-library.txt $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/ 2>/dev/null || true; \
+		cp src/1-ui/themes/jester/*.txt $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/jester/ 2>/dev/null || true; \
+		cp src/1-ui/themes/ascii-art-library.txt $(FIRMWARE_DIR)/rootfs/etc/jesteros/ascii/ 2>/dev/null || true; \
 		cp -r $(CONFIGS_DIR)/vim $(FIRMWARE_DIR)/rootfs/etc/vim/ 2>/dev/null || true; \
 		cp -r $(CONFIGS_DIR)/system $(FIRMWARE_DIR)/rootfs/etc/jesteros/ 2>/dev/null || true; \
 	fi
@@ -611,7 +611,7 @@ test-memory: test-init
 # Test GK61 keyboard support
 test-gk61: test-init docker-test-gk61
 	@echo "$(BOLD)⌨️ Testing GK61 keyboard support...$(RESET)"
-	@if docker run --rm gk61-test bash -c 'ls /runtime/3-system/services/usb-keyboard-manager.sh && ls /runtime/4-hardware/input/button-handler.sh' 2>&1 | tee -a $(TEST_LOG); then \
+	@if docker run --rm gk61-test bash -c 'ls /src/3-system/services/usb-keyboard-manager.sh && ls /src/4-hardware/input/button-handler.sh' 2>&1 | tee -a $(TEST_LOG); then \
 		echo "$(GREEN)✓ GK61 keyboard test passed$(RESET)"; \
 	else \
 		echo "$(RED)✗ GK61 keyboard test failed$(RESET)"; \
