@@ -1,1 +1,0 @@
-console=ttyS0,115200n8 initrd rw init=/init vram=16M video=omap3epfb:mode=800x600x16x14x270x0,pmic=tps65180-1p2-i2c,vcom=-1770 androidboot.console=ttyS0

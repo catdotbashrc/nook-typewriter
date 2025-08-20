@@ -1,128 +1,134 @@
 {
-  "timestamp": "2025-01-15T14:50:00Z",
   "project": {
-    "name": "JoKernel - Nook Typewriter",
-    "version": "1.0.0",
-    "description": "Transform Barnes & Noble Nook Simple Touch into distraction-free writing device",
-    "philosophy": "Writers over features, RAM saved is words written"
-  },
-  "hardware": {
-    "device": "Barnes & Noble Nook Simple Touch",
-    "cpu": "TI OMAP3621 @ 800MHz ARM Cortex-A8",
-    "ram": "256MB (160MB reserved for writing)",
-    "display": "6\" E-Ink 800x600 16 grayscale",
-    "storage": "SD card based"
-  },
-  "architecture": {
-    "layers": [
-      "Android Base (hardware drivers)",
-      "Linux Chroot (Debian in /data/debian/)",
-      "JesterOS (userspace services)",
-      "Writing Environment (Vim minimal)"
-    ],
-    "kernel": {
-      "version": "2.6.29-jester",
-      "base": "Linux 2.6.29",
-      "config": "omap3621_gossamer_evt1c_defconfig"
-    },
-    "memory_budget": {
-      "os_reserved": "95MB",
-      "vim_reserved": "10MB",
-      "writing_space": "160MB"
-    }
-  },
-  "build_system": {
-    "primary": "Make",
-    "docker": {
-      "images": [
-        "quillkernel-builder (kernel)",
-        "nook-writer (optimized environment)",
-        "nook-mvp-rootfs (minimal boot)"
-      ],
-      "toolchain": "arm-linux-androideabi-4.9 (NDK r10e)"
-    },
-    "targets": [
-      "kernel",
-      "rootfs",
-      "firmware",
-      "image",
-      "release"
-    ]
+    "name": "JesterOS/JoKernel",
+    "type": "Embedded Linux Distribution",
+    "target": "Barnes & Noble Nook Simple Touch",
+    "purpose": "Distraction-free writing device",
+    "version": "1.0.0-dev",
+    "philosophy": "Writers over features"
   },
   "structure": {
     "root": "/home/jyeary/projects/personal/nook",
     "directories": {
-      "source": {
-        "kernel": "Kernel source and modules",
-        "configs": "System configurations",
-        "scripts": "Boot, menu, services scripts",
-        "ui": "UI components and themes"
-      },
-      "build": {
-        "docker": "Docker build files",
-        "scripts": "Build automation scripts"
-      },
-      "firmware": "Output firmware files",
-      "docs": "Documentation (12 categories)",
-      "tests": "Test suites and validation"
+      "build": "Build outputs and scripts",
+      "docker": "Docker container definitions", 
+      "docs": "Project documentation",
+      "firmware": "Boot files and system components",
+      "kernel": "Linux kernel modules",
+      "runtime": "4-layer architecture scripts",
+      "scripts": "Build and deployment scripts",
+      "source": "Kernel source code",
+      "tests": "Test suite and validation",
+      "tools": "Development utilities",
+      "utilities": "Helper scripts"
+    }
+  },
+  "configurations": {
+    "build_conf": {
+      "kernel_version": "2.6.29-jester",
+      "toolchain": "arm-linux-androideabi-4.9",
+      "ndk_version": "r10e",
+      "docker_image": "quillkernel-builder"
+    },
+    "project_conf": {
+      "device": "OMAP3621 gossamer",
+      "cpu": "ARM Cortex-A8 800MHz",
+      "ram": "256MB",
+      "display": "6-inch E-Ink Pearl 800x600"
+    },
+    "memory_budget": {
+      "os_max": "95MB",
+      "vim_max": "10MB", 
+      "writing_reserved": "160MB"
+    }
+  },
+  "build_system": {
+    "type": "Makefile + Docker",
+    "key_targets": [
+      "firmware", "kernel", "rootfs", "lenny-rootfs",
+      "image", "release", "sd-deploy", "test"
+    ],
+    "docker_images": [
+      "jesteros:lenny-base",
+      "jesteros:dev-base",
+      "jesteros:runtime-base",
+      "jesteros-production",
+      "kernel-xda-proven-optimized"
+    ],
+    "test_stages": [
+      "pre-build", "post-build", "runtime"
+    ]
+  },
+  "firmware_components": {
+    "bootloaders": {
+      "MLO": "First-stage bootloader",
+      "u-boot.bin": "Second-stage bootloader",
+      "boot.scr": "Boot script"
+    },
+    "kernel": {
+      "uImage": "Kernel image",
+      "modules": "Loadable kernel modules"
+    },
+    "android_layer": {
+      "init": "Android init binary (required)",
+      "dsp": "E-Ink display DSP firmware"
+    },
+    "jesteros": {
+      "architecture": "4-layer system",
+      "layers": [
+        "1-ui: Display and menu",
+        "2-application: JesterOS services", 
+        "3-system: Core functions",
+        "4-hardware: Device drivers"
+      ]
     }
   },
   "key_features": {
-    "jesteros": {
-      "type": "userspace",
-      "interface": "/var/jesteros/",
-      "services": [
-        "jester (ASCII art mood)",
-        "typewriter/stats (writing metrics)",
-        "wisdom (writing quotes)"
+    "vim_optimized": "E-Ink optimized Vim configs",
+    "jester_daemon": "Medieval-themed assistant",
+    "battery_optimization": "<1.5% daily drain target",
+    "memory_guardian": "95MB OS limit enforcement",
+    "usb_keyboard": "External keyboard support"
+  },
+  "deployment": {
+    "sd_card": {
+      "recommended": "SanDisk Class 10",
+      "partitions": [
+        "boot: 50MB vfat",
+        "root: 200MB ext4",
+        "data: remaining ext4"
       ]
     },
-    "safety": {
-      "scripts": "set -euo pipefail, input validation",
-      "memory": "<96MB OS usage enforced",
-      "testing": "90%+ coverage target"
-    }
+    "cwm_installer": "ClockworkMod compatible",
+    "phoenix_project": "XDA Forum proven methods"
   },
-  "commands": {
-    "build": {
-      "kernel": "./build_kernel.sh",
-      "full": "make firmware",
-      "quick": "make quick-build",
-      "deploy": "make sd-deploy"
-    },
-    "test": {
-      "all": "make test",
-      "jesteros": "./test-jesteros-userspace.sh",
-      "improvements": "./tests/test-improvements.sh"
-    },
-    "docker": {
-      "build_writer": "docker build -t nook-writer --build-arg BUILD_MODE=writer -f nookwriter-optimized.dockerfile .",
-      "build_minimal": "docker build -t nook-mvp-rootfs -f minimal-boot.dockerfile .",
-      "test_local": "docker run -it --rm nook-writer vim /tmp/test.txt"
-    }
+  "testing": {
+    "suite_location": "/tests",
+    "critical_tests": [
+      "01-safety-check.sh",
+      "02-boot-test.sh",
+      "05-consistency-check.sh",
+      "06-memory-guard.sh"
+    ],
+    "coverage_target": "90%"
   },
-  "development_rules": [
-    "Does this help writers write?",
-    "What RAM does this steal from writing?",
-    "Will this add distractions?",
-    "Can writers understand error messages?"
-  ],
-  "cached_at": "2025-01-15T14:50:00Z",
-  "cache_version": "1.1",
-  "refresh_source": "--cache --refresh",
-  "quality_metrics": {
-    "total_files": 35826,
-    "shell_scripts": 238,
-    "test_scripts": 52,
-    "documentation_files": 57,
-    "unsafe_c_functions": 2986,
-    "scripts_with_safety": "89%",
-    "unquoted_variables": 179
+  "dependencies": {
+    "build_time": [
+      "Docker with BuildKit",
+      "ARM cross-compiler",
+      "mkimage (u-boot-tools)",
+      "4GB+ disk space"
+    ],
+    "runtime": [
+      "Debian Lenny base",
+      "BusyBox utilities",
+      "Vim editor",
+      "E-Ink framebuffer"
+    ]
   },
-  "recent_updates": {
-    "documentation_reorganization": "64 files into 12 categories",
-    "naming_standardization": "lowercase-hyphenated",
-    "cleanup_performed": "Reduced from 64 to 57 docs",
-    "baselines_generated": ["baseline.json", "baseline-deep.json"]
+  "cache_metadata": {
+    "created": "2025-01-20",
+    "format": "deep-analysis",
+    "coverage": "comprehensive"
   }
 }
