@@ -214,9 +214,9 @@ kernel: check-tools
 	@echo "$(BOLD)🔨 Building kernel (JesterOS services in userspace)...$(RESET)"
 	@echo "  Using kernel source: catdotbashrc/nst-kernel (reliable mirror)"
 	@echo "[$(TIMESTAMP)] Starting kernel build" >> $(BUILD_LOG)
-	@if [ ! -f build/scripts/build_kernel.sh ]; then \
-		echo "$(RED)Error: build/scripts/build_kernel.sh not found$(RESET)"; \
-		echo "[$(TIMESTAMP)] ERROR: build/scripts/build_kernel.sh not found" >> $(BUILD_LOG); \
+	@if [ ! -f scripts/build/build_kernel.sh ]; then \
+		echo "$(RED)Error: scripts/build/build_kernel.sh not found$(RESET)"; \
+		echo "[$(TIMESTAMP)] ERROR: scripts/build/build_kernel.sh not found" >> $(BUILD_LOG); \
 		exit 1; \
 	fi
 	@if ! docker images | grep -q $(DOCKER_IMAGE_KERNEL); then \
@@ -224,7 +224,7 @@ kernel: check-tools
 		echo "[$(TIMESTAMP)] Building Docker image" >> $(BUILD_LOG); \
 		$(MAKE) docker-kernel; \
 	fi
-	@J_CORES=$(J_CORES) ./build/scripts/build_kernel.sh 2>&1 | tee -a $(BUILD_LOG) || (echo "$(RED)Kernel build failed!$(RESET)" && exit 1)
+	@J_CORES=$(J_CORES) ./scripts/build/build_kernel.sh 2>&1 | tee -a $(BUILD_LOG) || (echo "$(RED)Kernel build failed!$(RESET)" && exit 1)
 	@echo "[$(TIMESTAMP)] Kernel build successful" >> $(BUILD_LOG)
 	@echo "$(GREEN)✓ Kernel build successful$(RESET)"
 

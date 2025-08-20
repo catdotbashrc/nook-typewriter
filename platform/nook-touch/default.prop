@@ -4,9 +4,9 @@
 
 # System identification
 ro.build.id=JesterOS
-ro.build.display.id=JesterOS 1.0.0-alpha.1
+ro.build.display.id=JesterOS_1.0.0-alpha.1
 ro.build.version.release=2.3.7
-ro.build.date=Mon Jan 20 02:30:00 UTC 2025
+ro.build.date=Mon_Jan_20_02:30:00_UTC_2025
 ro.build.type=user
 ro.build.tags=release-keys
 
@@ -16,7 +16,7 @@ ro.product.brand=nook
 ro.product.name=nook
 ro.product.device=zoom2
 ro.product.board=zoom2
-ro.product.manufacturer=Barnes and Noble
+ro.product.manufacturer=Barnes_and_Noble
 
 # Hardware configuration
 ro.board.platform=omap3

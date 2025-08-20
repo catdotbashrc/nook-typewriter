@@ -149,7 +149,14 @@
       "Bash(if [ -f \"tests/$file\" ])",
       "Bash(else)",
       "Bash(tar:*)",
-      "Bash(do [ -f \"$file\" ])"
+      "Bash(do [ -f \"$file\" ])",
+      "Bash(./tests/09-ramdisk-validation.sh:*)",
+      "Bash(./tests/10-kernel-validation.sh:*)",
+      "Bash(./tests/run-tests.sh:*)",
+      "Bash(bison:*)",
+      "Bash(flex:*)",
+      "Bash(./scripts/deploy/extract-bootloaders-dd.sh:*)",
+      "Bash(./scripts/build/create-image.sh:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

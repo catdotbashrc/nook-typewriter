@@ -82,6 +82,12 @@ on boot
     chmod 0644 /sys/devices/platform/gpio-keys/disabled_keys
     chmod 0644 /sys/devices/platform/gpio-keys/disabled_switches
     
+    # Start core services first
+    class_start core
+    
+    # Then start late_start services (including JesterOS)
+    class_start late_start
+    
     # Enable USB gadget for keyboard support
     write /sys/class/android_usb/android0/enable 0
     write /sys/class/android_usb/android0/idVendor 2080
