@@ -62,47 +62,47 @@ if [ -d "runtime" ]; then
     echo "Found runtime/ directory - beginning migration..."
     
     # Init scripts
-    if [ -d "runtime/init" ]; then
+    if [ -d "src/services/init" ]; then
         echo -e "  ${BLUE}Moving init scripts...${NC}"
         git mv runtime/init/*.sh src/init/ 2>/dev/null || cp runtime/init/*.sh src/init/ 2>/dev/null || true
     fi
     
     # System/Core scripts (Layer 3 → core)
-    if [ -d "runtime/3-system" ]; then
+    if [ -d "src/services/3-system" ]; then
         echo -e "  ${BLUE}Moving core system scripts...${NC}"
         find runtime/3-system -name "*.sh" -exec git mv {} src/core/ \; 2>/dev/null || \
         find runtime/3-system -name "*.sh" -exec cp {} src/core/ \; 2>/dev/null || true
     fi
     
     # Hardware scripts (Layer 4 → hal)
-    if [ -d "runtime/4-hardware" ]; then
+    if [ -d "src/services/4-hardware" ]; then
         echo -e "  ${BLUE}Moving hardware abstraction...${NC}"
-        [ -d "runtime/4-hardware/input" ] && git mv runtime/4-hardware/input/*.sh src/hal/buttons/ 2>/dev/null || true
-        [ -d "runtime/4-hardware/power" ] && git mv runtime/4-hardware/power/*.sh src/hal/power/ 2>/dev/null || true
-        [ -d "runtime/4-hardware/sensors" ] && git mv runtime/4-hardware/sensors/*.sh src/hal/sensors/ 2>/dev/null || true
-        [ -d "runtime/4-hardware/eink" ] && git mv runtime/4-hardware/eink/*.sh src/hal/eink/ 2>/dev/null || true
+        [ -d "src/hal/input" ] && git mv runtime/hal/input/*.sh src/hal/buttons/ 2>/dev/null || true
+        [ -d "src/hal/power" ] && git mv runtime/hal/power/*.sh src/hal/power/ 2>/dev/null || true
+        [ -d "src/hal/sensors" ] && git mv runtime/hal/sensors/*.sh src/hal/sensors/ 2>/dev/null || true
+        [ -d "src/hal/eink" ] && git mv runtime/hal/eink/*.sh src/hal/eink/ 2>/dev/null || true
     fi
     
     # UI/Services (Layer 1 → services)
-    if [ -d "runtime/1-ui" ]; then
+    if [ -d "src/services/1-ui" ]; then
         echo -e "  ${BLUE}Moving UI services...${NC}"
         find runtime/1-ui -name "*.sh" -exec git mv {} src/services/ui/ \; 2>/dev/null || \
         find runtime/1-ui -name "*.sh" -exec cp {} src/services/ui/ \; 2>/dev/null || true
     fi
     
     # Applications (Layer 2 → services/apps)
-    if [ -d "runtime/2-application" ]; then
+    if [ -d "src/services/2-application" ]; then
         echo -e "  ${BLUE}Moving applications...${NC}"
-        [ -f "runtime/2-application/jesteros/jester-daemon.sh" ] && git mv runtime/2-application/jesteros/jester*.sh src/services/jester/ 2>/dev/null || true
-        [ -f "runtime/2-application/jesteros/tracker.sh" ] && git mv runtime/2-application/jesteros/tracker.sh src/services/tracker/ 2>/dev/null || true
-        [ -d "runtime/2-application/writing" ] && git mv runtime/2-application/writing/*.sh src/apps/git/ 2>/dev/null || true
+        [ -f "src/services/services/jester/jester-daemon.sh" ] && git mv runtime/services/jester/jester*.sh src/services/jester/ 2>/dev/null || true
+        [ -f "src/services/services/jester/tracker.sh" ] && git mv runtime/services/jester/tracker.sh src/services/tracker/ 2>/dev/null || true
+        [ -d "src/services/jester/writing" ] && git mv runtime/2-application/writing/*.sh src/apps/git/ 2>/dev/null || true
     fi
     
     # Config files
-    if [ -d "runtime/config" ] || [ -d "runtime/configs" ]; then
+    if [ -d "src/services/config" ] || [ -d "src/services/configs" ]; then
         echo -e "  ${BLUE}Moving configurations...${NC}"
-        [ -d "runtime/config" ] && cp -r runtime/config/* config/system/ 2>/dev/null || true
-        [ -d "runtime/configs" ] && cp -r runtime/configs/* config/ 2>/dev/null || true
+        [ -d "src/services/config" ] && cp -r runtime/config/* config/system/ 2>/dev/null || true
+        [ -d "src/services/configs" ] && cp -r runtime/configs/* config/ 2>/dev/null || true
     fi
     
     echo -e "${GREEN}✓ Runtime migration complete${NC}"
@@ -193,7 +193,7 @@ if [ -d "docker" ]; then
             -e 's|runtime/|src/|g' \
             -e 's|firmware/|platform/nook-touch/|g' \
             -e 's|COPY runtime/|COPY src/|g' \
-            -e 's|/runtime/|/src/|g' \
+            -e 's|/src/services/|/src/|g' \
             "$dockerfile"
     done
     echo -e "${GREEN}✓ Docker files updated${NC}"

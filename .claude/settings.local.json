@@ -156,7 +156,8 @@
       "Bash(bison:*)",
       "Bash(flex:*)",
       "Bash(./scripts/deploy/extract-bootloaders-dd.sh:*)",
-      "Bash(./scripts/build/create-image.sh:*)"
+      "Bash(./scripts/build/create-image.sh:*)",
+      "Bash(./tools/update-paths.sh:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits",

@@ -111,9 +111,9 @@ handle_keyboard_event() {
         $KEY_ESC)
             # Escape - Return to main menu
             log_keyboard "ESC pressed - returning to menu"
-            if [ -x "/src/1-ui/menu/nook-menu.sh" ]; then
+            if [ -x "/src/services/menu/nook-menu.sh" ]; then
                 pkill -f "vim" 2>/dev/null || true
-                /src/1-ui/menu/nook-menu.sh &
+                /src/services/menu/nook-menu.sh &
             fi
             ;;
             
@@ -163,8 +163,8 @@ handle_keyboard_event() {
         $KEY_F10)
             # F10 - Toggle USB keyboard mode (return to ADB)
             log_keyboard "F10 pressed - toggle keyboard mode"
-            if [ -x "/src/3-system/services/usb-keyboard-manager.sh" ]; then
-                /src/3-system/services/usb-keyboard-manager.sh restore &
+            if [ -x "/src/services/system/usb-keyboard-manager.sh" ]; then
+                /src/services/system/usb-keyboard-manager.sh restore &
             fi
             ;;
             
@@ -198,8 +198,8 @@ handle_power_button() {
         log_button "Power button released"
         
         # Quick press - show power menu
-        if [ -x "/src/1-ui/menu/power-menu.sh" ]; then
-            /src/1-ui/menu/power-menu.sh &
+        if [ -x "/src/services/menu/power-menu.sh" ]; then
+            /src/services/menu/power-menu.sh &
         fi
     fi
 }
@@ -213,9 +213,9 @@ handle_home_button() {
         log_button "Home button pressed"
         
         # Return to main menu
-        if [ -x "/src/1-ui/menu/nook-menu.sh" ]; then
+        if [ -x "/src/services/menu/nook-menu.sh" ]; then
             pkill -f "vim" 2>/dev/null || true  # Exit vim if running
-            /src/1-ui/menu/nook-menu.sh &
+            /src/services/menu/nook-menu.sh &
         fi
         
     elif [ "$state" -eq "$KEY_RELEASE" ]; then
@@ -517,7 +517,7 @@ USB Keyboard Setup:
     1. Connect OTG cable to Nook
     2. Connect powered USB hub to OTG cable
     3. Connect GK61 keyboard to USB hub
-    4. Run: /src/3-system/services/usb-keyboard-manager.sh setup
+    4. Run: /src/services/system/usb-keyboard-manager.sh setup
     5. Start monitoring: $0 monitor
 
 Files:

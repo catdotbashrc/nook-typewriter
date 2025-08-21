@@ -1,2 +1,0 @@
-# MOVED: This file has been consolidated to runtime/1-ui/themes/jester/system-messages.txt
-# Use: runtime/1-ui/themes/jester/system-messages.txt

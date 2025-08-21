@@ -19,7 +19,7 @@ trap 'echo "Error in nook-menu.sh at line $LINENO"' ERR
 #
 
 # Source common functions and safety settings
-COMMON_PATH="${COMMON_PATH:-/src/3-system/common/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/src/services/system/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
 else

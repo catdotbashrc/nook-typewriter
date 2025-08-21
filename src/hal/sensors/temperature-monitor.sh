@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Redirect to optimized implementation
-OPTIMIZED_MONITOR="/src/4-hardware/sensors/temperature-monitor-optimized.sh"
+OPTIMIZED_MONITOR="/src/hal/sensors/temperature-monitor-optimized.sh"
 
 if [ -f "$OPTIMIZED_MONITOR" ]; then
     exec "$OPTIMIZED_MONITOR" "$@"

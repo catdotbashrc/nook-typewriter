@@ -11,14 +11,14 @@ set -euo pipefail
 trap 'echo "Error in jesteros-service-init.sh at line $LINENO" >&2' ERR
 
 # Source common functions if available
-COMMON_PATH="${COMMON_PATH:-/src/3-system/common/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/src/services/system/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
 fi
 
 # Service paths and directories
-RUNTIME_BASE="${RUNTIME_BASE:-/runtime}"
-SERVICE_MANAGER="$RUNTIME_BASE/2-application/jesteros/manager.sh"
+RUNTIME_BASE="${RUNTIME_BASE:-/src/services}"
+SERVICE_MANAGER="$RUNTIME_BASE/services/jester/manager.sh"
 JESTEROS_BASE="/var/jesteros"
 SERVICE_CONFIG_BASE="$RUNTIME_BASE/configs/services"
 
@@ -260,7 +260,7 @@ The digital realm is ready for thy words!
    • View jester mood:        cat /var/jesteros/jester
    • Check writing stats:     cat /var/jesteros/typewriter/stats  
    • Monitor system health:   cat /var/jesteros/health/status
-   • Service management:      /src/2-application/jesteros/manager.sh
+   • Service management:      /src/services/jester/manager.sh
 
 🎯 Next Steps:
    1. Start writing with vim /root/manuscripts/my-story.txt

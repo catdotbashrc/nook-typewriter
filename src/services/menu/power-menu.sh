@@ -4,14 +4,14 @@
 set -euo pipefail
 
 # Source common functions
-COMMON_PATH="${COMMON_PATH:-/src/3-system/common/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/src/services/system/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
 fi
 
 # Power management scripts
-BATTERY_MONITOR="/src/4-hardware/power/battery-monitor.sh"
-POWER_OPTIMIZER="/src/4-hardware/power/power-optimizer.sh"
+BATTERY_MONITOR="/src/hal/power/battery-monitor.sh"
+POWER_OPTIMIZER="/src/hal/power/power-optimizer.sh"
 POWER_STATUS="/var/jesteros/power"
 
 # Display power menu header

@@ -4,8 +4,8 @@
 set -euo pipefail
 
 # Paths
-USB_MANAGER="/src/3-system/services/usb-keyboard-manager.sh"
-INPUT_HANDLER="/src/4-hardware/input/button-handler.sh"
+USB_MANAGER="/src/services/system/usb-keyboard-manager.sh"
+INPUT_HANDLER="/src/hal/input/button-handler.sh"
 SETUP_LOG="/var/log/jesteros-keyboard-setup.log"
 
 # Colors for output (only in terminal)

@@ -17,7 +17,7 @@ trap 'echo "Error at line $LINENO"' ERR
 # Determine script location and project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-RUNTIME_DIR="${PROJECT_ROOT}/runtime"
+RUNTIME_DIR="${PROJECT_ROOT}/src/services"
 BOOT_DIR="${PROJECT_ROOT}/boot"
 
 # Validate we're in the correct location
@@ -73,9 +73,9 @@ if [ -f "${RUNTIME_DIR}/init/jesteros-boot.sh" ]; then
     jesteros_locations+=("init/jesteros-boot.sh")
 fi
 
-if [ -f "${RUNTIME_DIR}/2-application/jesteros/daemon.sh" ]; then
+if [ -f "${RUNTIME_DIR}/services/jester/daemon.sh" ]; then
     jesteros_found=true
-    jesteros_locations+=("2-application/jesteros/daemon.sh")
+    jesteros_locations+=("services/jester/daemon.sh")
 fi
 
 if [ "${jesteros_found}" = true ]; then
@@ -87,9 +87,9 @@ fi
 
 # Check 3: Menu system (user interface)
 printf "✓ Menu system... "
-if [ -f "${RUNTIME_DIR}/1-ui/menu/nook-menu.sh" ]; then
+if [ -f "${RUNTIME_DIR}/services/menu/nook-menu.sh" ]; then
     # Validate menu script syntax
-    if bash -n "${RUNTIME_DIR}/1-ui/menu/nook-menu.sh" 2>/dev/null; then
+    if bash -n "${RUNTIME_DIR}/services/menu/nook-menu.sh" 2>/dev/null; then
         printf "YES (syntax valid)\n"
     else
         printf "YES (syntax error!)\n"
@@ -102,9 +102,9 @@ fi
 
 # Check 4: Common library (shared functions)
 printf "✓ Common functions... "
-if [ -f "${RUNTIME_DIR}/3-system/common/common.sh" ]; then
+if [ -f "${RUNTIME_DIR}/services/system/common.sh" ]; then
     # Check if it's readable
-    if [ -r "${RUNTIME_DIR}/3-system/common/common.sh" ]; then
+    if [ -r "${RUNTIME_DIR}/services/system/common.sh" ]; then
         printf "YES (readable)\n"
     else
         printf "YES (not readable!)\n"

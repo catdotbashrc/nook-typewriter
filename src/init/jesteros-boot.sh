@@ -18,7 +18,7 @@ boot_log() {
 boot_log "INFO" "Starting JesterOS boot sequence"
 
 # Source common functions and safety settings
-COMMON_PATH="${COMMON_PATH:-/src/3-system/common/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/src/services/system/common.sh}"
 if [[ -f "$COMMON_PATH" ]]; then
     source "$COMMON_PATH"
     # Override e_sleep if needed for boot sequence

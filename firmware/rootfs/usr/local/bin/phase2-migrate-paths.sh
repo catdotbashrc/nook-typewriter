@@ -16,17 +16,17 @@ mkdir -p "$BACKUP_DIR"
 # Common path replacements
 declare -A PATH_REPLACEMENTS=(
     ["/usr/local/bin/jester-daemon"]='$JESTER_DAEMON'
-    ["/runtime/3-system/common/common.sh"]='$COMMON_LIB/common.sh'
-    ["/runtime/4-hardware/power/battery-monitor.sh"]='$BATTERY_MONITOR'
-    ["/runtime/4-hardware/power/power-optimizer.sh"]='$POWER_OPTIMIZER'
-    ["/runtime/4-hardware/sensors/temperature-monitor.sh"]='$TEMP_MONITOR'
+    ["/src/services/system/common.sh"]='$COMMON_LIB/common.sh'
+    ["/src/hal/power/battery-monitor.sh"]='$BATTERY_MONITOR'
+    ["/src/hal/power/power-optimizer.sh"]='$POWER_OPTIMIZER'
+    ["/src/hal/sensors/temperature-monitor.sh"]='$TEMP_MONITOR'
     ["/var/jesteros"]='$JESTEROS_VAR'
     ["/var/log/jesteros"]='$JESTEROS_LOG'
     ["/tmp/jesteros"]='$JESTEROS_TMP'
-    ["/runtime/1-ui"]='$LAYER1_UI'
-    ["/runtime/2-application"]='$LAYER2_APP'
-    ["/runtime/3-system"]='$LAYER3_SYSTEM'
-    ["/runtime/4-hardware"]='$LAYER4_HARDWARE'
+    ["/src/services/1-ui"]='$LAYER1_UI'
+    ["/src/services/2-application"]='$LAYER2_APP'
+    ["/src/services/3-system"]='$LAYER3_SYSTEM'
+    ["/src/services/4-hardware"]='$LAYER4_HARDWARE'
     ["/data/jesteros"]='$JESTEROS_VAR'
     ["/root/notes"]='$NOTES_DIR'
     ["/root/drafts"]='$DRAFTS_DIR'
@@ -45,7 +45,7 @@ for pattern in "${FILES_TO_UPDATE[@]}"; do
     for file in $pattern; do
         if [ -f "$file" ]; then
             # Skip binary files and our own config
-            if file "$file" | grep -q "text" && [ "$file" != "runtime/config/jesteros.conf" ]; then
+            if file "$file" | grep -q "text" && [ "$file" != "src/services/config/jesteros.conf" ]; then
                 echo -n "Checking $(basename $file)... "
                 
                 # Count replacements needed
@@ -81,7 +81,7 @@ for pattern in "${FILES_TO_UPDATE[@]}"; do
                         /^#/ && printed { print; next }
                         !printed_source && printed { 
                             print "# Source JesterOS configuration"
-                            print "JESTEROS_CONFIG=\"${JESTEROS_CONFIG:-/runtime/config/jesteros.conf}\""
+                            print "JESTEROS_CONFIG=\"${JESTEROS_CONFIG:-/src/services/config/jesteros.conf}\""
                             print "[ -f \"$JESTEROS_CONFIG\" ] && source \"$JESTEROS_CONFIG\""
                             print ""
                             printed_source=1
@@ -119,11 +119,11 @@ cat > "$BACKUP_DIR/validate.sh" << 'EOF'
 echo "Validating path migration..."
 
 # Source config
-source /runtime/config/jesteros.conf
+source /src/services/config/jesteros.conf
 
 # Check for remaining hardcoded paths
 echo "Checking for remaining hardcoded paths..."
-grep -r "/usr/local/bin\|/var/jesteros\|/runtime/[1-4]" runtime/**/*.sh 2>/dev/null | \
+grep -r "/usr/local/bin\|/var/jesteros\|/src/services/[1-4]" runtime/**/*.sh 2>/dev/null | \
     grep -v "JESTEROS\|LAYER\|CONFIG" | \
     grep -v "^#" | head -20
 

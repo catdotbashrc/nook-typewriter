@@ -1,3 +1,3 @@
-[submodule "source/kernel"]
-	path = source/kernel
+[submodule "src/kernel"]
+	path = src/kernel
 	url = https://github.com/catdotbashrc/nst-kernel.git

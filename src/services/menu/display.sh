@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # Source common functions if available
-COMMON_PATH="${COMMON_PATH:-/src/3-system/common/common.sh}"
+COMMON_PATH="${COMMON_PATH:-/src/services/system/common.sh}"
 [[ -f "$COMMON_PATH" ]] && source "$COMMON_PATH"
 
 # ═══════════════════════════════════════════════════════════════

@@ -8,8 +8,8 @@ BUILD_DATE := $(shell date +%Y%m%d)
 IMAGE_NAME := nook-typewriter-$(VERSION).img
 
 # Directory configuration with validation
-KERNEL_DIR := platform/nook-touch/kernel
-SCRIPTS_DIR := scripts
+KERNEL_DIR := src/kernel
+SCRIPTS_DIR := tools
 DOCKER_DIR := docker
 FIRMWARE_DIR := firmware
 BUILD_DIR := build

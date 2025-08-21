@@ -1,0 +1,295 @@
+#!/bin/bash
+# JesterOS Test Results Logger
+# Tracks test execution history and results for analysis
+#
+# Usage: ./test-logger.sh [command] [args]
+# Commands:
+#   init    - Initialize new test run
+#   log     - Log test result
+#   summary - Show test run summary
+#   report  - Generate test report
+#   clean   - Clean old logs
+
+set -euo pipefail
+
+# Configuration
+LOG_DIR="${TEST_LOG_DIR:-./logs}"
+LOG_FILE="${LOG_DIR}/test-$(date +%Y%m%d).log"
+SUMMARY_FILE="${LOG_DIR}/summary-$(date +%Y%m%d).txt"
+MAX_LOG_DAYS="${MAX_LOG_DAYS:-30}"
+
+# Ensure log directory exists
+mkdir -p "$LOG_DIR"
+
+# Initialize new test run
+init_test_run() {
+    local run_id="$(date +%Y%m%d-%H%M%S)"
+    local test_stage="${TEST_STAGE:-unknown}"
+    
+    {
+        echo "===== TEST RUN STARTED: $run_id ====="
+        echo "Date: $(date)"
+        echo "Stage: $test_stage"
+        echo "User: ${USER:-unknown}"
+        echo "Directory: $(pwd)"
+        echo ""
+    } >> "$LOG_FILE"
+    
+    echo "$run_id"
+}
+
+# Log individual test result
+log_test_result() {
+    local test_name="$1"
+    local result="$2"  # PASS, FAIL, WARN, SKIP
+    local duration="${3:-0}"
+    local message="${4:-}"
+    
+    local timestamp="$(date +%H:%M:%S)"
+    local status_icon=""
+    
+    case "$result" in
+        PASS)
+            status_icon="✓"
+            ;;
+        FAIL)
+            status_icon="✗"
+            ;;
+        WARN)
+            status_icon="⚠"
+            ;;
+        SKIP)
+            status_icon="○"
+            ;;
+        *)
+            status_icon="?"
+            ;;
+    esac
+    
+    {
+        echo "[$timestamp] $status_icon $test_name: $result (${duration}s)"
+        if [ -n "$message" ]; then
+            echo "  Message: $message"
+        fi
+    } >> "$LOG_FILE"
+}
+
+# Generate test run summary
+generate_summary() {
+    local run_id="${1:-current}"
+    
+    if [ ! -f "$LOG_FILE" ]; then
+        echo "No log file found for today"
+        return 1
+    fi
+    
+    local total_tests=0
+    local passed=0
+    local failed=0
+    local warned=0
+    local skipped=0
+    
+    # Parse log file for results
+    while IFS= read -r line; do
+        if [[ "$line" == *"PASS"* ]]; then
+            ((passed++))
+            ((total_tests++))
+        elif [[ "$line" == *"FAIL"* ]]; then
+            ((failed++))
+            ((total_tests++))
+        elif [[ "$line" == *"WARN"* ]]; then
+            ((warned++))
+            ((total_tests++))
+        elif [[ "$line" == *"SKIP"* ]]; then
+            ((skipped++))
+            ((total_tests++))
+        fi
+    done < "$LOG_FILE"
+    
+    {
+        echo "===== TEST SUMMARY ====="
+        echo "Date: $(date)"
+        echo "Total Tests: $total_tests"
+        echo "Passed: $passed"
+        echo "Failed: $failed"
+        echo "Warnings: $warned"
+        echo "Skipped: $skipped"
+        
+        if [ "$failed" -eq 0 ]; then
+            echo "Status: ✅ ALL TESTS PASSED"
+        elif [ "$failed" -gt 0 ]; then
+            echo "Status: ❌ TESTS FAILED"
+        fi
+        
+        # Calculate pass rate
+        if [ "$total_tests" -gt 0 ]; then
+            local pass_rate=$((passed * 100 / total_tests))
+            echo "Pass Rate: ${pass_rate}%"
+        fi
+        echo "======================="
+    } | tee "$SUMMARY_FILE"
+}
+
+# Generate detailed test report
+generate_report() {
+    local output_file="${1:-test-report-$(date +%Y%m%d).md}"
+    
+    {
+        echo "# JesterOS Test Report"
+        echo ""
+        echo "Generated: $(date)"
+        echo ""
+        
+        echo "## Summary Statistics"
+        echo ""
+        
+        if [ -f "$SUMMARY_FILE" ]; then
+            echo '```'
+            cat "$SUMMARY_FILE"
+            echo '```'
+        else
+            generate_summary > /dev/null
+            echo '```'
+            cat "$SUMMARY_FILE"
+            echo '```'
+        fi
+        
+        echo ""
+        echo "## Test Results by Category"
+        echo ""
+        
+        # Show Stoppers
+        echo "### 🛡️ Show Stoppers"
+        echo ""
+        grep -E "(01-safety|02-boot)" "$LOG_FILE" 2>/dev/null | tail -10 || echo "No results"
+        echo ""
+        
+        # Writing Blockers
+        echo "### 🚧 Writing Blockers"
+        echo ""
+        grep -E "(04-docker|05-consistency|06-memory)" "$LOG_FILE" 2>/dev/null | tail -10 || echo "No results"
+        echo ""
+        
+        # Experience
+        echo "### ✨ Writer Experience"
+        echo ""
+        grep -E "(03-functionality|07-writer)" "$LOG_FILE" 2>/dev/null | tail -10 || echo "No results"
+        echo ""
+        
+        echo "## Failed Tests"
+        echo ""
+        grep "FAIL" "$LOG_FILE" 2>/dev/null || echo "No failures! 🎉"
+        echo ""
+        
+        echo "## Warnings"
+        echo ""
+        grep "WARN" "$LOG_FILE" 2>/dev/null || echo "No warnings"
+        echo ""
+        
+        echo "---"
+        echo "*Report generated by test-logger.sh*"
+    } > "$output_file"
+    
+    echo "Report saved to: $output_file"
+}
+
+# Clean old log files
+clean_old_logs() {
+    echo "Cleaning logs older than $MAX_LOG_DAYS days..."
+    
+    find "$LOG_DIR" -name "*.log" -mtime +$MAX_LOG_DAYS -delete 2>/dev/null || true
+    find "$LOG_DIR" -name "*.txt" -mtime +$MAX_LOG_DAYS -delete 2>/dev/null || true
+    
+    echo "Cleanup complete"
+}
+
+# Parse test output and log results
+parse_and_log() {
+    local test_name="$1"
+    local start_time=$(date +%s)
+    
+    # Run the test and capture output
+    local result="FAIL"
+    local output=""
+    
+    if output=$("$@" 2>&1); then
+        result="PASS"
+    fi
+    
+    local end_time=$(date +%s)
+    local duration=$((end_time - start_time))
+    
+    # Check for warnings in output
+    if echo "$output" | grep -q "WARNING\\|⚠"; then
+        result="WARN"
+    fi
+    
+    # Log the result
+    log_test_result "$test_name" "$result" "$duration" ""
+    
+    # Print output
+    echo "$output"
+    
+    # Return appropriate exit code
+    case "$result" in
+        PASS)
+            return 0
+            ;;
+        WARN)
+            return 2
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# Main command handler
+case "${1:-help}" in
+    init)
+        init_test_run
+        ;;
+    log)
+        shift
+        log_test_result "$@"
+        ;;
+    summary)
+        generate_summary
+        ;;
+    report)
+        shift
+        generate_report "$@"
+        ;;
+    clean)
+        clean_old_logs
+        ;;
+    run)
+        shift
+        parse_and_log "$@"
+        ;;
+    help|--help|-h)
+        echo "JesterOS Test Logger"
+        echo ""
+        echo "Usage: $0 [command] [args]"
+        echo ""
+        echo "Commands:"
+        echo "  init           Initialize new test run"
+        echo "  log NAME RES   Log test result (PASS/FAIL/WARN/SKIP)"
+        echo "  summary        Show test run summary"
+        echo "  report [file]  Generate detailed report"
+        echo "  clean          Clean old logs"
+        echo "  run [test]     Run test and log results"
+        echo ""
+        echo "Examples:"
+        echo "  $0 init"
+        echo "  $0 log \"Safety Check\" PASS 2 \"All checks passed\""
+        echo "  $0 summary"
+        echo "  $0 report test-report.md"
+        echo "  $0 run ./01-safety-check.sh"
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo "Run '$0 help' for usage"
+        exit 1
+        ;;
+esac

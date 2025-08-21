@@ -80,23 +80,23 @@ echo ""
 log_info "Fixing Application Layer (Layer 2) imports..."
 
 # Fix jesteros service manager
-if [ -f "runtime/2-application/jesteros/manager.sh" ]; then
-    fix_path "runtime/2-application/jesteros/manager.sh" \
+if [ -f "src/services/services/jester/manager.sh" ]; then
+    fix_path "src/services/services/jester/manager.sh" \
         "../lib/service-functions.sh" \
-        "../../3-system/common/service-functions.sh"
+        "../../services/system/service-functions.sh"
 fi
 
 # Fix any other Layer 2 scripts that source common libraries
-for script in runtime/2-application/jesteros/*.sh; do
+for script in runtime/services/jester/*.sh; do
     if [ -f "$script" ]; then
         # Fix common.sh references
         fix_path "$script" \
             "../lib/common.sh" \
-            "../../3-system/common/common.sh"
+            "../../services/system/common.sh"
         
         fix_path "$script" \
             "scripts/lib/common.sh" \
-            "3-system/common/common.sh"
+            "services/system/common.sh"
     fi
 done
 
@@ -105,16 +105,16 @@ done
 # ============================================
 log_info "Fixing UI Layer (Layer 1) imports..."
 
-for script in runtime/1-ui/menu/*.sh; do
+for script in runtime/services/menu/*.sh; do
     if [ -f "$script" ]; then
         # Fix common library references
         fix_path "$script" \
             "../../scripts/lib/common.sh" \
-            "../../3-system/common/common.sh"
+            "../../services/system/common.sh"
         
         fix_path "$script" \
             "../lib/common.sh" \
-            "../../3-system/common/common.sh"
+            "../../services/system/common.sh"
     fi
 done
 
@@ -128,12 +128,12 @@ for script in runtime/init/*.sh; do
         # Fix paths to system libraries
         fix_path "$script" \
             "../lib/common.sh" \
-            "../3-system/common/common.sh"
+            "../services/system/common.sh"
         
         # Fix paths to services
         fix_path "$script" \
             "../scripts/services/" \
-            "../2-application/jesteros/"
+            "../services/jester/"
     fi
 done
 
@@ -166,7 +166,7 @@ log_info "Checking Docker files for path updates..."
 for dockerfile in build/docker/*.dockerfile; do
     if [ -f "$dockerfile" ]; then
         # Check for old runtime/scripts paths
-        if grep -q "runtime/scripts" "$dockerfile" 2>/dev/null; then
+        if grep -q "src/services/scripts" "$dockerfile" 2>/dev/null; then
             log_warn "Docker file needs updating: $dockerfile"
             
             if [ "$DRY_RUN" != "--dry-run" ]; then
@@ -186,7 +186,7 @@ log_info "Checking test scripts..."
 for test in tests/*.sh; do
     if [ -f "$test" ]; then
         # Check for old structure references
-        if grep -q "runtime/scripts" "$test" 2>/dev/null; then
+        if grep -q "src/services/scripts" "$test" 2>/dev/null; then
             log_warn "Test needs updating: $test"
         fi
         if grep -q "source/scripts" "$test" 2>/dev/null; then
@@ -224,7 +224,7 @@ From Layer 2 (Application) to Layer 3 (System):
 . "$SCRIPT_DIR/../lib/common.sh"
 
 # New  
-. "$SCRIPT_DIR/../../3-system/common/common.sh"
+. "$SCRIPT_DIR/../../services/system/common.sh"
 ```
 
 From Layer 1 (UI) to Layer 3 (System):
@@ -233,7 +233,7 @@ From Layer 1 (UI) to Layer 3 (System):
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 
 # New
-source ../../3-system/common/common.sh
+source ../../services/system/common.sh
 ```
 
 ## Quick Reference

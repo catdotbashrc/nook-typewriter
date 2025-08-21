@@ -46,20 +46,20 @@ fi
 log_info "Creating 4-layer architecture directories..."
 
 DIRS=(
-    "runtime/1-ui/menu"
-    "runtime/1-ui/display"
-    "runtime/1-ui/themes"
-    "runtime/2-application/jesteros"
-    "runtime/2-application/writing"
-    "runtime/2-application/stats"
-    "runtime/3-system/display"
-    "runtime/3-system/filesystem"
-    "runtime/3-system/process"
-    "runtime/3-system/common"
-    "runtime/4-hardware/eink"
-    "runtime/4-hardware/usb"
-    "runtime/4-hardware/power"
-    "runtime/init"
+    "src/services/menu/menu"
+    "src/services/menu/display"
+    "src/services/menu/themes"
+    "src/services/jester/jesteros"
+    "src/services/jester/writing"
+    "src/services/jester/stats"
+    "src/services/system/display"
+    "src/services/system/filesystem"
+    "src/services/system/process"
+    "src/services/system/common"
+    "src/hal/eink"
+    "src/hal/usb"
+    "src/hal/power"
+    "src/services/init"
 )
 
 for dir in "${DIRS[@]}"; do
@@ -77,29 +77,29 @@ log_info "Migrating files to architecture layers..."
 # Define file mappings (source -> destination)
 declare -A FILE_MAPPINGS=(
     # UI Layer (1)
-    ["runtime/scripts/menu/"]="runtime/1-ui/menu/"
-    ["runtime/ui/components/"]="runtime/1-ui/display/"
-    ["runtime/ui/themes/"]="runtime/1-ui/themes/"
-    ["runtime/configs/ascii/"]="runtime/1-ui/themes/"
+    ["src/services/scripts/menu/"]="src/services/menu/menu/"
+    ["src/services/ui/components/"]="src/services/menu/display/"
+    ["src/services/ui/themes/"]="src/services/menu/themes/"
+    ["src/services/configs/ascii/"]="src/services/menu/themes/"
     
     # Application Layer (2)
-    ["runtime/scripts/services/jesteros-mood-selector.sh"]="runtime/2-application/jesteros/mood.sh"
-    ["runtime/scripts/services/jesteros-service-manager.sh"]="runtime/2-application/jesteros/manager.sh"
-    ["runtime/scripts/services/jesteros-tracker.sh"]="runtime/2-application/jesteros/tracker.sh"
-    ["runtime/scripts/services/jester-daemon.sh"]="runtime/2-application/jesteros/daemon.sh"
+    ["src/services/scripts/services/jesteros-mood-selector.sh"]="src/services/services/jester/mood.sh"
+    ["src/services/scripts/services/jesteros-service-manager.sh"]="src/services/services/jester/manager.sh"
+    ["src/services/scripts/services/jesteros-tracker.sh"]="src/services/services/jester/tracker.sh"
+    ["src/services/scripts/services/jester-daemon.sh"]="src/services/services/jester/daemon.sh"
     
     # System Layer (3)
-    ["runtime/scripts/lib/common.sh"]="runtime/3-system/common/"
-    ["runtime/scripts/lib/service-functions.sh"]="runtime/3-system/common/"
-    ["runtime/scripts/lib/font-setup.sh"]="runtime/3-system/display/"
+    ["src/services/scripts/lib/common.sh"]="src/services/services/system/"
+    ["src/services/scripts/lib/service-functions.sh"]="src/services/services/system/"
+    ["src/services/scripts/lib/font-setup.sh"]="src/services/system/display/"
     
     # Kernel Layer (4)
-    ["runtime/modules/"]="runtime/4-kernel/modules/"
+    ["src/services/modules/"]="src/services/4-kernel/modules/"
     
     # Init/Boot
-    ["runtime/scripts/boot/jesteros-init.sh"]="runtime/init/"
-    ["runtime/scripts/boot/boot-jester.sh"]="runtime/init/"
-    ["runtime/scripts/boot/jesteros-boot.sh"]="runtime/init/"
+    ["src/services/scripts/boot/jesteros-init.sh"]="src/services/init/"
+    ["src/services/scripts/boot/boot-jester.sh"]="src/services/init/"
+    ["src/services/scripts/boot/jesteros-boot.sh"]="src/services/init/"
 )
 
 # Move files

@@ -1,0 +1,43 @@
+NOOK DEPLOYMENT CHECKLIST
+═════════════════════════
+
+Before First Hardware Deploy:
+□ Run ./run-tests.sh (all pass?)
+□ Test in Docker: docker run -it nook-writer
+□ Have TWO SD cards ready (main + backup)
+□ Know how to restore stock firmware
+□ Using SD card, NOT internal storage
+
+Build & Deploy:
+□ make clean (start fresh)
+□ make firmware
+□ make detect-sd (find your SD card)
+□ make sd-deploy SD_DEVICE=/dev/sdX
+□ Wait for "SD card ready!" message
+
+First Boot:
+□ Insert SD card into Nook
+□ Hold page buttons while powering on
+□ Should see boot messages or jester
+□ If stuck: power off, check SD card
+
+If Something Goes Wrong:
+□ Don't panic!
+□ Remove SD card
+□ Nook should boot normally
+□ Check SD card on computer
+□ Try backup SD card
+□ Ask on forum/discord for help
+
+Success Indicators:
+□ Boots without hanging
+□ Shows menu or shell prompt
+□ Can type and save text
+□ Power button works
+□ No smoke (seriously!)
+
+Remember:
+- It's a hobby project, have fun!
+- First boot might be slow
+- E-Ink refresh is supposed to be slow
+- If it boots at all, you've succeeded!
